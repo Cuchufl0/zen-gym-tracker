@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - The Balanced System</title>
+    <title>Zen Gym - The Narrative System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -97,12 +97,12 @@
             <input type="text" id="user-name-input" placeholder="Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full">
             <div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div>
         </div>
-        <div id="step-2" class="flex-1 flex flex-col justify-center hidden">
+        <div id="step-2" class="flex-1 flex flex-col justify-center hidden text-center">
             <h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800 uppercase">Choose Your Vessel</h2>
             <div class="grid grid-cols-1 gap-4">
-                <div onclick="saveType('lean')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="lean.png" class="anime-display"></div><div><p class="font-bold text-sm text-gray-800 uppercase tracking-widest">Lean</p></div></div>
-                <div onclick="saveType('athletic')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="athletic.png" class="anime-display"></div><div><p class="font-bold text-sm text-gray-800 uppercase tracking-widest">Athletic</p></div></div>
-                <div onclick="saveType('solid')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="solid.png" class="anime-display"></div><div><p class="font-bold text-sm text-gray-800 uppercase tracking-widest">Solid</p></div></div>
+                <div onclick="saveType('lean')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect">Lean</div>
+                <div onclick="saveType('athletic')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect">Athletic</div>
+                <div onclick="saveType('solid')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect">Solid</div>
             </div>
         </div>
     </div>
@@ -119,10 +119,10 @@
         <div class="px-2 mb-8">
             <div class="bento-card p-6">
                 <div class="flex justify-between items-center mb-1">
-                    <h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">The Seeker</h2>
+                    <h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">---</h2>
                     <span id="user-level" class="text-xs font-black uppercase text-gray-400">Level 1</span>
                 </div>
-                <p id="user-rank-sub" class="text-[9px] text-gray-400 font-medium italic mb-4 uppercase tracking-widest">"You have chosen to begin."</p>
+                <p id="user-rank-sub" class="text-[9px] text-gray-400 font-medium italic mb-4 uppercase tracking-widest">---</p>
                 <div class="xp-container"><div id="xp-bar-fill" class="xp-bar"></div></div>
             </div>
             <p id="flavor-quote" class="text-[10px] text-gray-400 mt-6 font-medium italic opacity-70">---</p>
@@ -136,7 +136,7 @@
                 <div class="mt-8 text-[10px] font-black uppercase tracking-[0.3em] text-black italic text-left">Enter the Arena →</div>
             </div>
 
-            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2">The Warrior's Arsenal</h3>
+            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">The Warrior's Arsenal</h3>
             <div class="grid grid-cols-2 gap-4 mb-20">
                 <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-[9px] uppercase font-black tracking-widest text-gray-700">Chest</div>
                 <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-[9px] uppercase font-black tracking-widest text-gray-700">Back</div>
@@ -216,12 +216,12 @@
     <script>
         const SYSTEM_CONFIG = { xpPerSet: 10, baseXp: 100, xpScaling: 20 };
         const RANKS = {
-            E: { title: "The Seeker", sub: "You have chosen to begin." },
-            D: { title: "The Disciple", sub: "You return, even when it’s difficult." },
-            C: { title: "The Practitioner", sub: "Discipline is no longer forced." },
-            B: { title: "The Adept", sub: "Your actions speak without effort." },
-            A: { title: "The Ascendant", sub: "You move with purpose, not impulse." },
-            S: { title: "The Transcendent", sub: "You are no longer who you were." }
+            E: { title: "The Seeker", sub: "A new player has entered the dungeon." },
+            D: { title: "The Disciple", sub: "A true warrior does not need a sword to stand tall." },
+            C: { title: "The Practitioner", sub: "Equivalent Exchange: You are becoming what you give." },
+            B: { title: "The Adept", sub: "The System no longer guides you; it follows you." },
+            A: { title: "The Ascendant", sub: "You have surpassed the ceiling of human potential." },
+            S: { title: "The Transcendent", sub: "The legend ends here. A new eternity begins." }
         };
 
         const fullLibrary = [
