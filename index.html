@@ -3,65 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - The Warrior's Path</title>
+    <title>Zen Gym - The Legend's Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* KILL OVERSCROLL & GHOST LINES */
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none; 
-            outline: none !important;
-            caret-color: transparent !important;
-        }
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
         *::-webkit-scrollbar { display: none !important; width: 0 !important; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         
-        html, body { 
-            overscroll-behavior: none !important; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: #fcfcfc; 
-            color: #1a1a1a; 
-            font-family: 'Inter', sans-serif; 
-        }
-        
-        input { 
-            -webkit-user-select: auto !important; 
-            user-select: auto !important; 
-            caret-color: #1a1a1a !important;
-            text-align: center;
-        }
+        html, body { overscroll-behavior: none !important; height: 100%; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
+        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: #1a1a1a !important; text-align: center; }
 
-        .scroll-container { 
-            flex: 1; 
-            overflow-y: scroll; 
-            -webkit-overflow-scrolling: touch; 
-            overscroll-behavior-y: contain; 
-            padding-left: 6px; padding-right: 6px;
-        }
+        .scroll-container { flex: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding-left: 6px; padding-right: 6px; }
 
-        #ui-shield { 
-            position: fixed; inset: 0; z-index: 9998; 
-            display: none; background: rgba(0,0,0,0.4); 
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
-        }
+        #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         #ui-shield.active { display: block; }
 
         .press-effect { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
         .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
         
-        .zen-button { 
-            background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; 
-            width: 100%; font-weight: 800; text-align: center; transition: 0.2s; 
-            cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; 
-        }
-        .secondary-button { 
-            background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; 
-            width: 100%; font-weight: 700; text-align: center; cursor: pointer; letter-spacing: 0.05em; 
-        }
+        .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; width: 100%; font-weight: 800; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; }
+        .secondary-button { background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; width: 100%; font-weight: 700; text-align: center; cursor: pointer; letter-spacing: 0.05em; }
         .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; }
         .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; }
 
@@ -76,8 +38,6 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         #timer-bar.show { transform: translateY(0); }
-        
-        /* Centered Non-Italic Timer */
         #timer-display { font-weight: 800; font-style: normal; letter-spacing: -0.02em; line-height: 1; }
 
         #retreat-modal {
@@ -89,8 +49,14 @@
         #retreat-modal.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .set-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; }
-        .selection-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: transparent; }
-        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white; transform: scale(1.1); }
+        
+        /* Selection Circle Fix */
+        .selection-circle { 
+            width: 26px; height: 26px; border-radius: 50%; border: 2px solid #eee; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 11px; font-weight: 800; color: transparent; transition: 0.2s; 
+        }
+        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white !important; transform: scale(1.1); }
     </style>
 </head>
 <body class="p-6">
@@ -124,9 +90,9 @@
     <div id="home-screen" class="flex flex-col h-full">
         <header class="mb-10 pt-8 flex justify-between items-start px-2">
             <div>
-                <h1 id="time-greeting" class="text-[9px] tracking-[0.4em] uppercase text-gray-400 mb-2 font-black">Timeline: Dawn</h1>
+                <h1 id="time-greeting" class="text-[9px] tracking-[0.4em] uppercase text-gray-400 mb-2 font-black">Timeline: Active</h1>
                 <h2 class="text-4xl font-bold tracking-tighter text-gray-800 italic">Warrior, <span id="display-name" class="text-gray-300">Zen</span>.</h2>
-                <p id="flavor-quote" class="text-[10px] text-gray-400 mt-2 font-medium italic opacity-70">"Equivalent Exchange: No shortcuts to power."</p>
+                <p id="flavor-quote" class="text-[10px] text-gray-400 mt-2 font-medium italic opacity-70">---</p>
             </div>
             <div onclick="resetApp()" class="pill cursor-pointer text-gray-400">Reset</div>
         </header>
@@ -154,7 +120,7 @@
     <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
         <header class="mb-8 flex justify-between items-center pt-6 px-2">
             <h2 id="selection-title" class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Technique</h2>
-            <div onclick="closeModal('selection-ui')" class="press-effect pill">Close</div>
+            <div onclick="closeSelectionUI()" class="press-effect pill">Close</div>
         </header>
         <div id="exercise-list" class="scroll-container mb-6"></div>
         <div onclick="startSelected()" class="zen-button mb-6 press-effect italic">Invoke Strength</div>
@@ -252,15 +218,21 @@
 
         function updateFlavor() {
             const quotes = [
-                "I have no enemies. No one has any enemies.",
-                "It’s okay to be weak. It’s not okay to stay weak.",
-                "Arise.",
-                "If you don't fight, you can't win.",
-                "Equivalent Exchange: No shortcuts to power.",
-                "The journey is what matters, not the destination.",
-                "Throughout Heaven and Earth, I alone am the honored one."
+                "Attack on Titan — “Keep moving forward.”",
+                "Demon Slayer — “No matter how many times you’re knocked down, get back up.”",
+                "Demon Slayer — “Feel the rage. The powerful, pure rage of not being able to forgive.”",
+                "Sword Art Online — “If you don’t take risks, you can’t create a future.”",
+                "Solo Leveling: \"Arise.\"",
+                "Frieren: \"The journey is what matters...\"",
+                "Fate/Zero — “Kings must be greedier than anyone.”",
+                "Jujutsu Kaisen — “Throughout heaven and earth, I alone am the honored one.”",
+                "Fullmetal Alchemist: Brotherhood — “A lesson without pain is meaningless.”",
+                "One Punch Man — “100 push-ups. 100 sit-ups. 100 squats. Run 10 km.”",
+                "Vinland Saga: \"I have no enemies...\""
             ];
             document.getElementById('flavor-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+            const h = new Date().getHours();
+            document.getElementById('time-greeting').innerText = h < 12 ? "Timeline: Dawn" : h < 18 ? "Timeline: Solar" : "Timeline: Twilight";
         }
 
         function saveName() {
@@ -307,16 +279,27 @@
         }
 
         function retreatClick() {
-            if (sourceUI === 'selection') { closeModal('workout-ui'); document.getElementById('selection-ui').classList.remove('hidden'); }
+            if (sourceUI === 'selection') { closeModal('workout-ui'); document.getElementById('selection-ui').classList.remove('hidden'); updateFlavor(); }
             else { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
         }
 
         function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
-        function confirmRetreat() { skipTimer(); cancelRetreat(); closeModal('workout-ui'); }
+        
+        function confirmRetreat() { 
+            skipTimer(); 
+            cancelRetreat(); 
+            closeModal('workout-ui'); 
+            updateFlavor(); 
+        }
 
         function nextExercise() {
             if (currentIdx < activeSession.length - 1) { currentIdx++; resetSets(); updateUI(); }
-            else { skipTimer(); alert("Dungeon Cleared. Your power has grown."); closeModal('workout-ui'); }
+            else { 
+                skipTimer(); 
+                alert("Dungeon Cleared. Your power has grown."); 
+                closeModal('workout-ui'); 
+                updateFlavor();
+            }
         }
 
         function updateUI() {
@@ -346,6 +329,8 @@
         }
 
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
+
+        // SELECTION LOGIC WITH NUMBER FIX
         function openSelection(group) {
             const listDiv = document.getElementById('exercise-list');
             listDiv.innerHTML = '';
@@ -355,29 +340,45 @@
             options.forEach(ex => {
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
-                item.onclick = () => toggleSelection(ex, item);
+                item.onclick = () => toggleSelection(ex, item, options);
                 item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.es}</p></div><div class="selection-circle"></div>`;
                 listDiv.appendChild(item);
             });
             document.getElementById('selection-ui').classList.remove('hidden');
         }
-        function toggleSelection(ex, element) {
+
+        function toggleSelection(ex, element, options) {
             const idx = selectedInMenu.findIndex(s => s.en === ex.en);
-            if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
+            if (idx > -1) selectedInMenu.splice(idx, 1); 
+            else selectedInMenu.push(ex);
+            
+            // Re-render ALL circles in the current view
             const items = document.getElementById('exercise-list').children;
-            const options = fullLibrary.filter(e => e.group === document.getElementById('selection-title').innerText);
             Array.from(items).forEach((item, i) => {
                 const currentEx = options[i];
                 const circle = item.querySelector('.selection-circle');
                 const sIdx = selectedInMenu.findIndex(s => s.en === currentEx.en);
-                if (sIdx > -1) { circle.classList.add('active'); circle.innerText = sIdx + 1; }
-                else { circle.classList.remove('active'); circle.innerText = ''; }
+                
+                if (sIdx > -1) { 
+                    circle.classList.add('active'); 
+                    circle.innerText = sIdx + 1; 
+                } else { 
+                    circle.classList.remove('active'); 
+                    circle.innerText = ''; 
+                }
             });
         }
+
+        function closeSelectionUI() {
+            closeModal('selection-ui');
+            updateFlavor();
+        }
+
         function startSelected() { if (selectedInMenu.length > 0) { closeModal('selection-ui'); startWorkout(selectedInMenu, 'selection'); } }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; resetSets(); updateUI(); } }
         function swapExercise() { alert("Variation: Use Alternate Art."); }
+        
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
         document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
     </script>
