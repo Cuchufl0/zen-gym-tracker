@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - The Legend's Archive</title>
+    <title>Zen Gym - The Pure System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -50,7 +50,6 @@
 
         .set-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; }
         
-        /* Selection Circle Fix */
         .selection-circle { 
             width: 26px; height: 26px; border-radius: 50%; border: 2px solid #eee; 
             display: flex; align-items: center; justify-content: center; 
@@ -218,17 +217,17 @@
 
         function updateFlavor() {
             const quotes = [
-                "Attack on Titan — “Keep moving forward.”",
-                "Demon Slayer — “No matter how many times you’re knocked down, get back up.”",
-                "Demon Slayer — “Feel the rage. The powerful, pure rage of not being able to forgive.”",
-                "Sword Art Online — “If you don’t take risks, you can’t create a future.”",
-                "Solo Leveling: \"Arise.\"",
-                "Frieren: \"The journey is what matters...\"",
-                "Fate/Zero — “Kings must be greedier than anyone.”",
-                "Jujutsu Kaisen — “Throughout heaven and earth, I alone am the honored one.”",
-                "Fullmetal Alchemist: Brotherhood — “A lesson without pain is meaningless.”",
-                "One Punch Man — “100 push-ups. 100 sit-ups. 100 squats. Run 10 km.”",
-                "Vinland Saga: \"I have no enemies...\""
+                "Keep moving forward.",
+                "No matter how many times you’re knocked down, get back up.",
+                "Feel the rage. The powerful, pure rage of not being able to forgive.",
+                "If you don’t take risks, you can’t create a future.",
+                "Arise.",
+                "The journey is what matters, not the destination.",
+                "Kings must be greedier than anyone.",
+                "Throughout heaven and earth, I alone am the honored one.",
+                "A lesson without pain is meaningless.",
+                "100 push-ups. 100 sit-ups. 100 squats. Run 10 km.",
+                "I have no enemies..."
             ];
             document.getElementById('flavor-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
             const h = new Date().getHours();
@@ -284,22 +283,11 @@
         }
 
         function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
-        
-        function confirmRetreat() { 
-            skipTimer(); 
-            cancelRetreat(); 
-            closeModal('workout-ui'); 
-            updateFlavor(); 
-        }
+        function confirmRetreat() { skipTimer(); cancelRetreat(); closeModal('workout-ui'); updateFlavor(); }
 
         function nextExercise() {
             if (currentIdx < activeSession.length - 1) { currentIdx++; resetSets(); updateUI(); }
-            else { 
-                skipTimer(); 
-                alert("Dungeon Cleared. Your power has grown."); 
-                closeModal('workout-ui'); 
-                updateFlavor();
-            }
+            else { skipTimer(); alert("Dungeon Cleared. Your power has grown."); closeModal('workout-ui'); updateFlavor(); }
         }
 
         function updateUI() {
@@ -330,7 +318,6 @@
 
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
 
-        // SELECTION LOGIC WITH NUMBER FIX
         function openSelection(group) {
             const listDiv = document.getElementById('exercise-list');
             listDiv.innerHTML = '';
@@ -349,36 +336,22 @@
 
         function toggleSelection(ex, element, options) {
             const idx = selectedInMenu.findIndex(s => s.en === ex.en);
-            if (idx > -1) selectedInMenu.splice(idx, 1); 
-            else selectedInMenu.push(ex);
-            
-            // Re-render ALL circles in the current view
+            if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
             const items = document.getElementById('exercise-list').children;
             Array.from(items).forEach((item, i) => {
                 const currentEx = options[i];
                 const circle = item.querySelector('.selection-circle');
                 const sIdx = selectedInMenu.findIndex(s => s.en === currentEx.en);
-                
-                if (sIdx > -1) { 
-                    circle.classList.add('active'); 
-                    circle.innerText = sIdx + 1; 
-                } else { 
-                    circle.classList.remove('active'); 
-                    circle.innerText = ''; 
-                }
+                if (sIdx > -1) { circle.classList.add('active'); circle.innerText = sIdx + 1; }
+                else { circle.classList.remove('active'); circle.innerText = ''; }
             });
         }
 
-        function closeSelectionUI() {
-            closeModal('selection-ui');
-            updateFlavor();
-        }
-
+        function closeSelectionUI() { closeModal('selection-ui'); updateFlavor(); }
         function startSelected() { if (selectedInMenu.length > 0) { closeModal('selection-ui'); startWorkout(selectedInMenu, 'selection'); } }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; resetSets(); updateUI(); } }
         function swapExercise() { alert("Variation: Use Alternate Art."); }
-        
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
         document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
     </script>
