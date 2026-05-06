@@ -7,16 +7,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            touch-action: manipulation; 
+            outline: none !important; /* Forces no focus lines */
+        }
+        
         html, body { overscroll-behavior-y: none; height: 100%; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
-        input { -webkit-user-select: auto !important; user-select: auto !important; outline: none; }
+        
+        /* Allow inputs to be selectable, but nothing else */
+        input { 
+            -webkit-user-select: auto !important; 
+            user-select: auto !important; 
+            background: transparent;
+        }
+
         .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         
         .press-effect { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
         .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
         
-        .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; width: 100%; font-weight: 700; text-align: center; transition: 0.2s; }
-        .secondary-button { background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; width: 100%; font-weight: 700; text-align: center; }
+        .zen-button { 
+            background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; 
+            width: 100%; font-weight: 700; text-align: center; transition: 0.2s;
+            border: none; cursor: pointer; -webkit-appearance: none;
+        }
+        
+        .secondary-button { 
+            background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; 
+            width: 100%; font-weight: 700; text-align: center; border: none;
+        }
         
         .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; }
         .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
@@ -34,6 +57,13 @@
         #timer-bar.show { transform: translateY(0); }
 
         .set-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        
+        .selection-circle { 
+            width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 12px; font-weight: 800; color: transparent; transition: 0.2s; 
+        }
+        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white; transform: scale(1.1); }
     </style>
 </head>
 <body class="p-6">
@@ -101,7 +131,7 @@
             </div>
 
             <div class="flex justify-between items-end mb-1">
-                <h2 id="ex-name-en" class="text-2xl font-extrabold tracking-tighter">---</h2>
+                <h2 id="ex-name-en" class="text-2xl font-extrabold tracking-tighter text-gray-800">---</h2>
                 <span id="set-counter" class="text-xs font-black text-gray-400 uppercase italic">Set 1</span>
             </div>
             
@@ -121,7 +151,7 @@
                 </div>
             </div>
 
-            <button onclick="logSet()" class="zen-button mb-8">Log Set</button>
+            <button onclick="logSet()" class="zen-button mb-8 press-effect">Log Set</button>
 
             <div id="set-history" class="mb-10">
                 <h4 class="text-[10px] font-black uppercase text-gray-300 tracking-[0.2em] mb-2">Logged Sets</h4>
@@ -131,7 +161,7 @@
 
         <div class="pt-4 grid grid-cols-2 gap-4 border-t border-gray-100">
             <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-400 text-sm">Back</div>
-            <div id="next-btn" onclick="nextExercise()" class="secondary-button text-sm">Next Exercise</div>
+            <div id="next-btn" onclick="nextExercise()" class="secondary-button text-sm press-effect">Next Exercise</div>
         </div>
     </div>
 
@@ -168,7 +198,6 @@
         let selectedInMenu = [];
         let currentIdx = 0;
         let currentSet = 1;
-        let sessionData = []; // Stores current exercise sets
         let timerInterval;
         let sourceUI = 'home'; 
 
@@ -200,22 +229,22 @@
 
         function resetSets() {
             currentSet = 1;
-            sessionData = [];
             document.getElementById('history-list').innerHTML = '';
             document.getElementById('set-counter').innerText = `Set 1`;
         }
 
         function logSet() {
+            // Dismiss Keyboard and remove cursor
+            if (document.activeElement) document.activeElement.blur();
+
             const w = document.getElementById('weight-input').value || "0";
             const r = document.getElementById('reps-input').value || "0";
             
-            // Save to visual list
             const row = document.createElement('div');
             row.className = "set-row";
             row.innerHTML = `<span class="font-bold text-gray-400">SET ${currentSet}</span><span class="font-bold">${w}kg x ${r} reps</span>`;
             document.getElementById('history-list').appendChild(row);
 
-            // Save to memory (Last Lift)
             localStorage.setItem('last-' + activeSession[currentIdx].en, w);
 
             currentSet++;
@@ -271,7 +300,6 @@
             document.getElementById('timer-bar').classList.remove('show');
         }
 
-        // Selection Logic (from 2.1)
         function openSelection(group) {
             const listDiv = document.getElementById('exercise-list');
             listDiv.innerHTML = '';
@@ -307,6 +335,7 @@
         function startSelected() { if (selectedInMenu.length > 0) { closeModal('selection-ui'); startWorkout(selectedInMenu, 'selection'); } }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; resetSets(); updateUI(); } }
+        
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
         document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
     </script>
