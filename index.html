@@ -2,57 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Zen Gym Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; color: #1a1a1a; -webkit-tap-highlight-color: transparent; }
+        /* Prevents double-tap zoom and keeps it feeling like a native app */
+        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
+        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; color: #1a1a1a; overflow-x: hidden; }
         .bento-card { background: white; border: 1px solid #eee; border-radius: 18px; transition: all 0.2s ease; }
-        .bento-card:active { transform: scale(0.98); background: #fafafa; }
-        .zen-button { background: #1a1a1a; color: white; border-radius: 12px; padding: 14px 24px; transition: opacity 0.2s; }
-        .zen-button:active { opacity: 0.7; }
-        .secondary-button { background: #f0f0f0; color: #555; border-radius: 12px; padding: 14px 24px; }
-        .anime-placeholder { background: #f9f9f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #aaa; border: 1px dashed #ddd; }
+        .zen-button { background: #1a1a1a; color: white; border-radius: 12px; padding: 14px 24px; width: 100%; font-weight: 500; }
+        .zen-button:active { opacity: 0.7; transform: scale(0.98); }
+        .secondary-button { background: #f0f0f0; color: #555; border-radius: 12px; padding: 14px 24px; font-weight: 500; }
+        .checkbox-custom { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #ddd; appearance: none; cursor: pointer; }
+        .checkbox-custom:checked { background-color: #1a1a1a; border-color: #1a1a1a; position: relative; }
+        .checkbox-custom:checked::after { content: '✓'; color: white; position: absolute; font-size: 14px; top: -2px; left: 3px; }
     </style>
 </head>
 <body class="p-6 max-w-md mx-auto">
 
-    <header class="mb-8">
-        <h1 id="time-greeting" class="text-xs tracking-widest uppercase text-gray-400 mb-1">Loading...</h1>
-        <h2 class="text-2xl font-semibold">Ready for Day 1?</h2>
-    </header>
+    <div id="home-screen">
+        <header class="mb-8">
+            <h1 id="time-greeting" class="text-xs tracking-widest uppercase text-gray-400 mb-1">Loading...</h1>
+            <h2 class="text-2xl font-semibold italic">Stay focused.</h2>
+        </header>
 
-    <div class="bento-card p-6 mb-6 shadow-sm border-gray-100">
-        <div class="flex justify-between items-center mb-4">
-            <span class="px-3 py-1 bg-gray-100 text-[10px] rounded-full uppercase tracking-wider font-semibold">Next Up</span>
-            <span class="text-xs text-gray-400">Sequence Mode</span>
+        <div class="bento-card p-6 mb-6 shadow-sm border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <span class="px-3 py-1 bg-gray-100 text-[10px] rounded-full uppercase tracking-wider font-semibold">Routine</span>
+            </div>
+            <h3 class="text-xl font-medium mb-1">Biceps & Shoulders</h3>
+            <p class="text-sm text-gray-500 mb-6 italic">Day 1 Plan</p>
+            <button onclick="startWorkout(fullRoutine)" class="zen-button">Start Full Session</button>
         </div>
-        <h3 class="text-xl font-medium mb-1">Biceps & Shoulders</h3>
-        <p class="text-sm text-gray-500 mb-6 italic">Day 1 Sequence</p>
-        <button onclick="startWorkout(fullRoutine)" class="zen-button w-full font-medium">Start Routine</button>
+
+        <h3 class="text-sm font-semibold mb-4 text-gray-400 uppercase tracking-tight">Custom Selection</h3>
+        <div class="grid grid-cols-2 gap-3 mb-8">
+            <button onclick="openSelection('Chest')" class="bento-card p-4 text-center text-sm font-medium">Chest</button>
+            <button onclick="openSelection('Back')" class="bento-card p-4 text-center text-sm font-medium">Back</button>
+            <button onclick="openSelection('Legs')" class="bento-card p-4 text-center text-sm font-medium">Legs</button>
+            <button onclick="openSelection('Core')" class="bento-card p-4 text-center text-sm font-medium">Core</button>
+        </div>
     </div>
 
-    <h3 class="text-sm font-semibold mb-4 text-gray-400 uppercase tracking-tight">Explore Muscles</h3>
-    <div class="grid grid-cols-2 gap-3 mb-8">
-        <button onclick="showMuscleGroup('Chest')" class="bento-card p-4 text-center text-sm font-medium">Chest</button>
-        <button onclick="showMuscleGroup('Back')" class="bento-card p-4 text-center text-sm font-medium">Back</button>
-        <button onclick="showMuscleGroup('Legs')" class="bento-card p-4 text-center text-sm font-medium">Legs</button>
-        <button onclick="showMuscleGroup('Core')" class="bento-card p-4 text-center text-sm font-medium">Core</button>
+    <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
+        <header class="mb-6 flex justify-between items-center">
+            <h2 id="selection-title" class="text-2xl font-semibold">Select Exercises</h2>
+            <button onclick="closeModal('selection-ui')" class="text-gray-400">Cancel</button>
+        </header>
+        <div id="exercise-list" class="flex-1 overflow-y-auto mb-6">
+            </div>
+        <button onclick="startSelected()" class="zen-button">Start Selected</button>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
         <div class="flex justify-between items-center mb-6">
-            <button onclick="closeWorkout()" class="text-gray-400 text-sm">Close</button>
-            <span id="progress-text" class="text-xs font-bold tracking-widest uppercase">Exercise</span>
+            <button onclick="closeModal('workout-ui')" class="text-gray-400 text-sm">Quit</button>
+            <span id="progress-text" class="text-xs font-bold tracking-widest uppercase">1 / 4</span>
             <div class="w-8"></div>
         </div>
 
-        <div class="anime-placeholder w-full h-64 mb-6">
-            <div class="text-center">
-                <p class="text-xs uppercase tracking-widest text-gray-400">[ Male Anime Character ]</p>
-                <p class="text-[10px] mt-2 italic text-gray-300">Demonstrating Form...</p>
-            </div>
+        <div class="w-full h-56 bg-gray-50 rounded-2xl flex items-center justify-center mb-8 border border-dashed border-gray-200">
+            <span class="text-[10px] uppercase tracking-widest text-gray-300">[ Anime Character Placeholder ]</span>
         </div>
 
         <h2 id="ex-name-en" class="text-2xl font-semibold mb-1">---</h2>
@@ -70,13 +82,12 @@
         </div>
 
         <div class="mt-auto grid grid-cols-2 gap-4">
-            <button id="back-btn" onclick="prevExercise()" class="secondary-button font-medium">Back</button>
-            <button id="next-btn" onclick="nextExercise()" class="zen-button font-medium">Next</button>
+            <button id="back-btn" onclick="prevExercise()" class="secondary-button">Back</button>
+            <button id="next-btn" onclick="nextExercise()" class="zen-button">Next</button>
         </div>
     </div>
 
     <script>
-        // Data Library
         const fullRoutine = [
             { en: "Alternating Dumbbell Curl", es: "Curl alterno con mancuerna", group: "Biceps" },
             { en: "Barbell Curl", es: "Curl con barra", group: "Biceps" },
@@ -91,23 +102,63 @@
 
         const library = [
             { en: "Bench Press", es: "Press de Banca", group: "Chest" },
-            { en: "Incline Press", es: "Press Inclinado", group: "Chest" },
-            { en: "Lat Pulldown", es: "Jalón al pecho", group: "Back" },
-            { en: "Seated Row", es: "Remo sentado", group: "Back" },
+            { en: "Incline Dumbbell Press", es: "Press Inclinado Mancuerna", group: "Chest" },
+            { en: "Chest Flyes", es: "Aperturas de Pecho", group: "Chest" },
+            { en: "Lat Pulldowns", es: "Jalón al Pecho", group: "Back" },
+            { en: "Bent Over Rows", es: "Remo con Barra", group: "Back" },
+            { en: "Deadlifts", es: "Peso Muerto", group: "Back" },
             { en: "Squats", es: "Sentadillas", group: "Legs" },
-            { en: "Leg Press", es: "Prensa", group: "Legs" }
+            { en: "Leg Press", es: "Prensa de Piernas", group: "Legs" },
+            { en: "Lunges", es: "Zancadas", group: "Legs" }
         ];
 
         let activeSession = [];
         let currentIdx = 0;
+        let selectedInMenu = [];
 
-        // Dynamic Greeting based on Irish Time
         function updateGreeting() {
             const hour = new Date().getHours();
-            let greeting = "Night Session";
-            if (hour < 12) greeting = "Morning Session";
-            else if (hour < 18) greeting = "Afternoon Session";
-            document.getElementById('time-greeting').innerText = greeting;
+            let g = "Night Session";
+            if (hour < 12) g = "Morning Session";
+            else if (hour < 18) g = "Afternoon Session";
+            document.getElementById('time-greeting').innerText = g;
+        }
+
+        function openSelection(group) {
+            const listDiv = document.getElementById('exercise-list');
+            listDiv.innerHTML = '';
+            document.getElementById('selection-title').innerText = group;
+            
+            const options = [...fullRoutine, ...library].filter(ex => ex.group === group);
+            
+            options.forEach((ex, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-4 mb-2 border-b border-gray-50';
+                item.innerHTML = `
+                    <div>
+                        <p class="text-sm font-medium">${ex.en}</p>
+                        <p class="text-xs text-gray-400">${ex.es}</p>
+                    </div>
+                    <input type="checkbox" class="checkbox-custom" onclick="toggleEx('${ex.en}')">
+                `;
+                listDiv.appendChild(item);
+            });
+            selectedInMenu = [];
+            document.getElementById('selection-ui').classList.remove('hidden');
+        }
+
+        function toggleEx(name) {
+            const all = [...fullRoutine, ...library];
+            const found = all.find(e => e.en === name);
+            const idx = selectedInMenu.indexOf(found);
+            if(idx > -1) selectedInMenu.splice(idx, 1);
+            else selectedInMenu.push(found);
+        }
+
+        function startSelected() {
+            if(selectedInMenu.length === 0) return alert("Select at least one!");
+            closeModal('selection-ui');
+            startWorkout(selectedInMenu);
         }
 
         function startWorkout(exercises) {
@@ -117,18 +168,8 @@
             updateUI();
         }
 
-        function showMuscleGroup(group) {
-            // Filter both routine and library for the chosen muscle
-            const filtered = [...fullRoutine, ...library].filter(ex => ex.group === group);
-            if(filtered.length > 0) {
-                startWorkout(filtered);
-            } else {
-                alert("More exercises coming soon for " + group);
-            }
-        }
-
-        function closeWorkout() {
-            document.getElementById('workout-ui').classList.add('hidden');
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
         }
 
         function nextExercise() {
@@ -136,8 +177,8 @@
                 currentIdx++;
                 updateUI();
             } else {
-                alert("Workout Complete! Stay Zen.");
-                closeWorkout();
+                alert("Session Complete!");
+                closeModal('workout-ui');
             }
         }
 
@@ -153,12 +194,8 @@
             document.getElementById('ex-name-en').innerText = ex.en;
             document.getElementById('ex-name-es').innerText = ex.es;
             document.getElementById('progress-text').innerText = `${currentIdx + 1} / ${activeSession.length}`;
-            
-            // Clear inputs for next exercise
             document.getElementById('weight-input').value = "";
             document.getElementById('reps-input').value = "";
-
-            // Hide back button on first exercise
             document.getElementById('back-btn').style.visibility = (currentIdx === 0) ? 'hidden' : 'visible';
             document.getElementById('next-btn').innerText = (currentIdx === activeSession.length - 1) ? 'Finish' : 'Log Set & Next';
         }
