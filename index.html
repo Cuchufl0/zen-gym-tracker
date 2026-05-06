@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* KILL OVERSCROLL & GHOST LINES */
+        /* 1. HIDE ALL SCROLLBARS GLOBALLY */
         * { 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none; 
@@ -16,12 +16,16 @@
             outline: none !important;
             caret-color: transparent !important;
         }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        *::-webkit-scrollbar { display: none !important; width: 0 !important; }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        * { -ms-overflow-style: none; scrollbar-width: none; }
         
         html, body { 
             overscroll-behavior: none !important; 
             height: 100%; 
             overflow: hidden; 
-            /* Matches app color to hide the 'line' during scroll bounce */
             background-color: #fcfcfc; 
             color: #1a1a1a; 
             font-family: 'Inter', sans-serif; 
@@ -35,18 +39,19 @@
 
         .scroll-container { 
             flex: 1; 
-            overflow-y: auto; 
+            overflow-y: scroll; /* Allow scrolling but hide the bar via CSS above */
             -webkit-overflow-scrolling: touch; 
             overscroll-behavior-y: contain; 
+            padding-left: 4px; /* Tiny offset to prevent edge artifacts */
+            padding-right: 4px;
         }
 
-        /* THE UI SHIELD - Blocks clicks when timer is active */
         #ui-shield {
             position: fixed;
             inset: 0;
-            z-index: 9998; /* Just below the timer bar */
+            z-index: 9998;
             display: none;
-            background: rgba(255,255,255,0); /* Completely transparent */
+            background: rgba(255,255,255,0);
         }
         #ui-shield.active { display: block; }
 
@@ -56,7 +61,7 @@
         .zen-button { 
             background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; 
             width: 100%; font-weight: 700; text-align: center; transition: 0.2s;
-            cursor: pointer; display: block;
+            cursor: pointer; display: block; border: none;
         }
         
         .secondary-button { 
@@ -106,13 +111,12 @@
     <div id="home-screen" class="flex flex-col h-full">
         <header class="mb-10 pt-8 flex justify-between items-start">
             <div><h1 class="text-[10px] tracking-[0.4em] uppercase text-gray-500 mb-2 font-black">Session</h1><h2 class="text-4xl font-bold tracking-tighter text-gray-800">Hi, <span id="display-name" class="italic text-gray-700">User</span>.</h2></div>
-            <div onclick="resetApp()" class="pill cursor-pointer">Reset</div>
+            <div onclick="resetApp()" class="pill cursor-pointer text-gray-600">Reset</div>
         </header>
         <div class="scroll-container">
             <div class="press-effect bento-card p-8 mb-12 border-gray-200" onclick="startWorkout(fullRoutine, 'home')">
                 <span class="pill bg-black text-white mb-6 inline-block">Daily Routine</span>
                 <h3 class="text-2xl font-bold mb-1 text-gray-800">Biceps & Shoulders</h3>
-                <p class="text-sm font-semibold italic text-gray-500">Full Sequence</p>
                 <div class="mt-8 text-xs font-bold uppercase tracking-widest text-black">Start →</div>
             </div>
             <h3 class="text-[10px] font-black mb-6 text-gray-800 uppercase tracking-[0.3em]">All Muscle Groups</h3>
@@ -159,7 +163,7 @@
                 <span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full">PB: 0kg</span>
             </div>
 
-            <div class="flex gap-8 mb-10">
+            <div class="flex gap-8 mb-10 px-1">
                 <div class="flex-1">
                     <label class="text-[10px] uppercase text-gray-400 font-black mb-1 block">Weight (kg)</label>
                     <input type="number" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-1 text-4xl font-light text-gray-800">
@@ -172,7 +176,7 @@
 
             <div onclick="logSet()" class="zen-button mb-8 press-effect" role="button">Log Set</div>
 
-            <div id="set-history" class="mb-10">
+            <div id="set-history" class="mb-10 px-1">
                 <h4 class="text-[10px] font-black uppercase text-gray-300 tracking-[0.2em] mb-2">Logged Sets</h4>
                 <div id="history-list"></div>
             </div>
@@ -261,7 +265,7 @@
                 const r = document.getElementById('reps-input').value || "0";
                 
                 const row = document.createElement('div');
-                row.className = "set-row";
+                row.className = "set-row px-1";
                 row.innerHTML = `<span class="font-bold text-gray-400 text-xs">SET ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r} reps</span>`;
                 document.getElementById('history-list').prepend(row);
 
@@ -308,7 +312,7 @@
             clearInterval(timerInterval);
             let time = seconds;
             document.getElementById('timer-bar').classList.add('show');
-            document.getElementById('ui-shield').classList.add('active'); // Lock the UI
+            document.getElementById('ui-shield').classList.add('active');
             document.getElementById('timer-display').innerText = time;
             timerInterval = setInterval(() => {
                 time--;
@@ -320,7 +324,7 @@
         function skipTimer() {
             clearInterval(timerInterval);
             document.getElementById('timer-bar').classList.remove('show');
-            document.getElementById('ui-shield').classList.remove('active'); // Unlock the UI
+            document.getElementById('ui-shield').classList.remove('active');
         }
 
         function openSelection(group) {
