@@ -16,31 +16,29 @@
         .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
         .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 22px; width: 100%; font-weight: 700; text-align: center; transition: 0.2s; letter-spacing: -0.02em; }
         
-        .bento-card { background: white; border: 1px solid #f0f0f0; border-radius: 32px; transition: 0.3s; }
-        .pill { background: #f3f3f3; color: #aaa; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; }
         
+        /* Fixed Contrast Colors */
+        .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .text-secondary { color: #555 !important; }
+        .text-muted { color: #888 !important; }
+
         .image-container { width: 80px; height: 80px; border-radius: 20px; overflow: hidden; background: #f9f9f9; }
         .anime-display { width: 100%; height: 100%; object-fit: contain; }
 
-        /* THE UPGRADED TIMER - Now covers everything */
+        .selection-circle { 
+            width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 12px; font-weight: 800; color: transparent; transition: 0.2s; 
+        }
+        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white; transform: scale(1.1); }
+
         #timer-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 250px; /* Tall enough to cover the bottom half of the screen */
-            background: #1a1a1a; 
-            color: white; 
-            padding: 40px; 
-            transform: translateY(100%); 
-            transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-            z-index: 9999; /* Higher than everything */
-            border-radius: 40px 40px 0 0; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 250px; 
+            background: #1a1a1a; color: white; padding: 40px; 
+            transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 9999; border-radius: 40px 40px 0 0; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
         }
         #timer-bar.show { transform: translateY(0); }
     </style>
@@ -66,64 +64,29 @@
     <div id="home-screen" class="flex flex-col h-full">
         <header class="mb-10 pt-8 flex justify-between items-start">
             <div>
-                <h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase text-gray-300 mb-2 font-black">Session</h1>
-                <h2 class="text-4xl font-bold tracking-tighter">Hi, <span id="display-name" class="italic text-gray-400">Zen</span>.</h2>
+                <h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase text-gray-500 mb-2 font-black">Session</h1>
+                <h2 class="text-4xl font-bold tracking-tighter">Hi, <span id="display-name" class="italic text-gray-700">Zen</span>.</h2>
             </div>
-            <div onclick="resetApp()" class="pill bg-gray-50 text-[8px] cursor-pointer">Reset</div>
+            <div onclick="resetApp()" class="pill cursor-pointer">Reset</div>
         </header>
 
         <div class="scroll-container">
-            <div class="press-effect bento-card p-8 mb-12 border-gray-50 shadow-sm" onclick="startWorkout(fullRoutine)">
-                <span class="pill bg-black text-white mb-6 inline-block">Recommended</span>
-                <h3 class="text-2xl font-bold mb-1">Day 1 Sequence</h3>
-                <p class="text-sm text-gray-300 italic">Biceps & Shoulders</p>
+            <div class="press-effect bento-card p-8 mb-12 border-gray-200 shadow-sm" onclick="startWorkout(fullRoutine, 'home')">
+                <span class="pill bg-black text-white mb-6 inline-block">Daily Routine</span>
+                <h3 class="text-2xl font-bold mb-1">Biceps & Shoulders</h3>
+                <p class="text-sm text-secondary font-semibold italic">Full Sequence</p>
                 <div class="mt-8 text-xs font-bold uppercase tracking-widest text-black">Start →</div>
             </div>
 
-            <h3 class="text-[10px] font-black mb-6 text-gray-200 uppercase tracking-[0.3em]">All Muscle Groups</h3>
+            <h3 class="text-[10px] font-black mb-6 text-gray-800 uppercase tracking-[0.3em]">All Muscle Groups</h3>
             <div class="grid grid-cols-2 gap-4 mb-20">
-                <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-sm font-bold">Chest</div>
-                <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-sm font-bold">Back</div>
-                <div onclick="openSelection('Shoulders')" class="press-effect bento-card p-8 text-center text-sm font-bold">Shoulders</div>
-                <div onclick="openSelection('Arms')" class="press-effect bento-card p-8 text-center text-sm font-bold">Arms</div>
-                <div onclick="openSelection('Legs')" class="press-effect bento-card p-8 text-center text-sm font-bold">Legs</div>
-                <div onclick="openSelection('Core')" class="press-effect bento-card p-8 text-center text-sm font-bold">Core</div>
+                <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Chest</div>
+                <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Back</div>
+                <div onclick="openSelection('Shoulders')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Shoulders</div>
+                <div onclick="openSelection('Arms')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Arms</div>
+                <div onclick="openSelection('Legs')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Legs</div>
+                <div onclick="openSelection('Core')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Core</div>
             </div>
-        </div>
-    </div>
-
-    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-8 hidden flex flex-col">
-        <div class="flex justify-between items-center mb-10 pt-6">
-            <div onclick="quitWorkout()" class="press-effect pill">Quit</div>
-            <span id="progress-text" class="text-[10px] font-black text-gray-200 uppercase tracking-widest">1 / 4</span>
-            <div onclick="swapExercise()" class="press-effect pill">Swap</div>
-        </div>
-
-        <div class="w-full h-64 bg-gray-50 rounded-[48px] flex flex-col items-center justify-center mb-10 overflow-hidden relative">
-            <img id="active-character" src="lean.png" class="w-full h-full object-contain">
-            <span id="target-muscle" class="absolute bottom-4 text-[10px] bg-white px-4 py-2 rounded-full text-black font-black border border-gray-100 uppercase tracking-widest">Target</span>
-        </div>
-
-        <h2 id="ex-name-en" class="text-3xl font-extrabold mb-1 tracking-tighter">---</h2>
-        <div class="flex items-center gap-3 mb-10">
-            <h3 id="ex-name-es" class="text-sm text-gray-300 italic">---</h3>
-            <span id="history-label" class="text-[10px] font-black text-white uppercase bg-black px-3 py-1 rounded-full">PB: 0kg</span>
-        </div>
-
-        <div class="flex gap-10 mb-12">
-            <div class="flex-1">
-                <label class="text-[10px] uppercase text-gray-300 font-black mb-2 block">Weight (kg)</label>
-                <input type="number" id="weight-input" placeholder="0" class="w-full border-b-4 border-gray-50 py-2 text-5xl font-light">
-            </div>
-            <div class="flex-1">
-                <label class="text-[10px] uppercase text-gray-300 font-black mb-2 block">Reps</label>
-                <input type="number" id="reps-input" placeholder="10" class="w-full border-b-4 border-gray-50 py-2 text-5xl font-light">
-            </div>
-        </div>
-
-        <div class="mt-auto grid grid-cols-2 gap-4 pb-6">
-            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-3xl bg-gray-50 font-bold text-gray-400">Back</div>
-            <div id="next-btn" onclick="nextExercise()" class="zen-button">Next</div>
         </div>
     </div>
 
@@ -136,49 +99,75 @@
         <button onclick="startSelected()" class="zen-button mb-6">Start Session</button>
     </div>
 
+    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-8 hidden flex flex-col">
+        <div class="flex justify-between items-center mb-10 pt-6">
+            <div onclick="quitWorkout()" id="quit-label" class="press-effect pill">Quit</div>
+            <span id="progress-text" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">1 / 4</span>
+            <div onclick="swapExercise()" class="press-effect pill">Swap</div>
+        </div>
+
+        <div class="w-full h-64 bg-gray-50 rounded-[48px] flex flex-col items-center justify-center mb-10 overflow-hidden relative border border-gray-100">
+            <img id="active-character" src="lean.png" class="w-full h-full object-contain">
+            <span id="target-muscle" class="absolute bottom-4 text-[10px] bg-white px-4 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest">Target</span>
+        </div>
+
+        <h2 id="ex-name-en" class="text-3xl font-extrabold mb-1 tracking-tighter">---</h2>
+        <div class="flex items-center gap-3 mb-10">
+            <h3 id="ex-name-es" class="text-sm text-secondary font-bold italic">---</h3>
+            <span id="history-label" class="text-[10px] font-black text-white uppercase bg-black px-3 py-1 rounded-full">PB: 0kg</span>
+        </div>
+
+        <div class="flex gap-10 mb-12">
+            <div class="flex-1">
+                <label class="text-[10px] uppercase text-gray-400 font-black mb-2 block">Weight (kg)</label>
+                <input type="number" id="weight-input" placeholder="0" class="w-full border-b-4 border-gray-100 py-2 text-5xl font-light">
+            </div>
+            <div class="flex-1">
+                <label class="text-[10px] uppercase text-gray-400 font-black mb-2 block">Reps</label>
+                <input type="number" id="reps-input" placeholder="10" class="w-full border-b-4 border-gray-100 py-2 text-5xl font-light">
+            </div>
+        </div>
+
+        <div class="mt-auto grid grid-cols-2 gap-4 pb-6">
+            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-3xl bg-gray-100 font-bold text-gray-500">Back</div>
+            <div id="next-btn" onclick="nextExercise()" class="zen-button">Next</div>
+        </div>
+    </div>
+
     <div id="timer-bar">
         <div class="mb-4">
             <span class="text-6xl font-black" id="timer-display">60</span>
             <p class="text-[12px] font-black tracking-widest uppercase text-gray-500 mt-2">Seconds of Zen Rest</p>
         </div>
-        <div onclick="skipTimer()" class="bg-white/10 px-10 py-4 rounded-full font-black text-[11px] uppercase tracking-widest">Skip Rest</div>
+        <div onclick="skipTimer()" class="bg-white/10 px-10 py-4 rounded-full font-black text-[11px] uppercase tracking-widest cursor-pointer">Skip Rest</div>
     </div>
 
     <script>
-        // FULL EXERCISE LIBRARY
         const fullLibrary = [
-            // DAY 1 (Biceps & Shoulders)
             { en: "Alternating Dumbbell Curl", es: "Curl alterno con mancuerna", group: "Arms", target: "Biceps", alt: "Hammer Curls" },
             { en: "Barbell Curl", es: "Curl con barra", group: "Arms", target: "Biceps", alt: "Cable Curls" },
             { en: "Concentration Curl", es: "Curl concentrado", group: "Arms", target: "Biceps", alt: "Preacher Curls" },
             { en: "Dumbbell Military Press", es: "Press militar con mancuerna", group: "Shoulders", target: "Shoulders", alt: "Shoulder Press Machine" },
             { en: "Lateral Raises", es: "Elevaciones laterales", group: "Shoulders", target: "Shoulders", alt: "Cable Lateral Raises" },
             { en: "Front Raises", es: "Elevaciones frontales", group: "Shoulders", target: "Shoulders", alt: "Plate Raises" },
-            
-            // CHEST
             { en: "Bench Press", es: "Press de Banca", group: "Chest", target: "Chest", alt: "Dumbbell Press" },
             { en: "Incline Press", es: "Press Inclinado", group: "Chest", target: "Chest", alt: "Incline DB Press" },
-            
-            // BACK
             { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Back", alt: "Pull Ups" },
             { en: "Seated Row", es: "Remo Sentado", group: "Back", target: "Back", alt: "Bent Over Row" },
-            
-            // LEGS
             { en: "Squats", es: "Sentadillas", group: "Legs", target: "Legs", alt: "Leg Press" },
             { en: "Leg Extension", es: "Extensión de Piernas", group: "Legs", target: "Quads", alt: "Lunges" },
-
-            // CORE
             { en: "Upper Abs Crunch", es: "Abdominales Superiores", group: "Core", target: "Abs", alt: "Plank" },
             { en: "Lower Abs Raises", es: "Elevación de Piernas", group: "Core", target: "Abs", alt: "Mountain Climbers" },
             { en: "Oblique Crunch", es: "Crunch Oblicuo Acostado", group: "Core", target: "Abs", alt: "Russian Twist" }
         ];
 
-        // Day 1 Routine Sequence
         const fullRoutine = fullLibrary.filter(ex => ["Alternating Dumbbell Curl", "Barbell Curl", "Concentration Curl", "Dumbbell Military Press", "Lateral Raises", "Front Raises", "Upper Abs Crunch", "Lower Abs Raises", "Oblique Crunch"].includes(ex.en));
 
         let activeSession = [];
+        let selectedInMenu = [];
         let currentIdx = 0;
         let timerInterval;
+        let sourceUI = 'home'; 
 
         window.onload = () => {
             const name = localStorage.getItem('zen-name');
@@ -191,16 +180,14 @@
             if (name) { localStorage.setItem('zen-name', name); document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden'); }
         }
 
-        function saveType(type) {
-            localStorage.setItem('zen-type', type);
-            location.reload();
-        }
-
+        function saveType(type) { localStorage.setItem('zen-type', type); location.reload(); }
         function resetApp() { if(confirm("Reset profile?")) { localStorage.clear(); location.reload(); } }
 
-        function startWorkout(exercises) {
+        function startWorkout(exercises, from) {
             activeSession = exercises;
             currentIdx = 0;
+            sourceUI = from;
+            document.getElementById('quit-label').innerText = from === 'selection' ? 'Back' : 'Quit';
             const myType = localStorage.getItem('zen-type') || 'lean';
             document.getElementById('active-character').src = myType + '.png';
             document.getElementById('workout-ui').classList.remove('hidden');
@@ -208,8 +195,11 @@
         }
 
         function quitWorkout() {
-            skipTimer(); // Kills the timer if user quits
+            skipTimer();
             closeModal('workout-ui');
+            if (sourceUI === 'selection') {
+                document.getElementById('selection-ui').classList.remove('hidden');
+            }
         }
 
         function nextExercise() {
@@ -221,9 +211,9 @@
                 startTimer(60);
                 updateUI();
             } else {
-                skipTimer(); // Kills timer on completion
-                alert("Routine Complete!");
-                closeModal('workout-ui');
+                skipTimer();
+                alert("Session Finished!");
+                quitWorkout();
             }
         }
 
@@ -237,6 +227,7 @@
             document.getElementById('history-label').innerText = lastWeight ? `Last: ${lastWeight}kg` : "New Move";
             document.getElementById('weight-input').value = lastWeight || "";
             document.getElementById('back-btn').style.visibility = (currentIdx === 0) ? 'hidden' : 'visible';
+            document.getElementById('next-btn').innerText = (currentIdx === activeSession.length - 1) ? 'Finish' : 'Next';
         }
 
         function startTimer(seconds) {
@@ -260,21 +251,59 @@
             const listDiv = document.getElementById('exercise-list');
             listDiv.innerHTML = '';
             document.getElementById('selection-title').innerText = group;
+            selectedInMenu = [];
             const options = fullLibrary.filter(ex => ex.group === group);
-            if(options.length === 0) { listDiv.innerHTML = '<p class="text-gray-400 p-6">More exercises coming soon...</p>'; }
+            
             options.forEach(ex => {
                 const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect";
-                item.onclick = () => { startWorkout([ex]); closeModal('selection-ui'); };
-                item.innerHTML = `<div><p class="font-bold">${ex.en}</p><p class="text-[10px] text-gray-300 font-black uppercase">${ex.es}</p></div>`;
+                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
+                item.onclick = () => toggleSelection(ex, item);
+                item.innerHTML = `
+                    <div><p class="font-bold text-gray-800">${ex.en}</p><p class="text-[10px] text-secondary font-black uppercase">${ex.es}</p></div>
+                    <div class="selection-circle"></div>
+                `;
                 listDiv.appendChild(item);
             });
             document.getElementById('selection-ui').classList.remove('hidden');
         }
 
+        function toggleSelection(ex, element) {
+            const circle = element.querySelector('.selection-circle');
+            const idx = selectedInMenu.findIndex(s => s.en === ex.en);
+            
+            if (idx > -1) {
+                selectedInMenu.splice(idx, 1);
+            } else {
+                selectedInMenu.push(ex);
+            }
+            
+            // Re-render circles to show correct numbers
+            const items = document.getElementById('exercise-list').children;
+            const options = fullLibrary.filter(e => e.group === document.getElementById('selection-title').innerText);
+            
+            Array.from(items).forEach((item, i) => {
+                const currentEx = options[i];
+                const circle = item.querySelector('.selection-circle');
+                const sIdx = selectedInMenu.findIndex(s => s.en === currentEx.en);
+                if (sIdx > -1) {
+                    circle.classList.add('active');
+                    circle.innerText = sIdx + 1;
+                } else {
+                    circle.classList.remove('active');
+                    circle.innerText = '';
+                }
+            });
+        }
+
+        function startSelected() {
+            if (selectedInMenu.length === 0) return;
+            closeModal('selection-ui');
+            startWorkout(selectedInMenu, 'selection');
+        }
+
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; updateUI(); } }
-        function swapExercise() { const ex = activeSession[currentIdx]; alert(`Substitution: Try ${ex.alt}`); }
+        function swapExercise() { const ex = activeSession[currentIdx]; alert(`Sub: Try ${ex.alt}`); }
         function updateGreeting() { const h = new Date().getHours(); document.getElementById('time-greeting').innerText = h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening"; }
 
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
