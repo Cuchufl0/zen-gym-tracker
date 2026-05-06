@@ -3,88 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym</title>
+    <title>Zen Gym - The Chronicles</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* 1. HIDE ALL SCROLLBARS GLOBALLY */
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none; 
-            outline: none !important;
-            caret-color: transparent !important;
-        }
-
-        /* Hide scrollbar for Chrome, Safari and Opera */
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
         *::-webkit-scrollbar { display: none !important; width: 0 !important; }
-        /* Hide scrollbar for IE, Edge and Firefox */
         * { -ms-overflow-style: none; scrollbar-width: none; }
         
-        html, body { 
-            overscroll-behavior: none !important; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: #fcfcfc; 
-            color: #1a1a1a; 
-            font-family: 'Inter', sans-serif; 
-        }
-        
-        input { 
-            -webkit-user-select: auto !important; 
-            user-select: auto !important; 
-            caret-color: #1a1a1a !important;
-        }
+        html, body { overscroll-behavior: none !important; height: 100%; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
+        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: #1a1a1a !important; }
 
-        .scroll-container { 
-            flex: 1; 
-            overflow-y: scroll; /* Allow scrolling but hide the bar via CSS above */
-            -webkit-overflow-scrolling: touch; 
-            overscroll-behavior-y: contain; 
-            padding-left: 4px; /* Tiny offset to prevent edge artifacts */
-            padding-right: 4px;
-        }
+        .scroll-container { flex: 1; overflow-y: scroll; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding-left: 6px; padding-right: 6px; }
 
-        #ui-shield {
-            position: fixed;
-            inset: 0;
-            z-index: 9998;
-            display: none;
-            background: rgba(255,255,255,0);
-        }
+        #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(255,255,255,0); }
         #ui-shield.active { display: block; }
 
         .press-effect { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
         .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
         
-        .zen-button { 
-            background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; 
-            width: 100%; font-weight: 700; text-align: center; transition: 0.2s;
-            cursor: pointer; display: block; border: none;
-        }
-        
-        .secondary-button { 
-            background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; 
-            width: 100%; font-weight: 700; text-align: center; cursor: pointer;
-        }
-        
+        /* Minimalist Anime Styling */
+        .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; width: 100%; font-weight: 700; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.05em; }
+        .secondary-button { background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; width: 100%; font-weight: 700; text-align: center; cursor: pointer; letter-spacing: 0.05em; }
         .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; }
-        .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+        .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; }
 
-        .image-container { width: 80px; height: 80px; border-radius: 20px; overflow: hidden; background: #f9f9f9; }
+        .image-container { width: 80px; height: 80px; border-radius: 22px; overflow: hidden; background: #f9f9f9; }
         .anime-display { width: 100%; height: 100%; object-fit: contain; }
 
         #timer-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; height: 260px; 
+            position: fixed; bottom: 0; left: 0; right: 0; height: 280px; 
             background: #1a1a1a; color: white; padding: 40px; 
-            transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
-            z-index: 9999; border-radius: 40px 40px 0 0; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            transform: translateY(100%); transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+            z-index: 9999; border-radius: 44px 44px 0 0; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         #timer-bar.show { transform: translateY(0); }
-        .set-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .selection-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: transparent; transition: 0.2s; }
+        .set-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; }
+        .selection-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: transparent; }
         .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white; transform: scale(1.1); }
     </style>
 </head>
@@ -94,106 +50,114 @@
 
     <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-10 flex flex-col hidden">
         <div id="step-1" class="flex-1 flex flex-col justify-center">
-            <h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1>
+            <h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">The Journey.</h1>
+            <p class="text-gray-400 text-sm mb-12 uppercase tracking-widest font-black">Identify yourself, traveler.</p>
             <input type="text" id="user-name-input" placeholder="Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full">
-            <div onclick="saveName()" class="zen-button mt-16 press-effect">Begin</div>
+            <div onclick="saveName()" class="zen-button mt-16 press-effect">Embrace Destiny</div>
         </div>
         <div id="step-2" class="flex-1 flex flex-col justify-center hidden">
-            <h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800">Your Frame</h2>
+            <h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800">Choose Your Vessel</h2>
             <div class="grid grid-cols-1 gap-4">
-                <div onclick="saveType('lean')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="lean.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800">Lean</p></div></div>
-                <div onclick="saveType('athletic')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="athletic.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800">Athletic</p></div></div>
-                <div onclick="saveType('solid')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="solid.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800">Solid</p></div></div>
+                <div onclick="saveType('lean')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="lean.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800 uppercase tracking-tighter">The Lean</p></div></div>
+                <div onclick="saveType('athletic')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="athletic.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800 uppercase tracking-tighter">The Athletic</p></div></div>
+                <div onclick="saveType('solid')" class="press-effect bento-card p-6 flex items-center gap-6"><div class="image-container"><img src="solid.png" class="anime-display"></div><div><p class="font-bold text-lg text-gray-800 uppercase tracking-tighter">The Solid</p></div></div>
             </div>
         </div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full">
         <header class="mb-10 pt-8 flex justify-between items-start">
-            <div><h1 class="text-[10px] tracking-[0.4em] uppercase text-gray-500 mb-2 font-black">Session</h1><h2 class="text-4xl font-bold tracking-tighter text-gray-800">Hi, <span id="display-name" class="italic text-gray-700">User</span>.</h2></div>
-            <div onclick="resetApp()" class="pill cursor-pointer text-gray-600">Reset</div>
+            <div>
+                <h1 id="time-greeting" class="text-[9px] tracking-[0.4em] uppercase text-gray-400 mb-2 font-black">Chapter: Morning</h1>
+                <h2 class="text-4xl font-bold tracking-tighter text-gray-800">Warrior, <span id="display-name" class="italic text-gray-400">Zen</span>.</h2>
+                <p id="flavor-quote" class="text-[10px] text-gray-400 mt-2 font-medium italic">"The path is long, but the stride is yours."</p>
+            </div>
+            <div onclick="resetApp()" class="pill cursor-pointer">Reset Path</div>
         </header>
+
         <div class="scroll-container">
             <div class="press-effect bento-card p-8 mb-12 border-gray-200" onclick="startWorkout(fullRoutine, 'home')">
-                <span class="pill bg-black text-white mb-6 inline-block">Daily Routine</span>
-                <h3 class="text-2xl font-bold mb-1 text-gray-800">Biceps & Shoulders</h3>
-                <div class="mt-8 text-xs font-bold uppercase tracking-widest text-black">Start →</div>
+                <span class="pill bg-black text-white mb-6 inline-block">The Main Quest</span>
+                <h3 class="text-2xl font-bold mb-1 text-gray-800 tracking-tight">Path of the Warrior</h3>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Biceps & Shoulders</p>
+                <div class="mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-black italic">Enter the Arena →</div>
             </div>
-            <h3 class="text-[10px] font-black mb-6 text-gray-800 uppercase tracking-[0.3em]">All Muscle Groups</h3>
+
+            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em]">The Grimoire of Techniques</h3>
             <div class="grid grid-cols-2 gap-4 mb-20">
-                <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Chest</div>
-                <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Back</div>
-                <div onclick="openSelection('Shoulders')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Shoulders</div>
-                <div onclick="openSelection('Arms')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Arms</div>
-                <div onclick="openSelection('Legs')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Legs</div>
-                <div onclick="openSelection('Core')" class="press-effect bento-card p-8 text-center text-sm font-bold text-gray-800">Core</div>
+                <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Chest</div>
+                <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Back</div>
+                <div onclick="openSelection('Shoulders')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Shoulders</div>
+                <div onclick="openSelection('Arms')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Arms</div>
+                <div onclick="openSelection('Legs')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Legs</div>
+                <div onclick="openSelection('Core')" class="press-effect bento-card p-8 text-center text-[10px] uppercase font-black tracking-widest text-gray-800">Core</div>
             </div>
         </div>
     </div>
 
     <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
         <header class="mb-8 flex justify-between items-center pt-6">
-            <h2 id="selection-title" class="text-3xl font-bold text-gray-800">Select</h2>
-            <div onclick="closeModal('selection-ui')" class="press-effect pill">Cancel</div>
+            <h2 id="selection-title" class="text-3xl font-bold text-gray-800 tracking-tighter">Technique</h2>
+            <div onclick="closeModal('selection-ui')" class="press-effect pill">Close Grimoire</div>
         </header>
         <div id="exercise-list" class="scroll-container mb-6"></div>
-        <div onclick="startSelected()" class="zen-button mb-6 press-effect">Start Session</div>
+        <div onclick="startSelected()" class="zen-button mb-6 press-effect italic">Invoke Strength</div>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-8 hidden flex flex-col">
         <div class="flex justify-between items-center mb-8 pt-6">
-            <div onclick="quitWorkout()" id="quit-label" class="press-effect pill">Quit</div>
-            <span id="progress-text" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">1 / 4</span>
-            <div class="w-10"></div>
+            <div onclick="quitWorkout()" id="quit-label" class="press-effect pill">Retreat</div>
+            <span id="progress-text" class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Stage 1 / 4</span>
+            <div onclick="swapExercise()" class="press-effect pill">Switch</div>
         </div>
 
         <div class="scroll-container">
             <div class="w-full h-48 bg-gray-50 rounded-[40px] flex flex-col items-center justify-center mb-8 overflow-hidden relative border border-gray-100">
                 <img id="active-character" src="lean.png" class="w-full h-full object-contain">
-                <span id="target-muscle" class="absolute bottom-4 text-[10px] bg-white px-4 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest">Target</span>
+                <span id="target-muscle" class="absolute bottom-4 text-[9px] bg-white px-5 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest">Technique: Biceps</span>
             </div>
 
             <div class="flex justify-between items-end mb-1">
                 <h2 id="ex-name-en" class="text-2xl font-extrabold tracking-tighter text-gray-800">---</h2>
-                <span id="set-counter" class="text-xs font-black text-gray-400 uppercase italic">Set 1</span>
+                <span id="set-counter" class="text-[9px] font-black text-gray-400 uppercase tracking-widest italic">Form 1</span>
             </div>
             
             <div class="flex items-center gap-3 mb-8">
-                <h3 id="ex-name-es" class="text-sm font-bold italic text-gray-500">---</h3>
-                <span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full">PB: 0kg</span>
+                <h3 id="ex-name-es" class="text-sm font-bold italic text-gray-400">---</h3>
+                <span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full tracking-widest">PB: 0kg</span>
             </div>
 
-            <div class="flex gap-8 mb-10 px-1">
-                <div class="flex-1">
-                    <label class="text-[10px] uppercase text-gray-400 font-black mb-1 block">Weight (kg)</label>
-                    <input type="number" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-1 text-4xl font-light text-gray-800">
+            <div class="flex gap-8 mb-10">
+                <div class="flex-1 text-center">
+                    <label class="text-[9px] uppercase text-gray-400 font-black mb-2 block tracking-widest">Power (kg)</label>
+                    <input type="number" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-1 text-4xl font-light text-center text-gray-800">
                 </div>
-                <div class="flex-1">
-                    <label class="text-[10px] uppercase text-gray-400 font-black mb-1 block">Reps</label>
-                    <input type="number" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-1 text-4xl font-light text-gray-800">
+                <div class="flex-1 text-center">
+                    <label class="text-[9px] uppercase text-gray-400 font-black mb-2 block tracking-widest">Impact</label>
+                    <input type="number" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-1 text-4xl font-light text-center text-gray-800">
                 </div>
             </div>
 
-            <div onclick="logSet()" class="zen-button mb-8 press-effect" role="button">Log Set</div>
+            <div onclick="logSet()" class="zen-button mb-8 press-effect" role="button">Strive</div>
 
-            <div id="set-history" class="mb-10 px-1">
-                <h4 class="text-[10px] font-black uppercase text-gray-300 tracking-[0.2em] mb-2">Logged Sets</h4>
+            <div id="set-history" class="mb-10">
+                <h4 class="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-4 text-center">Battle Record</h4>
                 <div id="history-list"></div>
             </div>
         </div>
 
         <div class="pt-4 grid grid-cols-2 gap-4 border-t border-gray-100">
-            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-500 text-sm">Back</div>
-            <div id="next-btn" onclick="nextExercise()" class="secondary-button text-sm press-effect" role="button">Next Exercise</div>
+            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-500 text-[10px] uppercase tracking-widest">Back</div>
+            <div id="next-btn" onclick="nextExercise()" class="secondary-button text-[10px] uppercase tracking-widest press-effect" role="button">Advance</div>
         </div>
     </div>
 
     <div id="timer-bar">
         <div class="mb-6">
-            <span class="text-7xl font-black" id="timer-display">60</span>
-            <p class="text-[11px] font-black tracking-widest uppercase text-gray-500 mt-3">Rest and Breathe</p>
+            <span class="text-8xl font-black italic tracking-tighter" id="timer-display">60</span>
+            <p class="text-[10px] font-black tracking-[0.4em] uppercase text-gray-500 mt-4">Breath of Restoration</p>
         </div>
-        <div onclick="skipTimer()" class="bg-white/10 px-10 py-4 rounded-full font-black text-[11px] uppercase tracking-widest cursor-pointer">Skip Rest</div>
+        <div onclick="skipTimer()" class="bg-white/10 px-10 py-4 rounded-full font-black text-[9px] uppercase tracking-[0.3em] cursor-pointer">Shatter Time</div>
     </div>
 
     <script>
@@ -227,8 +191,20 @@
         window.onload = () => {
             const name = localStorage.getItem('zen-name');
             if (!name) document.getElementById('onboarding').classList.remove('hidden');
-            else { document.getElementById('display-name').innerText = name; }
+            else { document.getElementById('display-name').innerText = name; updateFlavor(); }
         };
+
+        function updateFlavor() {
+            const h = new Date().getHours();
+            const quotes = [
+                "Even the greatest journey starts with a single rep.",
+                "Strength is the only truth that cannot be stolen.",
+                "Your breath is the engine; your will is the fire.",
+                "A warrior is forged in the silence of the rest."
+            ];
+            document.getElementById('time-greeting').innerText = h < 12 ? "Chapter: Dawn" : h < 18 ? "Chapter: Solar" : "Chapter: Twilight";
+            document.getElementById('flavor-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+        }
 
         function saveName() {
             const name = document.getElementById('user-name-input').value;
@@ -236,13 +212,13 @@
         }
 
         function saveType(type) { localStorage.setItem('zen-type', type); location.reload(); }
-        function resetApp() { if(confirm("Reset profile?")) { localStorage.clear(); location.reload(); } }
+        function resetApp() { if(confirm("Conclude this timeline? Everything will be lost.")) { localStorage.clear(); location.reload(); } }
 
         function startWorkout(exercises, from) {
             activeSession = exercises;
             currentIdx = 0;
             sourceUI = from;
-            document.getElementById('quit-label').innerText = from === 'selection' ? 'Back' : 'Quit';
+            document.getElementById('quit-label').innerText = from === 'selection' ? 'Close' : 'Retreat';
             const myType = localStorage.getItem('zen-type') || 'lean';
             document.getElementById('active-character').src = myType + '.png';
             document.getElementById('workout-ui').classList.remove('hidden');
@@ -253,7 +229,7 @@
         function resetSets() {
             currentSet = 1;
             document.getElementById('history-list').innerHTML = '';
-            document.getElementById('set-counter').innerText = `Set 1`;
+            document.getElementById('set-counter').innerText = `Form 1`;
         }
 
         function logSet() {
@@ -263,16 +239,13 @@
             setTimeout(() => {
                 const w = document.getElementById('weight-input').value || "0";
                 const r = document.getElementById('reps-input').value || "0";
-                
                 const row = document.createElement('div');
-                row.className = "set-row px-1";
-                row.innerHTML = `<span class="font-bold text-gray-400 text-xs">SET ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r} reps</span>`;
+                row.className = "set-row";
+                row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase tracking-widest italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
                 document.getElementById('history-list').prepend(row);
-
                 localStorage.setItem('last-' + activeSession[currentIdx].en, w);
-
                 currentSet++;
-                document.getElementById('set-counter').innerText = `Set ${currentSet}`;
+                document.getElementById('set-counter').innerText = `Form ${currentSet}`;
                 startTimer(60);
             }, 50);
         }
@@ -284,7 +257,7 @@
                 updateUI();
             } else {
                 skipTimer();
-                alert("Session Finished!");
+                alert("Chapter Concluded. You are stronger now.");
                 quitWorkout();
             }
         }
@@ -299,13 +272,13 @@
             const ex = activeSession[currentIdx];
             document.getElementById('ex-name-en').innerText = ex.en;
             document.getElementById('ex-name-es').innerText = ex.es;
-            document.getElementById('target-muscle').innerText = "Target: " + ex.target;
-            document.getElementById('progress-text').innerText = `${currentIdx + 1} / ${activeSession.length}`;
+            document.getElementById('target-muscle').innerText = "Technique: " + ex.target;
+            document.getElementById('progress-text').innerText = `Stage ${currentIdx + 1} / ${activeSession.length}`;
             const lastWeight = localStorage.getItem('last-' + ex.en);
-            document.getElementById('history-label').innerText = lastWeight ? `Last: ${lastWeight}kg` : "New Move";
+            document.getElementById('history-label').innerText = lastWeight ? `PB: ${lastWeight}kg` : "New Art";
             document.getElementById('weight-input').value = lastWeight || "";
             document.getElementById('back-btn').style.visibility = (currentIdx === 0) ? 'hidden' : 'visible';
-            document.getElementById('next-btn').innerText = (currentIdx === activeSession.length - 1) ? 'Finish Routine' : 'Next Exercise';
+            document.getElementById('next-btn').innerText = (currentIdx === activeSession.length - 1) ? 'Conclude' : 'Advance';
         }
 
         function startTimer(seconds) {
@@ -337,7 +310,7 @@
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
                 item.onclick = () => toggleSelection(ex, item);
-                item.innerHTML = `<div><p class="font-bold text-gray-800">${ex.en}</p><p class="text-[10px] text-gray-400 font-black uppercase">${ex.es}</p></div><div class="selection-circle"></div>`;
+                item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.es}</p></div><div class="selection-circle"></div>`;
                 listDiv.appendChild(item);
             });
             document.getElementById('selection-ui').classList.remove('hidden');
@@ -361,7 +334,8 @@
         function startSelected() { if (selectedInMenu.length > 0) { closeModal('selection-ui'); startWorkout(selectedInMenu, 'selection'); } }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; resetSets(); updateUI(); } }
-        
+        function swapExercise() { alert("Variation: Try the dumbbell equivalent."); }
+
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
         document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
     </script>
