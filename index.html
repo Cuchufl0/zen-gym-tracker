@@ -12,109 +12,110 @@
         input { -webkit-user-select: auto !important; user-select: auto !important; }
         .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         
-        /* Haptics */
         .press-effect { transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .is-pressed { transform: scale(0.94) !important; background-color: #f5f5f5 !important; }
-        .zen-button { background: #1a1a1a; color: white; border-radius: 20px; padding: 20px; width: 100%; font-weight: 600; text-align: center; transition: 0.1s; }
-        .zen-button:active { transform: scale(0.96); opacity: 0.9; }
+        .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
+        .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 22px; width: 100%; font-weight: 700; text-align: center; transition: 0.2s; letter-spacing: -0.02em; }
         
-        /* UI Components */
-        .bento-card { background: white; border: 1px solid #eee; border-radius: 28px; transition: 0.2s; }
-        .pill { background: #f3f3f3; color: #888; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-        .selection-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: transparent; transition: 0.2s; }
-        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white; transform: scale(1.1); }
+        .bento-card { background: white; border: 1px solid #f0f0f0; border-radius: 32px; transition: 0.3s; }
+        .pill { background: #f3f3f3; color: #aaa; padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
         
-        /* Timer Bar */
-        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; padding: 15px; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
+        /* Anime Character Image Styling */
+        .anime-display { width: 100%; height: 100%; object-fit: contain; }
+        .image-container { width: 80px; height: 80px; border-radius: 20px; overflow: hidden; background: #f9f9f9; }
+
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a; color: white; padding: 20px; transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; border-radius: 32px 32px 0 0; }
         #timer-bar.show { transform: translateY(0); }
     </style>
 </head>
 <body class="p-6">
 
-    <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-8 flex flex-col hidden">
+    <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-10 flex flex-col hidden">
         <div id="step-1" class="flex-1 flex flex-col justify-center">
-            <h1 class="text-4xl font-extrabold tracking-tighter mb-4">Welcome to <span class="italic">Zen</span>.</h1>
-            <p class="text-gray-400 mb-10 font-medium">What should we call you?</p>
-            <input type="text" id="user-name-input" placeholder="Your Name" class="text-3xl font-light border-b-2 border-gray-100 py-4 focus:outline-none focus:border-black w-full">
-            <button onclick="saveName()" class="zen-button mt-12">Continue</button>
+            <h1 class="text-5xl font-extrabold tracking-tighter mb-4">I am <span class="italic text-gray-400">Zen</span>.</h1>
+            <p class="text-gray-400 mb-12 font-medium">Who are you?</p>
+            <input type="text" id="user-name-input" placeholder="Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 focus:outline-none focus:border-black w-full">
+            <button onclick="saveName()" class="zen-button mt-16 shadow-xl shadow-black/5">Begin</button>
         </div>
+
         <div id="step-2" class="flex-1 flex flex-col justify-center hidden">
-            <h2 class="text-2xl font-bold mb-8 text-center">Pick your body type</h2>
+            <h2 class="text-3xl font-bold mb-2 tracking-tight">Your Frame</h2>
+            <p class="text-gray-400 mb-10 text-sm">Select your visual guide.</p>
             <div class="grid grid-cols-1 gap-4">
-                <div onclick="saveType('Ectomorph')" class="press-effect bento-card p-6 flex items-center gap-6">
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-bold">I</div>
-                    <div><p class="font-bold">Lean</p><p class="text-xs text-gray-400">Hard to gain weight</p></div>
+                <div onclick="saveType('lean')" class="press-effect bento-card p-6 flex items-center gap-6 border-2 border-transparent active:border-black">
+                    <div class="image-container"><img src="lean.png" class="anime-display"></div>
+                    <div><p class="font-bold text-lg">The Lean</p><p class="text-xs text-gray-400 italic">Ectomorph</p></div>
                 </div>
-                <div onclick="saveType('Mesomorph')" class="press-effect bento-card p-6 flex items-center gap-6">
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-bold">II</div>
-                    <div><p class="font-bold">Athletic</p><p class="text-xs text-gray-400">Natural muscle builder</p></div>
+                <div onclick="saveType('athletic')" class="press-effect bento-card p-6 flex items-center gap-6 border-2 border-transparent active:border-black">
+                    <div class="image-container"><img src="athletic.png" class="anime-display"></div>
+                    <div><p class="font-bold text-lg">The Athletic</p><p class="text-xs text-gray-400 italic">Mesomorph</p></div>
                 </div>
-                <div onclick="saveType('Endomorph')" class="press-effect bento-card p-6 flex items-center gap-6">
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-bold">III</div>
-                    <div><p class="font-bold">Solid</p><p class="text-xs text-gray-400">Gains weight easily</p></div>
+                <div onclick="saveType('solid')" class="press-effect bento-card p-6 flex items-center gap-6 border-2 border-transparent active:border-black">
+                    <div class="image-container"><img src="solid.png" class="anime-display"></div>
+                    <div><p class="font-bold text-lg">The Solid</p><p class="text-xs text-gray-400 italic">Endomorph</p></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full">
-        <header class="mb-10 pt-6">
-            <h1 id="time-greeting" class="text-[10px] tracking-[0.3em] uppercase text-gray-400 mb-2 font-black">Afternoon Session</h1>
-            <h2 class="text-3xl font-bold tracking-tight">Hello, <span id="display-name">User</span>.</h2>
+        <header class="mb-10 pt-8 flex justify-between items-start">
+            <div>
+                <h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase text-gray-300 mb-2 font-black">Afternoon</h1>
+                <h2 class="text-4xl font-bold tracking-tighter">Hi, <span id="display-name" class="italic">User</span>.</h2>
+            </div>
+            <div onclick="resetApp()" class="pill bg-gray-50 text-[8px]">Reset</div>
         </header>
 
         <div class="scroll-container">
-            <div class="press-effect bento-card p-8 mb-10 shadow-sm border-gray-100" onclick="startWorkout(fullRoutine)">
+            <div class="press-effect bento-card p-8 mb-12 border-gray-50 shadow-sm" onclick="startWorkout(fullRoutine)">
                 <div class="flex justify-between items-center mb-6">
-                    <span class="pill">Suggested</span>
+                    <span class="pill bg-black text-white">Focus Session</span>
                 </div>
-                <h3 class="text-2xl font-bold mb-1">Biceps & Shoulders</h3>
-                <p id="body-type-hint" class="text-xs text-gray-400 mb-8 italic">Optimized for your frame</p>
-                <div class="zen-button">Start Day 1</div>
+                <h3 class="text-2xl font-bold mb-2">Biceps & Shoulders</h3>
+                <p class="text-sm text-gray-300 font-medium italic">Dublin Day 1</p>
+                <div class="mt-8 text-xs font-bold uppercase tracking-widest text-black">Start Session →</div>
             </div>
 
-            <h3 class="text-[10px] font-black mb-6 text-gray-300 uppercase tracking-[0.2em]">Quick Selection</h3>
-            <div class="grid grid-cols-2 gap-5 mb-10">
-                <div onclick="openSelection('Chest')" class="press-effect bento-card p-8 text-center text-sm font-bold">Chest</div>
-                <div onclick="openSelection('Back')" class="press-effect bento-card p-8 text-center text-sm font-bold">Back</div>
-                <div onclick="openSelection('Legs')" class="press-effect bento-card p-8 text-center text-sm font-bold">Legs</div>
-                <div onclick="openSelection('Core')" class="press-effect bento-card p-8 text-center text-sm font-bold">Core</div>
+            <h3 class="text-[10px] font-black mb-6 text-gray-200 uppercase tracking-[0.3em]">Quick Start</h3>
+            <div class="grid grid-cols-2 gap-5 mb-12">
+                <div onclick="openSelection('Chest')" class="press-effect bento-card p-10 text-center text-sm font-bold tracking-tight">Chest</div>
+                <div onclick="openSelection('Back')" class="press-effect bento-card p-10 text-center text-sm font-bold tracking-tight">Back</div>
             </div>
         </div>
     </div>
 
-    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
-        <div class="flex justify-between items-center mb-8 pt-6">
+    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-8 hidden flex flex-col">
+        <div class="flex justify-between items-center mb-10 pt-6">
             <div onclick="closeModal('workout-ui')" class="press-effect pill">Quit</div>
-            <span id="progress-text" class="text-[10px] font-black tracking-widest text-gray-300 uppercase">1 / 4</span>
+            <span id="progress-text" class="text-[10px] font-black tracking-widest text-gray-200 uppercase">1 / 4</span>
             <div onclick="swapExercise()" class="press-effect pill">Swap</div>
         </div>
 
-        <div class="w-full h-48 bg-gray-50 rounded-[40px] flex flex-col items-center justify-center mb-10 border border-gray-100">
-            <span class="text-[10px] uppercase tracking-widest text-gray-300 font-black mb-2">[ Anime Viz ]</span>
-            <span id="target-muscle" class="text-[9px] bg-white px-2 py-1 rounded-md text-gray-400 font-bold border border-gray-100">TARGET: BICEPS</span>
+        <div class="w-full h-64 bg-gray-50 rounded-[48px] flex flex-col items-center justify-center mb-10 border border-gray-100 overflow-hidden">
+            <img id="active-character" src="lean.png" class="w-full h-full object-contain opacity-90">
+            <span id="target-muscle" class="absolute bottom-4 text-[10px] bg-white/90 backdrop-blur px-4 py-2 rounded-full text-black font-black border border-gray-100 uppercase tracking-widest">Target: Biceps</span>
         </div>
 
-        <h2 id="ex-name-en" class="text-2xl font-extrabold mb-1 tracking-tight">---</h2>
-        <div class="flex items-center gap-2 mb-8">
-            <h3 id="ex-name-es" class="text-sm text-gray-300 italic font-semibold">---</h3>
-            <span id="history-label" class="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter bg-indigo-50 px-2 py-0.5 rounded">PB: 0kg</span>
+        <h2 id="ex-name-en" class="text-2xl font-extrabold mb-1 tracking-tighter">---</h2>
+        <div class="flex items-center gap-3 mb-12">
+            <h3 id="ex-name-es" class="text-sm text-gray-300 italic font-bold">---</h3>
+            <span id="history-label" class="text-[10px] font-black text-white uppercase bg-black px-3 py-1 rounded-full">PB: 0kg</span>
         </div>
 
-        <div class="flex gap-8 mb-12">
+        <div class="flex gap-10 mb-16">
             <div class="flex-1">
-                <label class="block text-[10px] uppercase text-gray-300 font-black mb-3">Weight (KG)</label>
-                <input type="number" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 focus:outline-none focus:border-black text-4xl font-light">
+                <label class="block text-[10px] uppercase text-gray-300 font-black mb-4 tracking-widest">Weight (kg)</label>
+                <input type="number" id="weight-input" placeholder="0" class="w-full border-b-4 border-gray-50 py-2 focus:outline-none focus:border-black text-5xl font-light">
             </div>
             <div class="flex-1">
-                <label class="block text-[10px] uppercase text-gray-300 font-black mb-3">Reps</label>
-                <input type="number" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 focus:outline-none focus:border-black text-4xl font-light">
+                <label class="block text-[10px] uppercase text-gray-300 font-black mb-4 tracking-widest">Reps</label>
+                <input type="number" id="reps-input" placeholder="10" class="w-full border-b-4 border-gray-50 py-2 focus:outline-none focus:border-black text-5xl font-light">
             </div>
         </div>
 
         <div class="mt-auto grid grid-cols-2 gap-4 pb-6">
-            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-2xl bg-gray-100 font-bold text-gray-500">Back</div>
-            <div id="next-btn" onclick="nextExercise()" class="press-effect zen-button">Next</div>
+            <div id="back-btn" onclick="prevExercise()" class="press-effect flex items-center justify-center rounded-3xl bg-gray-50 font-bold text-gray-400">Back</div>
+            <div id="next-btn" onclick="nextExercise()" class="zen-button">Next</div>
         </div>
     </div>
 
@@ -127,12 +128,12 @@
         <button onclick="startSelected()" class="zen-button mb-6">Start Session</button>
     </div>
 
-    <div id="timer-bar" class="flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="w-8 h-8 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] font-black" id="timer-display">60</div>
-            <p class="text-[10px] font-black tracking-widest uppercase">Resting...</p>
+    <div id="timer-bar" class="flex justify-between items-center shadow-2xl shadow-black">
+        <div class="flex items-center gap-6">
+            <div class="w-12 h-12 rounded-full border-4 border-white/10 flex items-center justify-center text-sm font-black" id="timer-display">60</div>
+            <p class="text-[11px] font-black tracking-[0.2em] uppercase">Rest Period</p>
         </div>
-        <div onclick="skipTimer()" class="text-[10px] font-black tracking-widest uppercase opacity-50 px-4">Skip</div>
+        <div onclick="skipTimer()" class="text-[10px] font-black tracking-widest uppercase bg-white/10 px-6 py-3 rounded-full">Skip</div>
     </div>
 
     <script>
@@ -152,7 +153,6 @@
         let currentIdx = 0;
         let timerInterval;
 
-        // --- ONBOARDING LOGIC ---
         window.onload = () => {
             const name = localStorage.getItem('zen-name');
             if (!name) {
@@ -173,21 +173,28 @@
         }
 
         function saveType(type) {
-            localStorage.setItem('zen-type', type);
+            localStorage.setItem('zen-type', type); // Saves 'lean', 'athletic', or 'solid'
             document.getElementById('onboarding').classList.add('hidden');
             location.reload();
         }
 
-        // --- WORKOUT LOGIC ---
+        function resetApp() {
+            if(confirm("Start over? This clears your name and body type.")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
         function startWorkout(exercises) {
             activeSession = exercises;
             currentIdx = 0;
+            const myType = localStorage.getItem('zen-type') || 'lean';
+            document.getElementById('active-character').src = myType + '.png';
             document.getElementById('workout-ui').classList.remove('hidden');
             updateUI();
         }
 
         function nextExercise() {
-            // Save weight to memory
             const weight = document.getElementById('weight-input').value;
             if(weight) localStorage.setItem('last-' + activeSession[currentIdx].en, weight);
 
@@ -196,7 +203,7 @@
                 startTimer(60);
                 updateUI();
             } else {
-                alert("Session Finished.");
+                alert("Session Complete.");
                 closeModal('workout-ui');
             }
         }
@@ -205,25 +212,20 @@
             const ex = activeSession[currentIdx];
             document.getElementById('ex-name-en').innerText = ex.en;
             document.getElementById('ex-name-es').innerText = ex.es;
-            document.getElementById('target-muscle').innerText = "TARGET: " + ex.target;
+            document.getElementById('target-muscle').innerText = "Target: " + ex.target;
             document.getElementById('progress-text').innerText = `${currentIdx + 1} / ${activeSession.length}`;
-            
-            // Load from memory
             const lastWeight = localStorage.getItem('last-' + ex.en);
-            document.getElementById('history-label').innerText = lastWeight ? `Last: ${lastWeight}kg` : "New Exercise";
+            document.getElementById('history-label').innerText = lastWeight ? `Last: ${lastWeight}kg` : "New Move";
             document.getElementById('weight-input').value = lastWeight || "";
-            
             document.getElementById('back-btn').style.visibility = (currentIdx === 0) ? 'hidden' : 'visible';
         }
 
-        // --- TIMER LOGIC ---
         function startTimer(seconds) {
             clearInterval(timerInterval);
             let time = seconds;
             const bar = document.getElementById('timer-bar');
             const display = document.getElementById('timer-display');
             bar.classList.add('show');
-            
             timerInterval = setInterval(() => {
                 time--;
                 display.innerText = time;
@@ -236,17 +238,9 @@
             document.getElementById('timer-bar').classList.remove('show');
         }
 
-        function swapExercise() {
-            const ex = activeSession[currentIdx];
-            const altName = ex.alt;
-            alert(`Substitute suggested: ${altName}`);
-        }
-
-        // --- HELPERS ---
         function updateGreeting() {
             const hour = new Date().getHours();
-            const g = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
-            document.getElementById('time-greeting').innerText = g + " Session";
+            document.getElementById('time-greeting').innerText = hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening";
         }
 
         function openSelection(group) {
@@ -266,8 +260,8 @@
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function prevExercise() { if (currentIdx > 0) { currentIdx--; updateUI(); } }
+        function swapExercise() { alert("Variation: Try the dumbbell equivalent."); }
 
-        // Touch Listeners for Global Press Effects
         document.addEventListener('touchstart', (e) => {
             const el = e.target.closest('.press-effect');
             if (el) el.classList.add('is-pressed');
