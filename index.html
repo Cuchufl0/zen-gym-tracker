@@ -2,86 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Zen Gym Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Prevents double-tap zoom and keeps it feeling like a native app */
-        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        /* Prevents bouncing and scrolling when not needed */
+        html, body { 
+            overscroll-behavior-y: none; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: #fcfcfc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { font-family: 'Inter', sans-serif; color: #1a1a1a; display: flex; flex-direction: column; }
         
-        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; color: #1a1a1a; overflow-x: hidden; }
-        .bento-card { background: white; border: 1px solid #eee; border-radius: 18px; transition: all 0.2s ease; }
-        .zen-button { background: #1a1a1a; color: white; border-radius: 12px; padding: 14px 24px; width: 100%; font-weight: 500; }
+        /* Main containers allow scrolling only if content overflows */
+        .scroll-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        .bento-card { background: white; border: 1px solid #eee; border-radius: 20px; transition: all 0.2s ease; }
+        .zen-button { background: #1a1a1a; color: white; border-radius: 14px; padding: 16px; width: 100%; font-weight: 500; }
         .zen-button:active { opacity: 0.7; transform: scale(0.98); }
-        .secondary-button { background: #f0f0f0; color: #555; border-radius: 12px; padding: 14px 24px; font-weight: 500; }
-        .checkbox-custom { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #ddd; appearance: none; cursor: pointer; }
-        .checkbox-custom:checked { background-color: #1a1a1a; border-color: #1a1a1a; position: relative; }
-        .checkbox-custom:checked::after { content: '✓'; color: white; position: absolute; font-size: 14px; top: -2px; left: 3px; }
+        .secondary-button { background: #f0f0f0; color: #555; border-radius: 14px; padding: 16px; font-weight: 500; }
+
+        /* Numbered Circle Style */
+        .selection-circle {
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 2px solid #ddd; display: flex; align-items: center;
+            justify-content: center; font-size: 12px; font-weight: 600;
+            transition: all 0.2s; color: transparent;
+        }
+        .selection-circle.active {
+            background: #1a1a1a; border-color: #1a1a1a; color: white;
+        }
     </style>
 </head>
-<body class="p-6 max-w-md mx-auto">
+<body class="p-6">
 
-    <div id="home-screen">
-        <header class="mb-8">
+    <div id="home-screen" class="flex flex-col h-full">
+        <header class="mb-8 pt-4">
             <h1 id="time-greeting" class="text-xs tracking-widest uppercase text-gray-400 mb-1">Loading...</h1>
             <h2 class="text-2xl font-semibold italic">Stay focused.</h2>
         </header>
 
-        <div class="bento-card p-6 mb-6 shadow-sm border-gray-100">
-            <div class="flex justify-between items-center mb-4">
-                <span class="px-3 py-1 bg-gray-100 text-[10px] rounded-full uppercase tracking-wider font-semibold">Routine</span>
+        <div class="scroll-container">
+            <div class="bento-card p-6 mb-8 border-gray-100 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="px-3 py-1 bg-gray-100 text-[10px] rounded-full uppercase tracking-wider font-semibold">Routine</span>
+                </div>
+                <h3 class="text-xl font-medium mb-1">Biceps & Shoulders</h3>
+                <p class="text-sm text-gray-500 mb-6 italic text-gray-400">Standard Sequence</p>
+                <button onclick="startWorkout(fullRoutine)" class="zen-button">Start Routine</button>
             </div>
-            <h3 class="text-xl font-medium mb-1">Biceps & Shoulders</h3>
-            <p class="text-sm text-gray-500 mb-6 italic">Day 1 Plan</p>
-            <button onclick="startWorkout(fullRoutine)" class="zen-button">Start Full Session</button>
-        </div>
 
-        <h3 class="text-sm font-semibold mb-4 text-gray-400 uppercase tracking-tight">Custom Selection</h3>
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <button onclick="openSelection('Chest')" class="bento-card p-4 text-center text-sm font-medium">Chest</button>
-            <button onclick="openSelection('Back')" class="bento-card p-4 text-center text-sm font-medium">Back</button>
-            <button onclick="openSelection('Legs')" class="bento-card p-4 text-center text-sm font-medium">Legs</button>
-            <button onclick="openSelection('Core')" class="bento-card p-4 text-center text-sm font-medium">Core</button>
+            <h3 class="text-sm font-semibold mb-4 text-gray-400 uppercase tracking-tight">Explore</h3>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button onclick="openSelection('Chest')" class="bento-card p-5 text-center text-sm font-medium shadow-sm">Chest</button>
+                <button onclick="openSelection('Back')" class="bento-card p-5 text-center text-sm font-medium shadow-sm">Back</button>
+                <button onclick="openSelection('Legs')" class="bento-card p-5 text-center text-sm font-medium shadow-sm">Legs</button>
+                <button onclick="openSelection('Core')" class="bento-card p-5 text-center text-sm font-medium shadow-sm">Core</button>
+            </div>
         </div>
     </div>
 
     <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
-        <header class="mb-6 flex justify-between items-center">
-            <h2 id="selection-title" class="text-2xl font-semibold">Select Exercises</h2>
-            <button onclick="closeModal('selection-ui')" class="text-gray-400">Cancel</button>
+        <header class="mb-6 flex justify-between items-center pt-4">
+            <h2 id="selection-title" class="text-2xl font-semibold">Select</h2>
+            <button onclick="closeModal('selection-ui')" class="text-gray-400 text-sm">Cancel</button>
         </header>
-        <div id="exercise-list" class="flex-1 overflow-y-auto mb-6">
+        <div id="exercise-list" class="scroll-container mb-6">
             </div>
-        <button onclick="startSelected()" class="zen-button">Start Selected</button>
+        <div class="pb-4">
+            <button onclick="startSelected()" class="zen-button">Start Selected</button>
+        </div>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-6 pt-4">
             <button onclick="closeModal('workout-ui')" class="text-gray-400 text-sm">Quit</button>
-            <span id="progress-text" class="text-xs font-bold tracking-widest uppercase">1 / 4</span>
+            <span id="progress-text" class="text-xs font-bold tracking-widest uppercase text-gray-400">1 / 4</span>
             <div class="w-8"></div>
         </div>
 
-        <div class="w-full h-56 bg-gray-50 rounded-2xl flex items-center justify-center mb-8 border border-dashed border-gray-200">
-            <span class="text-[10px] uppercase tracking-widest text-gray-300">[ Anime Character Placeholder ]</span>
+        <div class="w-full h-48 bg-gray-50 rounded-3xl flex items-center justify-center mb-8 border border-gray-100">
+            <span class="text-[10px] uppercase tracking-widest text-gray-300 font-medium">[ Anime Instruction ]</span>
         </div>
 
         <h2 id="ex-name-en" class="text-2xl font-semibold mb-1">---</h2>
-        <h3 id="ex-name-es" class="text-sm text-gray-400 mb-8 italic">---</h3>
+        <h3 id="ex-name-es" class="text-sm text-gray-400 mb-10 italic">---</h3>
 
-        <div class="flex gap-4 mb-8">
+        <div class="flex gap-6 mb-12">
             <div class="flex-1">
-                <label class="block text-[10px] uppercase text-gray-400 mb-1">Weight (KG)</label>
-                <input type="number" id="weight-input" placeholder="0" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black text-xl">
+                <label class="block text-[10px] uppercase text-gray-400 font-bold mb-2">Weight (KG)</label>
+                <input type="number" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 focus:outline-none focus:border-black text-2xl transition-colors">
             </div>
             <div class="flex-1">
-                <label class="block text-[10px] uppercase text-gray-400 mb-1">Reps</label>
-                <input type="number" id="reps-input" placeholder="0" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black text-xl">
+                <label class="block text-[10px] uppercase text-gray-400 font-bold mb-2">Reps</label>
+                <input type="number" id="reps-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 focus:outline-none focus:border-black text-2xl transition-colors">
             </div>
         </div>
 
-        <div class="mt-auto grid grid-cols-2 gap-4">
+        <div class="mt-auto grid grid-cols-2 gap-4 pb-4">
             <button id="back-btn" onclick="prevExercise()" class="secondary-button">Back</button>
             <button id="next-btn" onclick="nextExercise()" class="zen-button">Next</button>
         </div>
@@ -115,6 +141,7 @@
         let activeSession = [];
         let currentIdx = 0;
         let selectedInMenu = [];
+        let currentMuscleGroupOptions = [];
 
         function updateGreeting() {
             const hour = new Date().getHours();
@@ -125,38 +152,49 @@
         }
 
         function openSelection(group) {
-            const listDiv = document.getElementById('exercise-list');
-            listDiv.innerHTML = '';
             document.getElementById('selection-title').innerText = group;
-            
-            const options = [...fullRoutine, ...library].filter(ex => ex.group === group);
-            
-            options.forEach((ex, index) => {
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between p-4 mb-2 border-b border-gray-50';
-                item.innerHTML = `
-                    <div>
-                        <p class="text-sm font-medium">${ex.en}</p>
-                        <p class="text-xs text-gray-400">${ex.es}</p>
-                    </div>
-                    <input type="checkbox" class="checkbox-custom" onclick="toggleEx('${ex.en}')">
-                `;
-                listDiv.appendChild(item);
-            });
+            currentMuscleGroupOptions = [...fullRoutine, ...library].filter(ex => ex.group === group);
             selectedInMenu = [];
+            renderSelectionList();
             document.getElementById('selection-ui').classList.remove('hidden');
         }
 
-        function toggleEx(name) {
-            const all = [...fullRoutine, ...library];
-            const found = all.find(e => e.en === name);
-            const idx = selectedInMenu.indexOf(found);
-            if(idx > -1) selectedInMenu.splice(idx, 1);
-            else selectedInMenu.push(found);
+        function renderSelectionList() {
+            const listDiv = document.getElementById('exercise-list');
+            listDiv.innerHTML = '';
+            
+            currentMuscleGroupOptions.forEach((ex) => {
+                const orderIndex = selectedInMenu.findIndex(s => s.en === ex.en);
+                const isActive = orderIndex > -1;
+                
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-5 mb-3 bento-card border-gray-50 cursor-pointer';
+                item.onclick = () => toggleEx(ex);
+                item.innerHTML = `
+                    <div>
+                        <p class="text-sm font-medium">${ex.en}</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wide">${ex.es}</p>
+                    </div>
+                    <div class="selection-circle ${isActive ? 'active' : ''}">
+                        ${isActive ? (orderIndex + 1) : ''}
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+        }
+
+        function toggleEx(exercise) {
+            const idx = selectedInMenu.findIndex(s => s.en === exercise.en);
+            if(idx > -1) {
+                selectedInMenu.splice(idx, 1);
+            } else {
+                selectedInMenu.push(exercise);
+            }
+            renderSelectionList();
         }
 
         function startSelected() {
-            if(selectedInMenu.length === 0) return alert("Select at least one!");
+            if(selectedInMenu.length === 0) return alert("Select the order of exercises!");
             closeModal('selection-ui');
             startWorkout(selectedInMenu);
         }
@@ -177,7 +215,7 @@
                 currentIdx++;
                 updateUI();
             } else {
-                alert("Session Complete!");
+                alert("Session Finished. Well done.");
                 closeModal('workout-ui');
             }
         }
