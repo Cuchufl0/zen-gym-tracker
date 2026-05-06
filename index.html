@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - The Shadow</title>
+    <title>Zen Gym - Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -16,18 +16,16 @@
         
         .scroll-container { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding: 0 4px; }
 
-        /* CINEMATICS */
+        /* CINEMATICS & OVERLAYS */
         #system-overlay { position: fixed; inset: 0; z-index: 20000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; opacity: 0; transition: opacity 0.5s ease; }
         #system-overlay.active { display: flex; opacity: 1; }
         .system-text { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
         .system-text.visible { opacity: 1; }
 
-        /* LIMIT BREAK CINEMATIC */
         #limit-break-overlay { position: fixed; inset: 0; z-index: 21000; background: white; color: black; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 0.1s; }
         #limit-break-overlay.active { display: flex; opacity: 1; animation: limitFlash 2.5s ease-out forwards; }
         @keyframes limitFlash { 0% { background: black; color: white; transform: scale(1.05); } 10% { background: white; color: black; transform: scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
         
-        /* UI SHIELD & MODALS */
         #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
         #ui-shield.active { display: block; }
         #retreat-modal, #history-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: white; border-radius: 40px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; }
@@ -47,7 +45,6 @@
         .arsenal-btn.active-Shoulders { border-color: #00f5d4; background: #f5ffff; color: #008f7d; }
         .arsenal-btn.active-Core { border-color: #ffbe0b; background: #fffdf5; color: #b08d00; }
 
-        /* SYNTHESIS BAR */
         #synthesis-bar { position: fixed; bottom: 30px; left: 24px; right: 24px; transform: translateY(200%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 30; }
         #synthesis-bar.show { transform: translateY(0); }
 
@@ -78,13 +75,11 @@
     </div>
 
     <div id="system-overlay"><div id="sys-line-1" class="system-text text-gray-400 font-light tracking-[0.3em] uppercase text-[10px]"></div><div id="sys-line-2" class="system-text text-white font-bold tracking-tighter text-3xl"></div><div id="sys-line-3" class="system-text text-gray-400 italic text-sm mt-4"></div></div>
-    
     <div id="ui-shield"></div>
 
     <div id="retreat-modal">
         <h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2>
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center">The System will remember this.</p>
-        <div onclick="cancelRetreat()" class="zen-button mb-4 press-effect">Stay the Path</div>
+        <div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div>
         <div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div>
     </div>
 
@@ -94,6 +89,31 @@
             <div onclick="closeHistory()" class="pill cursor-pointer">Close</div>
         </div>
         <div id="history-detail-content" class="max-h-[300px] overflow-y-auto pr-2"></div>
+    </div>
+
+    <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
+        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0">
+            <h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2>
+            <div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div>
+        </header>
+        <div class="scroll-container pb-10">
+            <div class="flex gap-4 mb-8 px-2">
+                <div class="bento-card p-6 flex-1 text-center">
+                    <p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-workouts">0</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Workouts</p>
+                </div>
+                <div class="bento-card p-6 flex-1 text-center">
+                    <p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-sets">0</p>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Total Sets</p>
+                </div>
+            </div>
+            
+            <div class="px-2">
+                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Personal Records</h3>
+                <div id="pb-list" class="bento-card overflow-hidden">
+                    </div>
+            </div>
+        </div>
     </div>
 
     <div id="synthesis-bar"><div onclick="synthesizeGrimoire()" class="zen-button press-effect shadow-2xl">Synthesize Grimoire</div></div>
@@ -121,28 +141,28 @@
         </header>
 
         <div class="px-2 mb-8 shrink-0">
-            <div class="bento-card p-6">
-                <div class="flex justify-between items-center mb-1"><h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">Seeker</h2><span id="user-level" class="text-xs font-black uppercase text-gray-400">Level 1</span></div>
-                <p id="user-rank-sub" class="text-[9px] text-gray-400 font-medium italic mb-4 uppercase tracking-widest">---</p>
-                <div class="xp-container"><div id="xp-bar-fill" class="xp-bar"></div></div>
+            <div class="bento-card p-6 relative">
+                <div onclick="openAnalytics()" class="absolute top-6 right-6 pill bg-gray-100 text-gray-600 press-effect">Analytics</div>
+                
+                <div class="flex flex-col mb-1 pr-20">
+                    <h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">Seeker</h2>
+                    <span id="user-level" class="text-xs font-black uppercase text-gray-400 mt-1">Level 1</span>
+                </div>
+                <div class="xp-container mt-6"><div id="xp-bar-fill" class="xp-bar"></div></div>
             </div>
             <p id="flavor-quote" class="text-[10px] text-gray-400 mt-6 font-medium italic opacity-70 px-2">---</p>
         </div>
 
         <div class="scroll-container pb-32">
+            
             <div class="press-effect bento-card p-8 mb-10 border-gray-200 cursor-pointer" onclick="startWorkout(fullRoutine, 'home')">
                 <span class="pill bg-black text-white mb-6 inline-block">The Main Quest</span>
                 <h3 class="text-2xl font-bold mb-1 text-gray-800 tracking-tighter uppercase">Path of the Warrior</h3>
                 <div class="mt-8 text-[10px] font-black uppercase tracking-[0.3em] text-black italic">Enter Arena →</div>
             </div>
 
-            <div id="chronicles-section" class="mb-10 hidden px-2">
-                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Recent Chronicles</h3>
-                <div id="chronicles-list" class="bento-card overflow-hidden"></div>
-            </div>
-
             <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">The Warrior's Arsenal</h3>
-            <div class="grid grid-cols-2 gap-4 px-2">
+            <div class="grid grid-cols-2 gap-4 px-2 mb-12">
                 <div onclick="toggleArsenal('Chest')" id="btn-Chest" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Chest</div>
                 <div onclick="toggleArsenal('Back')" id="btn-Back" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Back</div>
                 <div onclick="toggleArsenal('Shoulders')" id="btn-Shoulders" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Shoulders</div>
@@ -150,6 +170,12 @@
                 <div onclick="toggleArsenal('Legs')" id="btn-Legs" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Legs</div>
                 <div onclick="toggleArsenal('Core')" id="btn-Core" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Core</div>
             </div>
+
+            <div id="chronicles-section" class="mb-10 hidden px-2">
+                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em] text-center">Recent Chronicles</h3>
+                <div id="chronicles-list" class="bento-card overflow-hidden"></div>
+            </div>
+
         </div>
     </div>
 
@@ -163,7 +189,6 @@
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
-        
         <div class="flex justify-between items-center mb-6 pt-8 px-2 shrink-0">
             <div onclick="retreatClick()" class="pill cursor-pointer press-effect">Retreat</div>
             <span id="progress-text" class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Stage 1 / 4</span>
@@ -251,11 +276,9 @@
         let activeSession = [];
         let selectedInMenu = [];
         let selectedGroups = [];
-        
         let sessionLog = [];
-        let currentExerciseLog = []; // Memory for current exercise shadow
-        let shadowArray = []; // The shadow we are chasing
-        
+        let currentExerciseLog = []; 
+        let shadowArray = []; 
         let currentIdx = 0;
         let currentSet = 1;
         let timerInterval;
@@ -272,7 +295,84 @@
             }
         };
 
-        // AUDIO
+        // ANALYTICS DASHBOARD LOGIC
+        function openAnalytics() {
+            // 1. Calculate Lifetime Workouts
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            document.getElementById('stat-workouts').innerText = chronicles.length;
+
+            // 2. Calculate Lifetime Sets
+            let totalSets = 0;
+            chronicles.forEach(c => { totalSets += (c.details ? c.details.length : 0); });
+            document.getElementById('stat-sets').innerText = totalSets;
+
+            // 3. Render PB List
+            const pbList = document.getElementById('pb-list');
+            let pbHTML = '';
+            let hasPBs = false;
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('zen-pb-')) {
+                    hasPBs = true;
+                    const exName = key.replace('zen-pb-', '');
+                    const weight = localStorage.getItem(key);
+                    pbHTML += `
+                    <div class="chronicle-card">
+                        <p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate">${exName}</p>
+                        <span class="text-sm font-black text-[#1a1a1a] shrink-0">${weight} KG</span>
+                    </div>`;
+                }
+            }
+            
+            if(!hasPBs) {
+                pbHTML = `<div class="p-8 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No records established.<br>Enter the arena.</div>`;
+            }
+            pbList.innerHTML = pbHTML;
+            document.getElementById('analytics-window').classList.remove('hidden');
+        }
+
+        function closeAnalytics() {
+            document.getElementById('analytics-window').classList.add('hidden');
+        }
+
+        function toggleArsenal(group) {
+            const idx = selectedGroups.indexOf(group);
+            const btn = document.getElementById(`btn-${group}`);
+            if (idx > -1) { selectedGroups.splice(idx, 1); btn.classList.remove(`active-${group}`); } 
+            else { selectedGroups.push(group); btn.classList.add(`active-${group}`); }
+            document.getElementById('synthesis-bar').classList.toggle('show', selectedGroups.length > 0);
+        }
+
+        function synthesizeGrimoire() {
+            document.getElementById('synthesis-bar').classList.remove('show');
+            const listDiv = document.getElementById('exercise-list');
+            listDiv.innerHTML = ''; selectedInMenu = [];
+            const filtered = fullLibrary.filter(ex => selectedGroups.includes(ex.group));
+            
+            filtered.forEach(ex => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
+                item.onclick = () => toggleSelection(ex, item, filtered);
+                item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.target}</p></div><div class="selection-circle"></div>`;
+                listDiv.appendChild(item);
+            });
+            document.getElementById('selection-title').innerText = selectedGroups.length > 1 ? "Synthesis" : selectedGroups[0];
+            document.getElementById('selection-ui').classList.remove('hidden');
+        }
+
+        function closeSelectionUI() { document.getElementById('selection-ui').classList.add('hidden'); if (selectedGroups.length > 0) document.getElementById('synthesis-bar').classList.add('show'); }
+        function toggleSelection(ex, element, options) {
+            const idx = selectedInMenu.findIndex(s => s.en === ex.en);
+            if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
+            Array.from(document.getElementById('exercise-list').children).forEach((item, i) => {
+                const sIdx = selectedInMenu.findIndex(s => s.en === options[i].en);
+                const circle = item.querySelector('.selection-circle');
+                if (sIdx > -1) { circle.classList.add('active'); circle.innerText = sIdx + 1; } else { circle.classList.remove('active'); circle.innerText = ''; }
+            });
+        }
+        function startSelected() { if (selectedInMenu.length > 0) { document.getElementById('selection-ui').classList.add('hidden'); document.getElementById('synthesis-bar').classList.remove('show'); startWorkout(selectedInMenu, 'selection'); } }
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSystemSound(type) {
             const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
@@ -281,7 +381,6 @@
             else if (type === 'levelup') { osc.type = 'triangle'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.5); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6); }
         }
 
-        // LEVELING
         function getXpRequired(lvl) { return SYSTEM_CONFIG.baseXp + (lvl * SYSTEM_CONFIG.xpScaling); }
         function updateLevelUI() {
             const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
@@ -325,7 +424,6 @@
             setTimeout(() => { overlay.classList.remove('active'); }, 2500);
         }
 
-        // WORKOUT LOGIC
         function logSet() {
             const wInput = document.getElementById('weight-input').value;
             const rInput = document.getElementById('reps-input').value;
@@ -333,11 +431,9 @@
             const r = parseInt(rInput) || 0;
             const exName = activeSession[currentIdx].en;
 
-            // Log to Global Session & Current Shadow Builder
             sessionLog.push({ exercise: exName, weight: w, reps: r, form: currentSet });
             currentExerciseLog.push({ w: w, r: r });
 
-            // Check PB (Limit Break)
             const currentPB = parseFloat(localStorage.getItem('zen-pb-' + exName)) || 0;
             if (w > currentPB) {
                 localStorage.setItem('zen-pb-' + exName, w);
@@ -345,7 +441,6 @@
                 document.getElementById('history-label').textContent = `PB: ${w}kg`;
             }
 
-            // Update UI Table
             const row = document.createElement('div');
             row.className = "set-row";
             row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
@@ -355,7 +450,7 @@
             currentSet++;
             document.getElementById('set-counter').innerText = `Form ${currentSet}`;
             
-            loadShadowForSet(); // Load next set's shadow
+            loadShadowForSet();
             startTimer(60);
         }
 
@@ -370,8 +465,6 @@
             const shadowText = document.getElementById('shadow-record-text');
             const wInput = document.getElementById('weight-input');
             const rInput = document.getElementById('reps-input');
-            
-            // Current Set is 1-indexed. Arrays are 0-indexed.
             const shadowSet = shadowArray[currentSet - 1];
             
             if (shadowSet) {
@@ -382,7 +475,6 @@
             } else {
                 shadowText.innerText = "SHADOW: NONE";
                 shadowText.style.opacity = '0.3';
-                // Fallback to last recorded set in current workout if available
                 if (currentExerciseLog.length > 0) {
                     wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w;
                     rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r;
@@ -401,37 +493,19 @@
         }
 
         function resetForNewExercise() {
-            currentSet = 1; 
-            currentExerciseLog = [];
+            currentSet = 1; currentExerciseLog = [];
             const exName = activeSession[currentIdx].en;
             shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + exName) || "[]");
-            
             document.getElementById('history-list').innerHTML = ''; 
             document.getElementById('set-counter').innerText = `Form 1`;
-            updateUI();
-            loadShadowForSet();
+            updateUI(); loadShadowForSet();
         }
 
-        function nextExercise() { 
-            saveShadowData();
-            if (currentIdx < activeSession.length - 1) { 
-                currentIdx++; 
-                resetForNewExercise(); 
-            } else { 
-                skipTimer(); concludeQuest(); 
-            } 
-        }
-
-        function prevExercise() { 
-            saveShadowData();
-            if (currentIdx > 0) { 
-                currentIdx--; 
-                resetForNewExercise(); 
-            } 
-        }
+        function nextExercise() { saveShadowData(); if (currentIdx < activeSession.length - 1) { currentIdx++; resetForNewExercise(); } else { skipTimer(); concludeQuest(); } }
+        function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); } }
 
         function concludeQuest() {
-            saveShadowData(); // Catch the last exercise
+            saveShadowData();
             const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
             const newRecord = {
                 date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
@@ -443,62 +517,12 @@
             renderChronicles(); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation();
         }
 
-        // UI & NAVIGATION HELPERS
-        function updateUI() {
-            const ex = activeSession[currentIdx];
-            document.getElementById('ex-name-en').textContent = ex.en;
-            document.getElementById('ex-name-es').textContent = ex.es;
-            document.getElementById('progress-text').textContent = `Stage ${currentIdx + 1} / ${activeSession.length}`;
-            
-            const truePB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0;
-            document.getElementById('history-label').textContent = truePB > 0 ? `PB: ${truePB}kg` : "New Art";
-            
-            document.getElementById('spirit-aura').style.backgroundColor = AURA_COLORS[ex.group] || '#1a1a1a';
-            
-            const targetEl = document.getElementById('target-muscle');
-            if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase();
-            
-            const backBtn = document.getElementById('back-btn');
-            if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; }
-            document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance';
-        }
-
-        function toggleArsenal(group) {
-            const idx = selectedGroups.indexOf(group);
-            const btn = document.getElementById(`btn-${group}`);
-            if (idx > -1) { selectedGroups.splice(idx, 1); btn.classList.remove(`active-${group}`); } 
-            else { selectedGroups.push(group); btn.classList.add(`active-${group}`); }
-            document.getElementById('synthesis-bar').classList.toggle('show', selectedGroups.length > 0);
-        }
-
-        function synthesizeGrimoire() {
+        function resetPreparation() {
+            selectedGroups = [];
+            Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; });
             document.getElementById('synthesis-bar').classList.remove('show');
-            const listDiv = document.getElementById('exercise-list');
-            listDiv.innerHTML = ''; selectedInMenu = [];
-            const filtered = fullLibrary.filter(ex => selectedGroups.includes(ex.group));
-            filtered.forEach(ex => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
-                item.onclick = () => toggleSelection(ex, item, filtered);
-                item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.target}</p></div><div class="selection-circle"></div>`;
-                listDiv.appendChild(item);
-            });
-            document.getElementById('selection-title').innerText = selectedGroups.length > 1 ? "Synthesis" : selectedGroups[0];
-            document.getElementById('selection-ui').classList.remove('hidden');
         }
 
-        function closeSelectionUI() { document.getElementById('selection-ui').classList.add('hidden'); if (selectedGroups.length > 0) document.getElementById('synthesis-bar').classList.add('show'); }
-        function toggleSelection(ex, element, options) {
-            const idx = selectedInMenu.findIndex(s => s.en === ex.en);
-            if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
-            Array.from(document.getElementById('exercise-list').children).forEach((item, i) => {
-                const sIdx = selectedInMenu.findIndex(s => s.en === options[i].en);
-                const circle = item.querySelector('.selection-circle');
-                if (sIdx > -1) { circle.classList.add('active'); circle.innerText = sIdx + 1; } else { circle.classList.remove('active'); circle.innerText = ''; }
-            });
-        }
-        function startSelected() { if (selectedInMenu.length > 0) { document.getElementById('selection-ui').classList.add('hidden'); document.getElementById('synthesis-bar').classList.remove('show'); startWorkout(selectedInMenu, 'selection'); } }
-        function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); }
         function renderChronicles() {
             const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
             const list = document.getElementById('chronicles-list');
@@ -507,11 +531,13 @@
                 list.innerHTML = chronicles.map((c, i) => `<div onclick="openHistory(${i})" class="chronicle-card press-effect cursor-pointer"><div class="flex-1 pr-4 truncate"><p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate w-full">${c.summary}</p><p class="text-[8px] font-black text-gray-400 uppercase mt-1">View Log →</p></div><span class="text-[9px] font-black text-gray-300 uppercase shrink-0">${c.date}</span></div>`).join('');
             }
         }
+
         function openHistory(index) {
             const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]"); const quest = chronicles[index];
             document.getElementById('history-detail-content').innerHTML = quest.details.map(d => `<div class="set-row"><div class="text-left"><p class="text-[10px] font-bold text-gray-800">${d.exercise}</p><p class="text-[8px] font-black text-gray-400 uppercase">Form ${d.form}</p></div><span class="font-bold text-gray-800 text-xs">${d.weight}kg x ${d.reps}</span></div>`).join('');
             document.getElementById('ui-shield').classList.add('active'); document.getElementById('history-modal').classList.add('show');
         }
+
         function closeHistory() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('history-modal').classList.remove('show'); }
         function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
         function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
@@ -519,6 +545,25 @@
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
         function startTimer(seconds) { clearInterval(timerInterval); let time = seconds; document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').innerText = time; timerInterval = setInterval(() => { time--; document.getElementById('timer-display').innerText = time; if(time <= 0) skipTimer(); }, 1000); }
         function updateFlavor() { const quotes = ["Keep moving forward.", "No matter how many times you’re knocked down, get back up.", "Arise.", "The journey is what matters.", "I have no enemies..."]; document.getElementById('flavor-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)]; }
+        
+        function updateUI() {
+            const ex = activeSession[currentIdx];
+            document.getElementById('ex-name-en').textContent = ex.en;
+            document.getElementById('ex-name-es').textContent = ex.es;
+            document.getElementById('progress-text').textContent = `Stage ${currentIdx + 1} / ${activeSession.length}`;
+            
+            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0;
+            document.getElementById('history-label').textContent = currentPB > 0 ? `PB: ${currentPB}kg` : "New Art";
+            
+            document.getElementById('spirit-aura').style.backgroundColor = AURA_COLORS[ex.group] || '#1a1a1a';
+            const targetEl = document.getElementById('target-muscle');
+            if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase();
+            
+            const backBtn = document.getElementById('back-btn');
+            if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; }
+            document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance';
+        }
+        
         function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('zen-name', n); document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden'); } }
         function saveType(t) { localStorage.setItem('zen-type', t); location.reload(); }
         function resetApp() { if(confirm("Abandon legacy?")) { localStorage.clear(); location.reload(); } }
