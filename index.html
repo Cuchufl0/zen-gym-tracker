@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#1a1a1a">
     <link rel="apple-touch-icon" href="https://via.placeholder.com/192/1a1a1a/ffffff?text=Z">
     
-    <title>Zen Gym - V5.8</title>
+    <title>Zen Gym - Heatmaps & Timers</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -57,10 +57,8 @@
 
         .xp-container { width: 100%; height: 8px; background: #e5e5e5; border-radius: 8px; margin-top: 10px; overflow: hidden; }
         .xp-bar { height: 100%; background: #1a1a1a; width: 0%; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 8px; }
-        .aura-container { width: 100%; height: 192px; border-radius: 40px; position: relative; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 32px; border: 1px solid #f0f0f0; }
-        .aura-glow { position: absolute; width: 120px; height: 120px; border-radius: 50%; filter: blur(45px); opacity: 0.4; animation: auraPulse 3s infinite ease-in-out; pointer-events: none; transition: background-color 0.8s ease; }
-        @keyframes auraPulse { 0%, 100% { transform: scale(1.2); opacity: 0.3; } 50% { transform: scale(1.8); opacity: 0.6; } }
-
+        .aura-container { width: 100%; height: 260px; border-radius: 40px; position: relative; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 24px; border: 1px solid #f0f0f0; }
+        
         .set-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; width: 100%; }
         .press-effect { transition: transform 0.1s; }
         .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
@@ -90,13 +88,13 @@
             <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Volume</span><span class="text-2xl font-bold" id="summary-volume">0 kg</span></div>
             <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Reps</span><span class="text-2xl font-bold" id="summary-reps">0</span></div>
             <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Records Broken</span><span class="text-2xl font-bold text-[#ffbe0b]" id="summary-prs">0</span></div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Time Elapsed</span><span class="text-2xl font-bold text-gray-300" id="summary-time">00:00</span></div>
         </div>
         <div onclick="closeSummary()" class="bg-white text-black rounded-[24px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer">Return to Sanctuary</div>
     </div>
 
     <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
     <div id="purge-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p><div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div><div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div></div>
-    
     <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-extrabold tracking-tighter text-gray-800 uppercase">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3"></div></div>
 
     <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
@@ -120,8 +118,7 @@
     <div id="synthesis-bar"><div onclick="draftArc()" class="zen-button press-effect shadow-2xl">Draft Training Arc</div></div>
 
     <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-10 flex flex-col hidden">
-        <div id="step-1" class="flex-1 flex flex-col justify-center"><h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1><input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full focus:outline-none"><div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div></div>
-        <div id="step-2" class="flex-1 flex flex-col justify-center hidden text-center"><h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800 uppercase">Choose Your Vessel</h2><div class="grid grid-cols-1 gap-4"><div onclick="saveType('lean')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Lean</div><div onclick="saveType('athletic')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Athletic</div><div onclick="saveType('solid')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Solid</div></div></div>
+        <div class="flex-1 flex flex-col justify-center"><h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1><input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full focus:outline-none"><div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div></div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full">
@@ -168,7 +165,6 @@
         </div>
 
         <div id="exercise-list" class="scroll-container mb-2 border-b border-gray-100"></div>
-        
         <div id="selected-order-list" class="shrink-0 max-h-32 overflow-y-auto mb-2 space-y-2 px-1"></div>
 
         <div class="shrink-0 pt-2">
@@ -179,24 +175,56 @@
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
-        <div class="flex justify-between items-center mb-6 pt-8 px-2 shrink-0"><div onclick="retreatClick()" class="pill cursor-pointer press-effect">Retreat</div><span id="progress-text" class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Stage 1 / 4</span><div onclick="openSwapModal()" class="pill bg-gray-200 text-gray-600 cursor-pointer press-effect text-center w-16">Swap</div></div>
+        <div class="flex justify-between items-center mb-6 pt-8 px-2 shrink-0">
+            <div onclick="retreatClick()" class="pill bg-red-50 text-red-500 cursor-pointer press-effect">Retreat</div>
+            <div class="flex flex-col items-center">
+                <span id="global-clock-display" class="text-[12px] font-black tracking-[0.2em] text-gray-800">00:00</span>
+                <span class="text-[7px] font-black text-gray-400 uppercase tracking-widest">Elapsed</span>
+            </div>
+            <div onclick="openSwapModal()" class="pill bg-gray-100 text-gray-600 cursor-pointer press-effect text-center">Swap</div>
+        </div>
+        
         <div class="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-6">
-            <div class="aura-container"><div id="spirit-aura" class="aura-glow"></div><img id="active-character" src="" class="w-full h-full object-contain relative z-10"><span id="target-muscle" class="absolute bottom-4 text-[9px] bg-white px-5 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest z-20">&nbsp;</span></div>
-            <div class="flex justify-between items-end mb-1"><h2 id="ex-name-en" class="text-2xl font-extrabold tracking-tighter text-gray-800">---</h2><span id="set-counter" class="text-[9px] font-black text-gray-400 uppercase tracking-widest italic">Form 1</span></div>
-            <div class="flex items-center justify-between mb-8 px-1 w-full"><h3 id="ex-name-es" class="text-sm font-bold italic text-gray-400">---</h3><span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full tracking-widest">PB: 0kg</span></div>
-            <div id="shadow-record-box" class="w-full flex justify-center mb-4"><span id="shadow-record-text" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] bg-gray-100 px-4 py-2 rounded-full opacity-80">SHADOW: ---</span></div>
-            
-            <div class="grid grid-cols-2 gap-8 mb-10 w-full">
-                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Weight</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors"></div>
-                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Reps</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors"></div>
+            <div class="aura-container">
+                <img id="active-character" src="default.png" class="w-full h-full object-contain relative z-10 transition-opacity duration-300">
+                <span id="target-muscle" class="absolute bottom-4 text-[9px] bg-white/90 backdrop-blur-md px-5 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest z-20 shadow-sm">&nbsp;</span>
             </div>
             
-            <div onclick="logSet()" class="zen-button mb-10 press-effect" role="button">Unleash</div>
+            <div class="flex justify-between items-center mb-1">
+                <div class="flex items-center gap-2">
+                    <h2 id="ex-name-en" class="text-xl font-extrabold tracking-tighter text-gray-800 leading-tight">---</h2>
+                    <div onclick="openFormGuide()" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs cursor-pointer press-effect shrink-0">?</div>
+                </div>
+                <span id="set-counter" class="text-[9px] font-black text-gray-400 uppercase tracking-widest italic shrink-0">Form 1</span>
+            </div>
+            <div class="flex items-center justify-between mb-8 w-full border-b border-gray-100 pb-4">
+                <h3 id="ex-name-es" class="text-xs font-bold italic text-gray-400">---</h3>
+                <span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full tracking-widest">PB: 0kg</span>
+            </div>
+            
+            <div id="shadow-record-box" class="w-full flex justify-center mb-6"><span id="shadow-record-text" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] bg-gray-50 px-4 py-2 rounded-full opacity-80 border border-gray-100">SHADOW: ---</span></div>
+            
+            <div id="reps-ui" class="grid grid-cols-2 gap-8 mb-10 w-full">
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Weight</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors bg-transparent"></div>
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Reps</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors bg-transparent"></div>
+            </div>
+
+            <div id="time-ui" class="hidden flex-col items-center mb-10 w-full">
+                <div class="text-5xl font-light mb-6 text-gray-800 tracking-tighter" id="stopwatch-display">00:00</div>
+                <div class="flex gap-4 w-full px-4">
+                    <div onclick="toggleStopwatch()" id="btn-stopwatch" class="flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200">Start Timer</div>
+                    <div onclick="resetStopwatch()" class="pill bg-gray-50 text-gray-400 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-100 px-6">Reset</div>
+                </div>
+                <input type="hidden" id="time-input" value="0">
+            </div>
+            
+            <div onclick="logSet()" class="zen-button mb-10 press-effect shadow-lg" role="button">Unleash</div>
             <div id="set-history" class="mb-4 w-full"><h4 class="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-4 text-center">Record of Forms</h4><div id="history-list" class="w-full"></div></div>
         </div>
         <div class="mt-auto pt-4 flex gap-4 w-full shrink-0 border-t border-gray-100 bg-white pb-2">
-            <div id="back-btn" onclick="prevExercise()" style="visibility: hidden;" class="flex-1 py-5 rounded-[24px] bg-gray-100 font-bold text-gray-500 text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer">Back</div>
-            <div id="next-btn" onclick="nextExercise()" class="flex-1 py-5 rounded-[24px] bg-[#1a1a1a] text-white font-bold text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer">Advance</div>
+            <div id="back-btn" onclick="prevExercise()" style="visibility: hidden;" class="flex-1 py-5 rounded-[24px] bg-gray-50 font-bold text-gray-500 text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer">Back</div>
+            <div id="progress-text" class="flex-1 py-5 font-black text-gray-300 text-[10px] uppercase tracking-[0.2em] text-center flex items-center justify-center">1/4</div>
+            <div id="next-btn" onclick="nextExercise()" class="flex-1 py-5 rounded-[24px] bg-[#1a1a1a] text-white font-bold text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer shadow-md">Advance</div>
         </div>
     </div>
 
@@ -215,8 +243,14 @@
         const RANKS = { E: { title: "The Seeker", sub: "A new player has entered the dungeon." }, D: { title: "The Disciple", sub: "A true warrior does not need a sword to stand tall." }, C: { title: "The Practitioner", sub: "Equivalent Exchange: You are becoming what you give." }, B: { title: "The Adept", sub: "The System no longer guides you; it follows you." }, A: { title: "The Ascendant", sub: "You have surpassed the ceiling of human potential." }, S: { title: "The Transcendent", sub: "The legend ends here. A new eternity begins." } };
         const AURA_COLORS = { 'Chest': '#ff4d4d', 'Back': '#9d4edd', 'Arms': '#0077ff', 'Legs': '#38b000', 'Shoulders': '#00f5d4', 'Core': '#ffbe0b', 'Default': '#1a1a1a' };
 
+        // LIBRARY: Time-based core exercises flagged with type: "time"
         const fullLibrary = [
-            { en: "Pushups", es: "Flexiones", group: "Chest", target: "Chest", equip: "bodyweight" }, { en: "Decline Pushups", es: "Flexiones Declinadas", group: "Chest", target: "Upper Chest", equip: "bodyweight" }, { en: "Incline Pushups", es: "Flexiones Inclinadas", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Chest Dips", es: "Fondos de Pecho", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Barbell Bench Press", es: "Press de Banca (Barra)", group: "Chest", target: "Chest", equip: "barbell" }, { en: "Incline Barbell Press", es: "Press Inclinado (Barra)", group: "Chest", target: "Upper Chest", equip: "barbell" }, { en: "Decline Barbell Press", es: "Press Declinado (Barra)", group: "Chest", target: "Lower Chest", equip: "barbell" }, { en: "Dumbbell Bench Press", es: "Press de Banca (Manc)", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Press", es: "Press Inclinado (Manc)", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Decline DB Press", es: "Press Declinado (Manc)", group: "Chest", target: "Lower Chest", equip: "dumbbell" }, { en: "Dumbbell Flys", es: "Aperturas con Mancuernas", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Flys", es: "Aperturas Inclinadas", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Pec Deck Fly", es: "Pec Deck / Contrator", group: "Chest", target: "Chest", equip: "machine" }, { en: "Machine Chest Press", es: "Press de Pecho Máquina", group: "Chest", target: "Chest", equip: "machine" }, { en: "Incline Machine Press", es: "Press Inclinado Máquina", group: "Chest", target: "Upper Chest", equip: "machine" }, { en: "Cable Crossovers", es: "Cruces en Polea", group: "Chest", target: "Chest", equip: "cable" }, { en: "Low-to-High Cable Fly", es: "Cruces Ascendentes", group: "Chest", target: "Upper Chest", equip: "cable" }, { en: "High-to-Low Cable Fly", es: "Cruces Descendentes", group: "Chest", target: "Lower Chest", equip: "cable" }, { en: "Dumbbell Pullover", es: "Pullover con Mancuerna", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Pull-ups", es: "Dominadas Prinas", group: "Back", target: "Lats", equip: "bodyweight" }, { en: "Chin-ups", es: "Dominadas Supinas", group: "Back", target: "Lats / Biceps", equip: "bodyweight" }, { en: "Barbell Row", es: "Remo con Barra", group: "Back", target: "Back Thickness", equip: "barbell" }, { en: "Pendlay Row", es: "Remo Pendlay", group: "Back", target: "Mid Back", equip: "barbell" }, { en: "Dumbbell Row", es: "Remo a una mano", group: "Back", target: "Lats", equip: "dumbbell" }, { en: "Incline DB Row", es: "Remo Inclinado (Manc)", group: "Back", target: "Mid Back", equip: "dumbbell" }, { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Reverse Grip Pulldown", es: "Jalón Supino", group: "Back", target: "Lats / Lower", equip: "cable" }, { en: "V-Bar Pulldown", es: "Jalón Agarre Estrecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Seated Cable Row", es: "Remo Sentado Polea", group: "Back", target: "Mid Back", equip: "cable" }, { en: "Straight Arm Pulldown", es: "Jalón Brazos Rectos", group: "Back", target: "Lats", equip: "cable" }, { en: "T-Bar Row", es: "Remo en T", group: "Back", target: "Back Thickness", equip: "machine" }, { en: "Machine Row", es: "Remo en Máquina", group: "Back", target: "Mid Back", equip: "machine" }, { en: "Hyperextensions", es: "Hipers", group: "Back", target: "Lower Back", equip: "bodyweight" }, { en: "Deadlift", es: "Peso Muerto Tradicional", group: "Back", target: "Lower Back", equip: "barbell" }, { en: "Pike Pushups", es: "Flexiones Lucio", group: "Shoulders", target: "Front Delts", equip: "bodyweight" }, { en: "Overhead Press", es: "Press Militar (Barra)", group: "Shoulders", target: "Front Delts", equip: "barbell" }, { en: "Dumbbell Military Press", es: "Press Militar (Manc)", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders", equip: "dumbbell" }, { en: "Machine Shoulder Press", es: "Press Hombros Máquina", group: "Shoulders", target: "Front Delts", equip: "machine" }, { en: "Lateral Raises", es: "Elevaciones Laterales", group: "Shoulders", target: "Side Delts", equip: "dumbbell" }, { en: "Cable Lateral Raises", es: "Laterales en Polea", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Machine Lateral Raises", es: "Laterales en Máquina", group: "Shoulders", target: "Side Delts", equip: "machine" }, { en: "Front Raises (DB)", es: "Elevaciones Frontales", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Front Raises (Cable)", es: "Frontales en Polea", group: "Shoulders", target: "Front Delts", equip: "cable" }, { en: "Face Pulls", es: "Face Pulls", group: "Shoulders", target: "Rear Delts", equip: "cable" }, { en: "Reverse Pec Deck", es: "Pájaros en Máquina", group: "Shoulders", target: "Rear Delts", equip: "machine" }, { en: "DB Rear Delt Flys", es: "Pájaros con Mancuerna", group: "Shoulders", target: "Rear Delts", equip: "dumbbell" }, { en: "Dumbbell Shrugs", es: "Encogimientos (Manc)", group: "Shoulders", target: "Traps", equip: "dumbbell" }, { en: "Barbell Shrugs", es: "Encogimientos (Barra)", group: "Shoulders", target: "Traps", equip: "barbell" }, { en: "Upright Row (BB)", es: "Remo al Mentón (Barra)", group: "Shoulders", target: "Side Delts", equip: "barbell" }, { en: "Upright Row (Cable)", es: "Remo Mentón (Polea)", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Barbell Curl", es: "Curl con Barra", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "EZ Bar Curl", es: "Curl Barra EZ", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Alternating DB Curl", es: "Curl Alterno (Manc)", group: "Arms", target: "Biceps", equip: "dumbbell" }, { en: "Hammer Curls", es: "Curl Martillo", group: "Arms", target: "Brachialis", equip: "dumbbell" }, { en: "Concentration Curl", es: "Curl Concentrado", group: "Arms", target: "Biceps Peak", equip: "dumbbell" }, { en: "Incline DB Curl", es: "Curl Inclinado", group: "Arms", target: "Biceps Long Head", equip: "dumbbell" }, { en: "Preacher Curl (Machine)", es: "Curl Predicador", group: "Arms", target: "Biceps", equip: "machine" }, { en: "Preacher Curl (EZ)", es: "Curl Banco Scott", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Cable Bicep Curl", es: "Curl en Polea", group: "Arms", target: "Biceps", equip: "cable" }, { en: "Reverse Curl (EZ)", es: "Curl Inverso", group: "Arms", target: "Forearms", equip: "barbell" }, { en: "Tricep Dips", es: "Fondos de Tríceps", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Bench Dips", es: "Fondos en Banco", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Close Grip Bench", es: "Press Banca Cerrado", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Skullcrushers", es: "Rompecráneos", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Overhead DB Extension", es: "Extensión Copa (Manc)", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Kickbacks", es: "Patada de Tríceps", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Pushdown (Straight)", es: "Extensión Polea Alta", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Rope Pushdown", es: "Extensión con Cuerda", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Overhead Tricep Ext (Cable)", es: "Extensión Tras Nuca Polea", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Machine Tricep Ext", es: "Extensión Tríceps Máquina", group: "Arms", target: "Triceps", equip: "machine" }, { en: "Bodyweight Squats", es: "Sentadillas Libres", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Walking Lunges", es: "Zancadas", group: "Legs", target: "Legs", equip: "bodyweight" }, { en: "Pistol Squats", es: "Sentadilla a 1 Pierna", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Barbell Squats", es: "Sentadilla (Barra)", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Front Squat", es: "Sentadilla Frontal", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Goblet Squat", es: "Sentadilla Goblet", group: "Legs", target: "Quads", equip: "dumbbell" }, { en: "Bulgarian Split Squat", es: "Sentadilla Búlgara", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Romanian Deadlift (Bar)", es: "Peso Muerto Rumano", group: "Legs", target: "Hamstrings", equip: "barbell" }, { en: "Romanian Deadlift (DB)", es: "PMR (Mancuernas)", group: "Legs", target: "Hamstrings", equip: "dumbbell" }, { en: "DB Lunges", es: "Zancadas con Mancuernas", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Leg Press", es: "Prensa", group: "Legs", target: "Legs", equip: "machine" }, { en: "Hack Squat", es: "Sentadilla Hack", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Extension", es: "Extensión Cuádriceps", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Curl (Seated)", es: "Curl Isquios Sentado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Leg Curl (Lying)", es: "Curl Isquios Tumbado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Hip Thrust", es: "Empuje de Cadera", group: "Legs", target: "Glutes", equip: "barbell" }, { en: "Standing Calf Raises", es: "Elevación Gemelos Pie", group: "Legs", target: "Calves", equip: "machine" }, { en: "Seated Calf Raises", es: "Elevación Gemelos Sentado", group: "Legs", target: "Calves", equip: "machine" }, { en: "Plank", es: "Plancha", group: "Core", target: "Core", equip: "bodyweight" }, { en: "Upper Abs Crunch", es: "Crunch Abdominal", group: "Core", target: "Upper Abs", equip: "bodyweight" }, { en: "Leg Raises", es: "Elevación de Piernas", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Hanging Leg Raises", es: "Elevación Colgado", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Russian Twists", es: "Giro Ruso", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "Bicycle Crunches", es: "Bicicleta", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "V-Ups", es: "Abdominales en V", group: "Core", target: "Abs", equip: "bodyweight" }, { en: "Mountain Climbers", es: "Escaladores", group: "Core", target: "Core", equip: "bodyweight" }, { en: "Cable Crunch", es: "Crunch en Polea", group: "Core", target: "Abs", equip: "cable" }, { en: "Woodchoppers", es: "Hachazos Polea", group: "Core", target: "Obliques", equip: "cable" }, { en: "Ab Machine", es: "Máquina de Abs", group: "Core", target: "Abs", equip: "machine" }
+            { en: "Pushups", es: "Flexiones", group: "Chest", target: "Chest", equip: "bodyweight" }, { en: "Decline Pushups", es: "Flexiones Declinadas", group: "Chest", target: "Upper Chest", equip: "bodyweight" }, { en: "Incline Pushups", es: "Flexiones Inclinadas", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Chest Dips", es: "Fondos de Pecho", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Barbell Bench Press", es: "Press de Banca (Barra)", group: "Chest", target: "Chest", equip: "barbell" }, { en: "Incline Barbell Press", es: "Press Inclinado (Barra)", group: "Chest", target: "Upper Chest", equip: "barbell" }, { en: "Decline Barbell Press", es: "Press Declinado (Barra)", group: "Chest", target: "Lower Chest", equip: "barbell" }, { en: "Dumbbell Bench Press", es: "Press de Banca (Manc)", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Press", es: "Press Inclinado (Manc)", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Decline DB Press", es: "Press Declinado (Manc)", group: "Chest", target: "Lower Chest", equip: "dumbbell" }, { en: "Dumbbell Flys", es: "Aperturas con Mancuernas", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Flys", es: "Aperturas Inclinadas", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Pec Deck Fly", es: "Pec Deck / Contrator", group: "Chest", target: "Chest", equip: "machine" }, { en: "Machine Chest Press", es: "Press de Pecho Máquina", group: "Chest", target: "Chest", equip: "machine" }, { en: "Incline Machine Press", es: "Press Inclinado Máquina", group: "Chest", target: "Upper Chest", equip: "machine" }, { en: "Cable Crossovers", es: "Cruces en Polea", group: "Chest", target: "Chest", equip: "cable" }, { en: "Low-to-High Cable Fly", es: "Cruces Ascendentes", group: "Chest", target: "Upper Chest", equip: "cable" }, { en: "High-to-Low Cable Fly", es: "Cruces Descendentes", group: "Chest", target: "Lower Chest", equip: "cable" }, { en: "Dumbbell Pullover", es: "Pullover con Mancuerna", group: "Chest", target: "Chest", equip: "dumbbell" }, 
+            { en: "Pull-ups", es: "Dominadas Prinas", group: "Back", target: "Lats", equip: "bodyweight" }, { en: "Chin-ups", es: "Dominadas Supinas", group: "Back", target: "Lats / Biceps", equip: "bodyweight" }, { en: "Barbell Row", es: "Remo con Barra", group: "Back", target: "Back Thickness", equip: "barbell" }, { en: "Pendlay Row", es: "Remo Pendlay", group: "Back", target: "Mid Back", equip: "barbell" }, { en: "Dumbbell Row", es: "Remo a una mano", group: "Back", target: "Lats", equip: "dumbbell" }, { en: "Incline DB Row", es: "Remo Inclinado (Manc)", group: "Back", target: "Mid Back", equip: "dumbbell" }, { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Reverse Grip Pulldown", es: "Jalón Supino", group: "Back", target: "Lats / Lower", equip: "cable" }, { en: "V-Bar Pulldown", es: "Jalón Agarre Estrecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Seated Cable Row", es: "Remo Sentado Polea", group: "Back", target: "Mid Back", equip: "cable" }, { en: "Straight Arm Pulldown", es: "Jalón Brazos Rectos", group: "Back", target: "Lats", equip: "cable" }, { en: "T-Bar Row", es: "Remo en T", group: "Back", target: "Back Thickness", equip: "machine" }, { en: "Machine Row", es: "Remo en Máquina", group: "Back", target: "Mid Back", equip: "machine" }, { en: "Hyperextensions", es: "Hipers", group: "Back", target: "Lower Back", equip: "bodyweight" }, { en: "Deadlift", es: "Peso Muerto Tradicional", group: "Back", target: "Lower Back", equip: "barbell" }, 
+            { en: "Pike Pushups", es: "Flexiones Lucio", group: "Shoulders", target: "Front Delts", equip: "bodyweight" }, { en: "Overhead Press", es: "Press Militar (Barra)", group: "Shoulders", target: "Front Delts", equip: "barbell" }, { en: "Dumbbell Military Press", es: "Press Militar (Manc)", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders", equip: "dumbbell" }, { en: "Machine Shoulder Press", es: "Press Hombros Máquina", group: "Shoulders", target: "Front Delts", equip: "machine" }, { en: "Lateral Raises", es: "Elevaciones Laterales", group: "Shoulders", target: "Side Delts", equip: "dumbbell" }, { en: "Cable Lateral Raises", es: "Laterales en Polea", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Machine Lateral Raises", es: "Laterales en Máquina", group: "Shoulders", target: "Side Delts", equip: "machine" }, { en: "Front Raises (DB)", es: "Elevaciones Frontales", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Front Raises (Cable)", es: "Frontales en Polea", group: "Shoulders", target: "Front Delts", equip: "cable" }, { en: "Face Pulls", es: "Face Pulls", group: "Shoulders", target: "Rear Delts", equip: "cable" }, { en: "Reverse Pec Deck", es: "Pájaros en Máquina", group: "Shoulders", target: "Rear Delts", equip: "machine" }, { en: "DB Rear Delt Flys", es: "Pájaros con Mancuerna", group: "Shoulders", target: "Rear Delts", equip: "dumbbell" }, { en: "Dumbbell Shrugs", es: "Encogimientos (Manc)", group: "Shoulders", target: "Traps", equip: "dumbbell" }, { en: "Barbell Shrugs", es: "Encogimientos (Barra)", group: "Shoulders", target: "Traps", equip: "barbell" }, { en: "Upright Row (BB)", es: "Remo al Mentón (Barra)", group: "Shoulders", target: "Side Delts", equip: "barbell" }, { en: "Upright Row (Cable)", es: "Remo Mentón (Polea)", group: "Shoulders", target: "Side Delts", equip: "cable" }, 
+            { en: "Barbell Curl", es: "Curl con Barra", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "EZ Bar Curl", es: "Curl Barra EZ", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Alternating DB Curl", es: "Curl Alterno (Manc)", group: "Arms", target: "Biceps", equip: "dumbbell" }, { en: "Hammer Curls", es: "Curl Martillo", group: "Arms", target: "Brachialis", equip: "dumbbell" }, { en: "Concentration Curl", es: "Curl Concentrado", group: "Arms", target: "Biceps Peak", equip: "dumbbell" }, { en: "Incline DB Curl", es: "Curl Inclinado", group: "Arms", target: "Biceps Long Head", equip: "dumbbell" }, { en: "Preacher Curl (Machine)", es: "Curl Predicador", group: "Arms", target: "Biceps", equip: "machine" }, { en: "Preacher Curl (EZ)", es: "Curl Banco Scott", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Cable Bicep Curl", es: "Curl en Polea", group: "Arms", target: "Biceps", equip: "cable" }, { en: "Reverse Curl (EZ)", es: "Curl Inverso", group: "Arms", target: "Forearms", equip: "barbell" }, { en: "Tricep Dips", es: "Fondos de Tríceps", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Bench Dips", es: "Fondos en Banco", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Close Grip Bench", es: "Press Banca Cerrado", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Skullcrushers", es: "Rompecráneos", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Overhead DB Extension", es: "Extensión Copa (Manc)", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Kickbacks", es: "Patada de Tríceps", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Pushdown (Straight)", es: "Extensión Polea Alta", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Rope Pushdown", es: "Extensión con Cuerda", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Overhead Tricep Ext (Cable)", es: "Extensión Tras Nuca Polea", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Machine Tricep Ext", es: "Extensión Tríceps Máquina", group: "Arms", target: "Triceps", equip: "machine" }, 
+            { en: "Bodyweight Squats", es: "Sentadillas Libres", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Walking Lunges", es: "Zancadas", group: "Legs", target: "Legs", equip: "bodyweight" }, { en: "Pistol Squats", es: "Sentadilla a 1 Pierna", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Barbell Squats", es: "Sentadilla (Barra)", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Front Squat", es: "Sentadilla Frontal", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Goblet Squat", es: "Sentadilla Goblet", group: "Legs", target: "Quads", equip: "dumbbell" }, { en: "Bulgarian Split Squat", es: "Sentadilla Búlgara", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Romanian Deadlift (Bar)", es: "Peso Muerto Rumano", group: "Legs", target: "Hamstrings", equip: "barbell" }, { en: "Romanian Deadlift (DB)", es: "PMR (Mancuernas)", group: "Legs", target: "Hamstrings", equip: "dumbbell" }, { en: "DB Lunges", es: "Zancadas con Mancuernas", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Leg Press", es: "Prensa", group: "Legs", target: "Legs", equip: "machine" }, { en: "Hack Squat", es: "Sentadilla Hack", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Extension", es: "Extensión Cuádriceps", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Curl (Seated)", es: "Curl Isquios Sentado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Leg Curl (Lying)", es: "Curl Isquios Tumbado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Hip Thrust", es: "Empuje de Cadera", group: "Legs", target: "Glutes", equip: "barbell" }, { en: "Standing Calf Raises", es: "Elevación Gemelos Pie", group: "Legs", target: "Calves", equip: "machine" }, { en: "Seated Calf Raises", es: "Elevación Gemelos Sentado", group: "Legs", target: "Calves", equip: "machine" }, 
+            { en: "Plank", es: "Plancha", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Upper Abs Crunch", es: "Crunch Abdominal", group: "Core", target: "Upper Abs", equip: "bodyweight" }, { en: "Leg Raises", es: "Elevación de Piernas", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Hanging Leg Raises", es: "Elevación Colgado", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Russian Twists", es: "Giro Ruso", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "Bicycle Crunches", es: "Bicicleta", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "V-Ups", es: "Abdominales en V", group: "Core", target: "Abs", equip: "bodyweight" }, { en: "Mountain Climbers", es: "Escaladores", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Wall Sit", es: "Sentadilla Isométrica", group: "Legs", target: "Quads", equip: "bodyweight", type: "time" }, { en: "Cable Crunch", es: "Crunch en Polea", group: "Core", target: "Abs", equip: "cable" }, { en: "Woodchoppers", es: "Hachazos Polea", group: "Core", target: "Obliques", equip: "cable" }, { en: "Ab Machine", es: "Máquina de Abs", group: "Core", target: "Abs", equip: "machine" }
         ];
 
         let activeSession = [];
@@ -234,9 +268,15 @@
         let timerInterval;
         let activeArcName = ""; 
         
+        // WORKOUT STATS & TIMERS
         let currentSessionTonnage = 0;
         let currentSessionReps = 0;
         let currentSessionPRs = 0;
+        let globalSeconds = 0;
+        let globalTimerInterval = null;
+        let exStopwatchSeconds = 0;
+        let exStopwatchInterval = null;
+        let isStopwatchRunning = false;
 
         let level = parseInt(localStorage.getItem('zen-level')) || 1;
         let totalXp = parseInt(localStorage.getItem('zen-total-xp')) || 0;
@@ -248,35 +288,85 @@
             else { document.getElementById('display-name').textContent = name; updateLevelUI(); renderArcs(); }
         };
 
-        // --- BACKUP EXPORT / IMPORT ---
+        // --- GLOBAL CLOCK LOGIC ---
+        function startGlobalClock() {
+            globalSeconds = 0;
+            clearInterval(globalTimerInterval);
+            document.getElementById('global-clock-display').textContent = "00:00";
+            globalTimerInterval = setInterval(() => {
+                globalSeconds++;
+                const mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0');
+                const secs = String(globalSeconds % 60).padStart(2, '0');
+                document.getElementById('global-clock-display').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopGlobalClock() {
+            clearInterval(globalTimerInterval);
+            const mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0');
+            const secs = String(globalSeconds % 60).padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        // --- TIME-BASED EXERCISE LOGIC ---
+        function toggleStopwatch() {
+            const btn = document.getElementById('btn-stopwatch');
+            if(isStopwatchRunning) {
+                // STOP
+                clearInterval(exStopwatchInterval);
+                isStopwatchRunning = false;
+                btn.textContent = "Start Timer";
+                btn.className = "flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200";
+                document.getElementById('time-input').value = exStopwatchSeconds;
+            } else {
+                // START
+                isStopwatchRunning = true;
+                btn.textContent = "Stop";
+                btn.className = "flex-1 pill bg-red-100 text-red-600 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-red-200";
+                exStopwatchInterval = setInterval(() => {
+                    exStopwatchSeconds++;
+                    const mins = String(Math.floor(exStopwatchSeconds / 60)).padStart(2, '0');
+                    const secs = String(exStopwatchSeconds % 60).padStart(2, '0');
+                    document.getElementById('stopwatch-display').textContent = `${mins}:${secs}`;
+                    document.getElementById('time-input').value = exStopwatchSeconds;
+                }, 1000);
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(exStopwatchInterval);
+            isStopwatchRunning = false;
+            exStopwatchSeconds = 0;
+            document.getElementById('stopwatch-display').textContent = "00:00";
+            document.getElementById('time-input').value = 0;
+            const btn = document.getElementById('btn-stopwatch');
+            btn.textContent = "Start Timer";
+            btn.className = "flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200";
+        }
+
+        // --- FORM GUIDE ---
+        function openFormGuide() {
+            const exName = activeSession[currentIdx].en;
+            const query = encodeURIComponent(exName + ' exercise proper form short');
+            window.open('https://www.youtube.com/results?search_query=' + query, '_blank');
+        }
+
         function exportData() {
             let data = {};
-            for(let i=0; i<localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if(key.startsWith('zen-')) data[key] = localStorage.getItem(key);
-            }
-            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; 
-            a.download = `zen-gym-backup-${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a); 
-            a.click(); 
-            document.body.removeChild(a);
+            for(let i=0; i<localStorage.length; i++) { let key = localStorage.key(i); if(key.startsWith('zen-')) data[key] = localStorage.getItem(key); }
+            const blob = new Blob([JSON.stringify(data)], {type: "application/json"}); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `zen-gym-backup-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
         function importData(e) {
-            const file = e.target.files[0];
-            if(!file) return;
+            const file = e.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const data = JSON.parse(evt.target.result);
-                    for(let key in data) {
-                        if(key.startsWith('zen-')) localStorage.setItem(key, data[key]);
-                    }
-                    alert("System Override Complete. Reloading.");
-                    location.reload();
+                    for(let key in data) { if(key.startsWith('zen-')) localStorage.setItem(key, data[key]); }
+                    alert("System Override Complete. Reloading."); location.reload();
                 } catch(err) { alert("Invalid backup file."); }
             };
             reader.readAsText(file);
@@ -284,14 +374,9 @@
 
         function renderArcs() {
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
-            const list = document.getElementById('training-arcs-list');
-            let html = '';
+            const list = document.getElementById('training-arcs-list'); let html = '';
             if(arcs.length === 0) { html = `<div class="bento-card p-6 text-center text-[9px] font-bold text-gray-400 uppercase tracking-widest border-dashed border-2 border-gray-200">No Arcs Forged.<br>Draft a routine below.</div>`; } 
-            else {
-                arcs.forEach((arc, i) => {
-                    html += `<div class="bento-card p-6 flex flex-col gap-4"><div class="flex justify-between items-start"><div><h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4><p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p></div><div onclick="startSavedArc(${i})" class="pill bg-black text-white press-effect cursor-pointer text-center flex items-center justify-center">Start</div></div><div class="flex gap-2 border-t border-gray-100 pt-4"><div onclick="editArc(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-gray-500 cursor-pointer press-effect py-2">Modify</div><div onclick="confirmPurge(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-red-400 cursor-pointer press-effect py-2">Erase</div></div></div>`;
-                });
-            }
+            else { arcs.forEach((arc, i) => { html += `<div class="bento-card p-6 flex flex-col gap-4"><div class="flex justify-between items-start"><div><h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4><p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p></div><div onclick="startSavedArc(${i})" class="pill bg-black text-white press-effect cursor-pointer text-center flex items-center justify-center">Start</div></div><div class="flex gap-2 border-t border-gray-100 pt-4"><div onclick="editArc(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-gray-500 cursor-pointer press-effect py-2">Modify</div><div onclick="confirmPurge(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-red-400 cursor-pointer press-effect py-2">Erase</div></div></div>`; }); }
             list.innerHTML = html;
         }
 
@@ -303,46 +388,32 @@
             currentFilter = equip;
             ['All', 'bodyweight', 'barbell', 'dumbbell', 'machine', 'cable'].forEach(f => {
                 const el = document.getElementById(`flt-${f}`);
-                if(f === equip) { el.className = "pill bg-[#1a1a1a] text-white shrink-0"; } 
-                else { el.className = "pill bg-gray-100 text-gray-500 shrink-0 press-effect"; }
+                if(f === equip) { el.className = "pill bg-[#1a1a1a] text-white shrink-0"; } else { el.className = "pill bg-gray-100 text-gray-500 shrink-0 press-effect"; }
             });
             renderBuilderList();
         }
 
-        // --- REORDER LOGIC ---
         function renderSelectedOrder() {
             const container = document.getElementById('selected-order-list');
             if(selectedInMenu.length === 0) { container.innerHTML = ''; return; }
             let html = '<h3 class="text-[9px] font-black mb-2 text-gray-800 uppercase tracking-[0.4em] text-center mt-2">Active Sequence</h3>';
             selectedInMenu.forEach((ex, i) => {
-                html += `
-                <div class="flex justify-between items-center bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <span class="text-[10px] font-bold text-gray-800 truncate flex-1">${i + 1}. ${ex.en}</span>
-                    <div class="flex gap-1 shrink-0">
-                        <div onclick="moveExercise(${i}, -1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === 0 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▲</div>
-                        <div onclick="moveExercise(${i}, 1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === selectedInMenu.length - 1 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▼</div>
-                    </div>
-                </div>`;
+                html += `<div class="flex justify-between items-center bg-gray-50 rounded-xl p-3 border border-gray-100"><span class="text-[10px] font-bold text-gray-800 truncate flex-1">${i + 1}. ${ex.en}</span><div class="flex gap-1 shrink-0"><div onclick="moveExercise(${i}, -1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === 0 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▲</div><div onclick="moveExercise(${i}, 1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === selectedInMenu.length - 1 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▼</div></div></div>`;
             });
             container.innerHTML = html;
         }
 
         function moveExercise(index, dir) {
             if(index + dir < 0 || index + dir >= selectedInMenu.length) return;
-            const temp = selectedInMenu[index];
-            selectedInMenu[index] = selectedInMenu[index + dir];
-            selectedInMenu[index + dir] = temp;
-            renderSelectedOrder();
-            renderBuilderList();
+            const temp = selectedInMenu[index]; selectedInMenu[index] = selectedInMenu[index + dir]; selectedInMenu[index + dir] = temp;
+            renderSelectedOrder(); renderBuilderList();
         }
 
         function renderBuilderList() {
             const listDiv = document.getElementById('exercise-list'); listDiv.innerHTML = '';
             let baseList = fullLibrary;
             if(editingArcIndex === -1 && selectedGroups.length > 0) { baseList = fullLibrary.filter(ex => selectedGroups.includes(ex.group)); }
-            
             const filtered = currentFilter === 'All' ? baseList : baseList.filter(ex => ex.equip === currentFilter);
-            
             filtered.forEach(ex => {
                 const item = document.createElement('div'); item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer"; item.onclick = () => toggleSelection(ex, item, filtered);
                 item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.equip}</p></div><div class="selection-circle"></div>`;
@@ -358,18 +429,13 @@
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); const arc = arcs[index];
             editingArcIndex = index; selectedInMenu = [...arc.exercises];
             document.getElementById('arc-name-input').value = arc.name; document.getElementById('selection-title').textContent = "Modify Arc"; document.getElementById('btn-save-arc').textContent = "Update Arc"; document.getElementById('btn-quick-start').classList.add('hidden');
-            setFilter('All'); 
-            renderSelectedOrder();
-            document.getElementById('selection-ui').classList.remove('hidden');
+            setFilter('All'); renderSelectedOrder(); document.getElementById('selection-ui').classList.remove('hidden');
         }
 
         function draftArc() {
             editingArcIndex = -1; document.getElementById('synthesis-bar').classList.remove('show');
             document.getElementById('arc-name-input').value = ""; document.getElementById('selection-title').textContent = "Builder"; document.getElementById('btn-save-arc').textContent = "Save & Invoke"; document.getElementById('btn-quick-start').classList.remove('hidden');
-            selectedInMenu = [];
-            setFilter('All'); 
-            renderSelectedOrder();
-            document.getElementById('selection-ui').classList.remove('hidden');
+            selectedInMenu = []; setFilter('All'); renderSelectedOrder(); document.getElementById('selection-ui').classList.remove('hidden');
         }
 
         function saveAndStartArc() {
@@ -401,8 +467,9 @@
             else {
                 let tlHTML = '';
                 chronicles.forEach((c, i) => {
-                    const detailsHTML = c.details.map(d => `<div class="flex justify-between text-[10px] border-b border-gray-50 py-2"><span class="font-bold text-gray-700">${d.exercise} <span class="text-gray-400 font-normal italic">F${d.form}</span></span><span class="font-black text-gray-500">${d.weight}kg x ${d.reps}</span></div>`).join('');
-                    tlHTML += `<div class="relative timeline-node"><div class="bento-card p-5 press-effect cursor-pointer" onclick="toggleTimelineDetail(${i})"><div class="flex justify-between items-center mb-1"><span class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${c.date}</span><span class="text-[8px] font-black text-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-full">Cleared</span></div><h4 class="text-sm font-bold text-gray-800 uppercase tracking-tighter truncate">${c.summary}</h4><div id="timeline-detail-${i}" class="hidden mt-4 pt-2 border-t border-gray-100">${detailsHTML}</div></div></div>`;
+                    const timeHTML = c.time ? `<span class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-2">${c.time}</span>` : '';
+                    const detailsHTML = c.details.map(d => `<div class="flex justify-between text-[10px] border-b border-gray-50 py-2"><span class="font-bold text-gray-700">${d.exercise} <span class="text-gray-400 font-normal italic">F${d.form}</span></span><span class="font-black text-gray-500">${d.time > 0 ? d.time + 's' : d.weight + 'kg x ' + d.reps}</span></div>`).join('');
+                    tlHTML += `<div class="relative timeline-node"><div class="bento-card p-5 press-effect cursor-pointer" onclick="toggleTimelineDetail(${i})"><div class="flex justify-between items-center mb-1"><div class="flex items-center"><span class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${c.date}</span>${timeHTML}</div><span class="text-[8px] font-black text-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-full">Cleared</span></div><h4 class="text-sm font-bold text-gray-800 uppercase tracking-tighter truncate">${c.summary}</h4><div id="timeline-detail-${i}" class="hidden mt-4 pt-2 border-t border-gray-100">${detailsHTML}</div></div></div>`;
                 });
                 timeline.innerHTML = tlHTML;
             }
@@ -423,8 +490,7 @@
         function toggleSelection(ex, element, options) {
             const idx = selectedInMenu.findIndex(s => s.en === ex.en);
             if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
-            renderBuilderList(); 
-            renderSelectedOrder();
+            renderBuilderList(); renderSelectedOrder();
         }
 
         function openSwapModal() {
@@ -477,18 +543,33 @@
         }
 
         function logSet() {
-            const w = parseFloat(document.getElementById('weight-input').value) || 0; const r = parseInt(document.getElementById('reps-input').value) || 0; const exName = activeSession[currentIdx].en;
+            const ex = activeSession[currentIdx];
+            let w = 0, r = 0, t = 0;
             
-            currentSessionReps += r; currentSessionTonnage += (w * r);
-            sessionLog.push({ exercise: exName, weight: w, reps: r, form: currentSet }); currentExerciseLog.push({ w: w, r: r });
-            
-            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + exName)) || 0;
-            if (w > currentPB) { 
-                localStorage.setItem('zen-pb-' + exName, w); currentSessionPRs++; triggerLimitBreak(w); document.getElementById('history-label').textContent = `PB: ${w}kg`; 
+            if(ex.type === 'time') {
+                t = parseInt(document.getElementById('time-input').value) || 0;
+            } else {
+                w = parseFloat(document.getElementById('weight-input').value) || 0; 
+                r = parseInt(document.getElementById('reps-input').value) || 0;
+                currentSessionReps += r; currentSessionTonnage += (w * r);
             }
             
-            const row = document.createElement('div'); row.className = "set-row"; row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
+            sessionLog.push({ exercise: ex.en, weight: w, reps: r, time: t, form: currentSet }); 
+            currentExerciseLog.push({ w: w, r: r, t: t });
+            
+            if(ex.type !== 'time') {
+                const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0;
+                if (w > currentPB) { localStorage.setItem('zen-pb-' + ex.en, w); currentSessionPRs++; triggerLimitBreak(w); document.getElementById('history-label').textContent = `PB: ${w}kg`; }
+            }
+            
+            const row = document.createElement('div'); row.className = "set-row"; 
+            if(ex.type === 'time') {
+                row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${t}s</span>`;
+            } else {
+                row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
+            }
             document.getElementById('history-list').prepend(row);
+            
             awardXP(SYSTEM_CONFIG.xpPerSet); currentSet++; document.getElementById('set-counter').textContent = `Form ${currentSet}`;
             loadShadowForSet(); startTimer(60); 
         }
@@ -496,33 +577,67 @@
         function saveShadowData() { if(currentExerciseLog.length > 0) { localStorage.setItem('zen-shadow-' + activeSession[currentIdx].en, JSON.stringify(currentExerciseLog)); } }
 
         function loadShadowForSet() {
-            const shadowText = document.getElementById('shadow-record-text'); const wInput = document.getElementById('weight-input'); const rInput = document.getElementById('reps-input');
+            const shadowText = document.getElementById('shadow-record-text'); 
             const shadowSet = shadowArray[currentSet - 1];
-            if (shadowSet) { shadowText.textContent = `SHADOW: ${shadowSet.w}KG x ${shadowSet.r}`; shadowText.style.opacity = '1'; wInput.value = shadowSet.w; rInput.value = shadowSet.r; } 
-            else {
-                shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3';
-                if (currentExerciseLog.length > 0) { wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w; rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r; } else { wInput.value = ""; rInput.value = ""; }
+            const ex = activeSession[currentIdx];
+
+            if(ex.type === 'time') {
+                if(shadowSet && shadowSet.t) {
+                    shadowText.textContent = `SHADOW: ${shadowSet.t}S`; shadowText.style.opacity = '1';
+                } else {
+                    shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3';
+                }
+            } else {
+                const wInput = document.getElementById('weight-input'); const rInput = document.getElementById('reps-input');
+                if (shadowSet) { shadowText.textContent = `SHADOW: ${shadowSet.w}KG x ${shadowSet.r}`; shadowText.style.opacity = '1'; wInput.value = shadowSet.w; rInput.value = shadowSet.r; } 
+                else {
+                    shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3';
+                    if (currentExerciseLog.length > 0) { wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w; rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r; } else { wInput.value = ""; rInput.value = ""; }
+                }
             }
         }
 
         function startWorkout(exercises, from) {
             activeSession = exercises; sessionLog = []; currentIdx = 0;
             currentSessionTonnage = 0; currentSessionReps = 0; currentSessionPRs = 0;
-            document.getElementById('active-character').src = (localStorage.getItem('zen-type') || 'lean') + '.png';
-            document.getElementById('workout-ui').classList.remove('hidden'); resetForNewExercise(); 
+            document.getElementById('workout-ui').classList.remove('hidden'); 
+            startGlobalClock();
+            resetForNewExercise(); 
         }
 
-        function resetForNewExercise() { currentSet = 1; currentExerciseLog = []; shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + activeSession[currentIdx].en) || "[]"); document.getElementById('history-list').innerHTML = ''; document.getElementById('set-counter').textContent = `Form 1`; updateUI(); loadShadowForSet(); }
+        function resetForNewExercise() { 
+            currentSet = 1; currentExerciseLog = []; 
+            const ex = activeSession[currentIdx];
+            shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + ex.en) || "[]"); 
+            document.getElementById('history-list').innerHTML = ''; 
+            document.getElementById('set-counter').textContent = `Form 1`; 
+            
+            // Toggle UI based on exercise type
+            if(ex.type === 'time') {
+                document.getElementById('reps-ui').classList.add('hidden');
+                document.getElementById('time-ui').classList.remove('hidden');
+                document.getElementById('time-ui').classList.add('flex');
+                resetStopwatch();
+            } else {
+                document.getElementById('reps-ui').classList.remove('hidden');
+                document.getElementById('time-ui').classList.add('hidden');
+                document.getElementById('time-ui').classList.remove('flex');
+            }
+
+            updateUI(); loadShadowForSet(); 
+        }
+        
         function nextExercise() { saveShadowData(); if (currentIdx < activeSession.length - 1) { currentIdx++; resetForNewExercise(); } else { skipTimer(); concludeQuest(); } }
         function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); } }
 
         function concludeQuest() {
             saveShadowData(); 
+            const totalTime = stopGlobalClock();
             const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
             const baseGroups = [...new Set(activeSession.map(ex => ex.group))].join(", "); 
             const finalSummary = activeArcName ? `${activeArcName} — ${baseGroups}` : baseGroups;
             
-            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: finalSummary, details: sessionLog });
+            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: finalSummary, details: sessionLog, time: totalTime });
             localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); 
             
             document.getElementById('workout-ui').classList.add('hidden'); 
@@ -530,6 +645,7 @@
             document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG";
             document.getElementById('summary-reps').textContent = currentSessionReps;
             document.getElementById('summary-prs').textContent = currentSessionPRs;
+            document.getElementById('summary-time').textContent = totalTime;
             document.getElementById('summary-ui').classList.remove('hidden');
         }
 
@@ -538,7 +654,7 @@
 
         function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
         function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
-        function confirmRetreat() { skipTimer(); cancelRetreat(); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation(); }
+        function confirmRetreat() { stopGlobalClock(); skipTimer(); cancelRetreat(); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation(); }
         
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
         function startTimer(seconds) { clearInterval(timerInterval); let time = seconds; updateTimerUI(seconds); document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').textContent = time; timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) skipTimer(); }, 1000); }
@@ -552,16 +668,25 @@
         function updateFlavor() { const h = new Date().getHours(); document.getElementById('time-greeting').textContent = `Timeline: ${h < 12 ? "Dawn" : h < 18 ? "Solar" : "Twilight"}`; const quotes = ["Keep moving forward.", "Arise.", "The journey is what matters.", "I have no enemies..."]; document.getElementById('flavor-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)]; }
         
         function updateUI() {
-            const ex = activeSession[currentIdx]; document.getElementById('ex-name-en').textContent = ex.en; document.getElementById('ex-name-es').textContent = ex.es; document.getElementById('progress-text').textContent = `Stage ${currentIdx + 1} / ${activeSession.length}`;
-            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; document.getElementById('history-label').textContent = currentPB > 0 ? `PB: ${currentPB}kg` : "New Art";
+            const ex = activeSession[currentIdx]; document.getElementById('ex-name-en').textContent = ex.en; document.getElementById('ex-name-es').textContent = ex.es; 
+            document.getElementById('progress-text').textContent = `${currentIdx + 1}/${activeSession.length}`;
+            
+            // DYNAMIC IMAGE ROUTING
+            const validGroups = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core'];
+            const imgName = validGroups.includes(ex.group) ? ex.group.toLowerCase() + '.png' : 'default.png';
+            document.getElementById('active-character').src = imgName;
+
+            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; 
+            document.getElementById('history-label').textContent = currentPB > 0 && ex.type !== 'time' ? `PB: ${currentPB}kg` : (ex.type === 'time' ? "Time" : "New Art");
+            
             document.getElementById('spirit-aura').style.backgroundColor = AURA_COLORS[ex.group] || '#1a1a1a';
             const targetEl = document.getElementById('target-muscle'); if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase();
+            
             const backBtn = document.getElementById('back-btn'); if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; }
             document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance';
         }
         
-        function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('zen-name', n); document.getElementById('step-1').classList.add('hidden'); document.getElementById('step-2').classList.remove('hidden'); } }
-        function saveType(t) { localStorage.setItem('zen-type', t); location.reload(); }
+        function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('zen-name', n); document.getElementById('onboarding').classList.add('hidden'); } }
         function resetApp() { if(confirm("Abandon legacy?")) { localStorage.clear(); location.reload(); } }
 
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true});
