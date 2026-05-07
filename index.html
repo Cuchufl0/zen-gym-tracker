@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#1a1a1a">
     <link rel="apple-touch-icon" href="https://via.placeholder.com/192/1a1a1a/ffffff?text=Z">
     
-    <title>Zen Gym - Expansion</title>
+    <title>Zen Gym - Summary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -82,6 +82,28 @@
     <div id="limit-break-overlay"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2">Limit Break</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">New Peak Reached</p><p id="lb-record" class="text-2xl font-bold mt-6">---</p></div>
     <div id="system-overlay"><div id="sys-line-1" class="system-text text-gray-400 font-light tracking-[0.3em] uppercase text-[10px]"></div><div id="sys-line-2" class="system-text text-white font-bold tracking-tighter text-3xl"></div><div id="sys-line-3" class="system-text text-gray-400 italic text-sm mt-4"></div></div>
     <div id="ui-shield"></div>
+
+    <div id="summary-ui" class="fixed inset-0 bg-[#1a1a1a] z-[150] p-6 hidden flex flex-col items-center justify-center text-white">
+        <h1 class="text-5xl font-[900] tracking-tighter uppercase italic mb-2 text-white text-center">Quest Cleared</h1>
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mb-12 text-center" id="summary-arc-name">---</p>
+        
+        <div class="w-full max-w-sm flex flex-col gap-4 mb-12">
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Volume</span>
+                <span class="text-2xl font-bold" id="summary-volume">0 kg</span>
+            </div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Reps</span>
+                <span class="text-2xl font-bold" id="summary-reps">0</span>
+            </div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Records Broken</span>
+                <span class="text-2xl font-bold text-[#ffbe0b]" id="summary-prs">0</span>
+            </div>
+        </div>
+
+        <div onclick="closeSummary()" class="bg-white text-black rounded-[24px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer">Return to Sanctuary</div>
+    </div>
 
     <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
     <div id="purge-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p><div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div><div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div></div>
@@ -195,7 +217,6 @@
         const RANKS = { E: { title: "The Seeker", sub: "A new player has entered the dungeon." }, D: { title: "The Disciple", sub: "A true warrior does not need a sword to stand tall." }, C: { title: "The Practitioner", sub: "Equivalent Exchange: You are becoming what you give." }, B: { title: "The Adept", sub: "The System no longer guides you; it follows you." }, A: { title: "The Ascendant", sub: "You have surpassed the ceiling of human potential." }, S: { title: "The Transcendent", sub: "The legend ends here. A new eternity begins." } };
         const AURA_COLORS = { 'Chest': '#ff4d4d', 'Back': '#9d4edd', 'Arms': '#0077ff', 'Legs': '#38b000', 'Shoulders': '#00f5d4', 'Core': '#ffbe0b', 'Default': '#1a1a1a' };
 
-        // EXPANDED LIBRARY (Equipment Categorized)
         const fullLibrary = [
             { en: "Pushups", es: "Flexiones", group: "Chest", target: "Chest", equip: "bodyweight" },
             { en: "Decline Pushups", es: "Flexiones Declinadas", group: "Chest", target: "Upper Chest", equip: "bodyweight" },
@@ -273,6 +294,11 @@
         let currentSet = 1;
         let timerInterval;
         let activeArcName = ""; 
+        
+        // SESSION STATS
+        let currentSessionTonnage = 0;
+        let currentSessionReps = 0;
+        let currentSessionPRs = 0;
 
         let level = parseInt(localStorage.getItem('zen-level')) || 1;
         let totalXp = parseInt(localStorage.getItem('zen-total-xp')) || 0;
@@ -333,15 +359,13 @@
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); const arc = arcs[index];
             editingArcIndex = index; selectedInMenu = [...arc.exercises];
             document.getElementById('arc-name-input').value = arc.name; document.getElementById('selection-title').textContent = "Modify Arc"; document.getElementById('btn-save-arc').textContent = "Update Arc"; document.getElementById('btn-quick-start').classList.add('hidden');
-            setFilter('All');
-            document.getElementById('selection-ui').classList.remove('hidden');
+            setFilter('All'); document.getElementById('selection-ui').classList.remove('hidden');
         }
 
         function draftArc() {
             editingArcIndex = -1; document.getElementById('synthesis-bar').classList.remove('show');
             document.getElementById('arc-name-input').value = ""; document.getElementById('selection-title').textContent = "Builder"; document.getElementById('btn-save-arc').textContent = "Save & Invoke"; document.getElementById('btn-quick-start').classList.remove('hidden');
-            setFilter('All');
-            document.getElementById('selection-ui').classList.remove('hidden');
+            setFilter('All'); document.getElementById('selection-ui').classList.remove('hidden');
         }
 
         function saveAndStartArc() {
@@ -359,6 +383,7 @@
             const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
             document.getElementById('stat-workouts').textContent = chronicles.length;
             let totalSets = 0; chronicles.forEach(c => { totalSets += (c.details ? c.details.length : 0); }); document.getElementById('stat-sets').textContent = totalSets;
+
             const pbList = document.getElementById('pb-list'); let pbHTML = ''; let hasPBs = false;
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
@@ -391,11 +416,10 @@
         }
 
         function closeSelectionUI() { document.getElementById('selection-ui').classList.add('hidden'); if (selectedGroups.length > 0) document.getElementById('synthesis-bar').classList.add('show'); editingArcIndex = -1; currentFilter = 'All'; }
-        
         function toggleSelection(ex, element, options) {
             const idx = selectedInMenu.findIndex(s => s.en === ex.en);
             if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex);
-            renderBuilderList(); // Re-render to update UI circles
+            renderBuilderList(); 
         }
 
         function openSwapModal() {
@@ -403,18 +427,12 @@
             const alternatives = fullLibrary.filter(ex => ex.group === currEx.group && ex.en !== currEx.en);
             const list = document.getElementById('swap-list');
             if(alternatives.length === 0) { list.innerHTML = `<p class="text-center text-[10px] font-bold text-gray-400 uppercase mt-4">No alternative arts.</p>`; } 
-            else {
-                list.innerHTML = alternatives.map(ex => `<div onclick="executeSwap('${ex.en}')" class="bento-card p-4 press-effect cursor-pointer flex justify-between items-center"><div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest mt-1">${ex.target} • ${ex.equip}</p></div><span class="text-[10px] font-black uppercase tracking-widest text-gray-300">Select</span></div>`).join('');
-            }
+            else { list.innerHTML = alternatives.map(ex => `<div onclick="executeSwap('${ex.en}')" class="bento-card p-4 press-effect cursor-pointer flex justify-between items-center"><div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest mt-1">${ex.target} • ${ex.equip}</p></div><span class="text-[10px] font-black uppercase tracking-widest text-gray-300">Select</span></div>`).join(''); }
             document.getElementById('ui-shield').classList.add('active'); document.getElementById('swap-modal').classList.add('show');
         }
 
         function closeSwapModal() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('swap-modal').classList.remove('show'); }
-
-        function executeSwap(newExEn) {
-            const newEx = fullLibrary.find(ex => ex.en === newExEn);
-            if(newEx) { saveShadowData(); activeSession[currentIdx] = newEx; closeSwapModal(); resetForNewExercise(); }
-        }
+        function executeSwap(newExEn) { const newEx = fullLibrary.find(ex => ex.en === newExEn); if(newEx) { saveShadowData(); activeSession[currentIdx] = newEx; closeSwapModal(); resetForNewExercise(); } }
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSystemSound(type) {
@@ -455,9 +473,19 @@
 
         function logSet() {
             const w = parseFloat(document.getElementById('weight-input').value) || 0; const r = parseInt(document.getElementById('reps-input').value) || 0; const exName = activeSession[currentIdx].en;
+            
+            // Increment Session Stats
+            currentSessionReps += r;
+            currentSessionTonnage += (w * r);
+
             sessionLog.push({ exercise: exName, weight: w, reps: r, form: currentSet }); currentExerciseLog.push({ w: w, r: r });
             const currentPB = parseFloat(localStorage.getItem('zen-pb-' + exName)) || 0;
-            if (w > currentPB) { localStorage.setItem('zen-pb-' + exName, w); triggerLimitBreak(w); document.getElementById('history-label').textContent = `PB: ${w}kg`; }
+            if (w > currentPB) { 
+                localStorage.setItem('zen-pb-' + exName, w); 
+                currentSessionPRs++; // Increment PR count
+                triggerLimitBreak(w); 
+                document.getElementById('history-label').textContent = `PB: ${w}kg`; 
+            }
             
             const row = document.createElement('div'); row.className = "set-row"; row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
             document.getElementById('history-list').prepend(row);
@@ -479,6 +507,8 @@
 
         function startWorkout(exercises, from) {
             activeSession = exercises; sessionLog = []; currentIdx = 0;
+            // Reset Session Stats
+            currentSessionTonnage = 0; currentSessionReps = 0; currentSessionPRs = 0;
             document.getElementById('active-character').src = (localStorage.getItem('zen-type') || 'lean') + '.png';
             document.getElementById('workout-ui').classList.remove('hidden'); resetForNewExercise(); 
         }
@@ -488,10 +518,27 @@
         function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); } }
 
         function concludeQuest() {
-            saveShadowData(); const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
-            const baseGroups = [...new Set(activeSession.map(ex => ex.group))].join(", "); const finalSummary = activeArcName ? `${activeArcName} — ${baseGroups}` : baseGroups;
+            saveShadowData(); 
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            const baseGroups = [...new Set(activeSession.map(ex => ex.group))].join(", "); 
+            const finalSummary = activeArcName ? `${activeArcName} — ${baseGroups}` : baseGroups;
+            
             chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: finalSummary, details: sessionLog });
-            localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation();
+            localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); 
+            
+            // Populate and Show Summary Screen
+            document.getElementById('workout-ui').classList.add('hidden'); 
+            document.getElementById('summary-arc-name').textContent = finalSummary;
+            document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG";
+            document.getElementById('summary-reps').textContent = currentSessionReps;
+            document.getElementById('summary-prs').textContent = currentSessionPRs;
+            document.getElementById('summary-ui').classList.remove('hidden');
+        }
+
+        function closeSummary() {
+            document.getElementById('summary-ui').classList.add('hidden');
+            updateFlavor(); 
+            resetPreparation();
         }
 
         function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); activeArcName = ""; currentFilter = 'All'; }
