@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - Timeline & Timers</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zen Gym">
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/1a1a1a/ffffff?text=Z">
+    
+    <title>Zen Gym - The System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -84,12 +91,7 @@
 
     <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
     
-    <div id="purge-modal">
-        <h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2>
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p>
-        <div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div>
-        <div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div>
-    </div>
+    <div id="purge-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p><div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div><div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div></div>
 
     <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
         <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2><div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div></header>
@@ -103,8 +105,7 @@
 
             <div class="px-2">
                 <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Combat History</h3>
-                <div id="analytics-timeline" class="border-l-2 border-gray-200 ml-2 pl-4 space-y-6">
-                    </div>
+                <div id="analytics-timeline" class="border-l-2 border-gray-200 ml-2 pl-4 space-y-6"></div>
             </div>
         </div>
     </div>
@@ -132,7 +133,6 @@
         </div>
 
         <div class="scroll-container pb-32">
-            
             <div class="mb-10 px-2">
                 <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Training Arcs</h3>
                 <div id="training-arcs-list" class="grid grid-cols-1 gap-4"></div>
@@ -244,6 +244,7 @@
         let currentIdx = 0;
         let currentSet = 1;
         let timerInterval;
+        let activeArcName = ""; // NEW: Stores the name of the active routine
 
         let level = parseInt(localStorage.getItem('zen-level')) || 1;
         let totalXp = parseInt(localStorage.getItem('zen-total-xp')) || 0;
@@ -260,22 +261,10 @@
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
             const list = document.getElementById('training-arcs-list');
             let html = '';
-            
-            if(arcs.length === 0) {
-                html = `<div class="bento-card p-6 text-center text-[9px] font-bold text-gray-400 uppercase tracking-widest border-dashed border-2 border-gray-200">No Arcs Forged.<br>Draft a routine below.</div>`;
-            } else {
+            if(arcs.length === 0) { html = `<div class="bento-card p-6 text-center text-[9px] font-bold text-gray-400 uppercase tracking-widest border-dashed border-2 border-gray-200">No Arcs Forged.<br>Draft a routine below.</div>`; } 
+            else {
                 arcs.forEach((arc, i) => {
-                    html += `
-                    <div class="bento-card p-6 flex flex-col gap-4">
-                        <div class="flex justify-between items-start">
-                            <div><h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4><p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p></div>
-                            <div onclick="startSavedArc(${i})" class="pill bg-black text-white press-effect cursor-pointer text-center flex items-center justify-center">Start</div>
-                        </div>
-                        <div class="flex gap-2 border-t border-gray-100 pt-4">
-                            <div onclick="editArc(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-gray-500 cursor-pointer press-effect py-2">Modify</div>
-                            <div onclick="confirmPurge(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-red-400 cursor-pointer press-effect py-2">Erase</div>
-                        </div>
-                    </div>`;
+                    html += `<div class="bento-card p-6 flex flex-col gap-4"><div class="flex justify-between items-start"><div><h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4><p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p></div><div onclick="startSavedArc(${i})" class="pill bg-black text-white press-effect cursor-pointer text-center flex items-center justify-center">Start</div></div><div class="flex gap-2 border-t border-gray-100 pt-4"><div onclick="editArc(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-gray-500 cursor-pointer press-effect py-2">Modify</div><div onclick="confirmPurge(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-red-400 cursor-pointer press-effect py-2">Erase</div></div></div>`;
                 });
             }
             list.innerHTML = html;
@@ -284,31 +273,20 @@
         function confirmPurge(index) { arcToDeleteIndex = index; document.getElementById('ui-shield').classList.add('active'); document.getElementById('purge-modal').classList.add('show'); }
         function cancelPurge() { arcToDeleteIndex = -1; document.getElementById('ui-shield').classList.remove('active'); document.getElementById('purge-modal').classList.remove('show'); }
         function executePurge() {
-            if(arcToDeleteIndex > -1) {
-                const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
-                arcs.splice(arcToDeleteIndex, 1); localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs();
-            }
+            if(arcToDeleteIndex > -1) { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); arcs.splice(arcToDeleteIndex, 1); localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); }
             cancelPurge();
         }
 
         function editArc(index) {
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); const arc = arcs[index];
             editingArcIndex = index; selectedInMenu = [...arc.exercises];
-            
-            document.getElementById('arc-name-input').value = arc.name;
-            document.getElementById('selection-title').textContent = "Modify Arc";
-            document.getElementById('btn-save-arc').textContent = "Update Arc";
-            document.getElementById('btn-quick-start').classList.add('hidden');
-            
+            document.getElementById('arc-name-input').value = arc.name; document.getElementById('selection-title').textContent = "Modify Arc"; document.getElementById('btn-save-arc').textContent = "Update Arc"; document.getElementById('btn-quick-start').classList.add('hidden');
             const listDiv = document.getElementById('exercise-list'); listDiv.innerHTML = '';
             fullLibrary.forEach(ex => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
-                item.onclick = () => toggleSelection(ex, item, fullLibrary);
+                const item = document.createElement('div'); item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer"; item.onclick = () => toggleSelection(ex, item, fullLibrary);
                 item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.target}</p></div><div class="selection-circle"></div>`;
                 listDiv.appendChild(item);
             });
-            
             Array.from(listDiv.children).forEach((item, i) => {
                 const sIdx = selectedInMenu.findIndex(s => s.en === fullLibrary[i].en); const circle = item.querySelector('.selection-circle');
                 if (sIdx > -1) { circle.classList.add('active'); circle.textContent = sIdx + 1; }
@@ -318,16 +296,10 @@
 
         function draftArc() {
             editingArcIndex = -1; document.getElementById('synthesis-bar').classList.remove('show');
-            document.getElementById('arc-name-input').value = ""; document.getElementById('selection-title').textContent = "Builder";
-            document.getElementById('btn-save-arc').textContent = "Save & Invoke"; document.getElementById('btn-quick-start').classList.remove('hidden');
-
-            const listDiv = document.getElementById('exercise-list'); listDiv.innerHTML = ''; selectedInMenu = [];
-            const filtered = fullLibrary.filter(ex => selectedGroups.includes(ex.group));
-            
+            document.getElementById('arc-name-input').value = ""; document.getElementById('selection-title').textContent = "Builder"; document.getElementById('btn-save-arc').textContent = "Save & Invoke"; document.getElementById('btn-quick-start').classList.remove('hidden');
+            const listDiv = document.getElementById('exercise-list'); listDiv.innerHTML = ''; selectedInMenu = []; const filtered = fullLibrary.filter(ex => selectedGroups.includes(ex.group));
             filtered.forEach(ex => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
-                item.onclick = () => toggleSelection(ex, item, filtered);
+                const item = document.createElement('div'); item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer"; item.onclick = () => toggleSelection(ex, item, filtered);
                 item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.es}</p></div><div class="selection-circle"></div>`;
                 listDiv.appendChild(item);
             });
@@ -338,20 +310,24 @@
             if (selectedInMenu.length === 0) return alert("Select at least one technique.");
             const nameInput = document.getElementById('arc-name-input').value.trim() || "Custom Routine";
             const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
+            activeArcName = nameInput; // Set Name for Combat History
             
             if (editingArcIndex > -1) {
                 arcs[editingArcIndex].name = nameInput; arcs[editingArcIndex].exercises = selectedInMenu;
-                localStorage.setItem('zen-arcs', JSON.stringify(arcs));
-                renderArcs(); closeSelectionUI(); resetPreparation(); alert("Arc Updated.");
+                localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); closeSelectionUI(); resetPreparation(); alert("Arc Updated.");
             } else {
                 arcs.push({ id: Date.now(), name: nameInput, exercises: selectedInMenu });
-                localStorage.setItem('zen-arcs', JSON.stringify(arcs));
-                renderArcs(); closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc');
+                localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc');
             }
         }
 
-        function startSelectedOnly() { if (selectedInMenu.length > 0) { closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc'); } }
-        function startSavedArc(index) { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); startWorkout(arcs[index].exercises, 'arc'); }
+        function startSelectedOnly() { activeArcName = ""; if (selectedInMenu.length > 0) { closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc'); } }
+        
+        function startSavedArc(index) { 
+            const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); 
+            activeArcName = arcs[index].name; // Set Name for Combat History
+            startWorkout(arcs[index].exercises, 'arc'); 
+        }
 
         // --- NEW: VISUAL TIMELINE & ANALYTICS ---
         function openAnalytics() {
@@ -371,7 +347,6 @@
             if(!hasPBs) { pbHTML = `<div class="p-8 w-full text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No records established.</div>`; }
             pbList.innerHTML = pbHTML; 
 
-            // Render Visual Timeline
             const timeline = document.getElementById('analytics-timeline');
             if(chronicles.length === 0) {
                 timeline.innerHTML = `<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-4">No history recorded.</p>`;
@@ -382,20 +357,14 @@
                     tlHTML += `
                     <div class="relative timeline-node">
                         <div class="bento-card p-5 press-effect cursor-pointer" onclick="toggleTimelineDetail(${i})">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${c.date}</span>
-                                <span class="text-[8px] font-black text-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-full">Cleared</span>
-                            </div>
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${c.date}</span><span class="text-[8px] font-black text-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-full">Cleared</span></div>
                             <h4 class="text-sm font-bold text-gray-800 uppercase tracking-tighter truncate">${c.summary}</h4>
-                            <div id="timeline-detail-${i}" class="hidden mt-4 pt-2 border-t border-gray-100">
-                                ${detailsHTML}
-                            </div>
+                            <div id="timeline-detail-${i}" class="hidden mt-4 pt-2 border-t border-gray-100">${detailsHTML}</div>
                         </div>
                     </div>`;
                 });
                 timeline.innerHTML = tlHTML;
             }
-
             document.getElementById('analytics-window').classList.remove('hidden');
         }
 
@@ -468,7 +437,7 @@
             const row = document.createElement('div'); row.className = "set-row"; row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
             document.getElementById('history-list').prepend(row);
             awardXP(SYSTEM_CONFIG.xpPerSet); currentSet++; document.getElementById('set-counter').textContent = `Form ${currentSet}`;
-            loadShadowForSet(); startTimer(60); // Default to 60s
+            loadShadowForSet(); startTimer(60); 
         }
 
         function saveShadowData() { if(currentExerciseLog.length > 0) { localStorage.setItem('zen-shadow-' + activeSession[currentIdx].en, JSON.stringify(currentExerciseLog)); } }
@@ -495,13 +464,18 @@
         function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); } }
 
         function concludeQuest() {
-            saveShadowData(); const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
-            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: [...new Set(activeSession.map(ex => ex.group))].join(", "), details: sessionLog });
-            localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); // Removed the slice(0,5) limit so the timeline actually builds up
+            saveShadowData(); 
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            const baseGroups = [...new Set(activeSession.map(ex => ex.group))].join(", ");
+            // HISTORY FIX: Use Arc Name if it exists, otherwise fallback to muscle groups
+            const finalSummary = activeArcName ? `${activeArcName} — ${baseGroups}` : baseGroups;
+            
+            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: finalSummary, details: sessionLog });
+            localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); 
             document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation();
         }
 
-        function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); }
+        function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); activeArcName = ""; }
 
         function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
         function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
@@ -510,14 +484,12 @@
         // --- TIMERS ---
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
         function startTimer(seconds) { 
-            clearInterval(timerInterval); let time = seconds; 
-            updateTimerUI(seconds);
+            clearInterval(timerInterval); let time = seconds; updateTimerUI(seconds);
             document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').textContent = time; 
             timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) skipTimer(); }, 1000); 
         }
         function adjustTimer(seconds) {
-            clearInterval(timerInterval); let time = seconds;
-            updateTimerUI(seconds);
+            clearInterval(timerInterval); let time = seconds; updateTimerUI(seconds);
             document.getElementById('timer-display').textContent = time;
             timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) skipTimer(); }, 1000); 
         }
