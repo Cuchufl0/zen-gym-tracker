@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Zen Gym - Analytics</title>
+    <title>Zen Gym - Training Arcs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -33,6 +33,7 @@
 
         /* BUTTONS & CARDS */
         .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; width: 100%; font-weight: 800; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; border: none; }
+        .secondary-button { background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; width: 100%; font-weight: 800; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; border: none; }
         .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; width: 100%; }
         .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
 
@@ -65,76 +66,32 @@
         #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 280px; background: #1a1a1a; color: white; padding: 40px; transform: translateY(100%); transition: 0.6s; z-index: 9999; border-radius: 44px 44px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #timer-bar.show { transform: translateY(0); }
         
-        /* Remove default stepper arrows for number inputs across browsers */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
     </style>
 </head>
 <body class="p-6">
 
-    <div id="limit-break-overlay">
-        <h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2">Limit Break</h1>
-        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">New Peak Reached</p>
-        <p id="lb-record" class="text-2xl font-bold mt-6">---</p>
-    </div>
-
+    <div id="limit-break-overlay"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2">Limit Break</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">New Peak Reached</p><p id="lb-record" class="text-2xl font-bold mt-6">---</p></div>
     <div id="system-overlay"><div id="sys-line-1" class="system-text text-gray-400 font-light tracking-[0.3em] uppercase text-[10px]"></div><div id="sys-line-2" class="system-text text-white font-bold tracking-tighter text-3xl"></div><div id="sys-line-3" class="system-text text-gray-400 italic text-sm mt-4"></div></div>
     <div id="ui-shield"></div>
 
-    <div id="retreat-modal">
-        <h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2>
-        <div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div>
-        <div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div>
-    </div>
-
-    <div id="history-modal">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-extrabold tracking-tighter text-gray-800 uppercase">Quest Log</h2>
-            <div onclick="closeHistory()" class="pill cursor-pointer">Close</div>
-        </div>
-        <div id="history-detail-content" class="max-h-[300px] overflow-y-auto pr-2"></div>
-    </div>
+    <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
+    <div id="history-modal"><div class="flex justify-between items-center mb-6"><h2 class="text-xl font-extrabold tracking-tighter text-gray-800 uppercase">Quest Log</h2><div onclick="closeHistory()" class="pill cursor-pointer">Close</div></div><div id="history-detail-content" class="max-h-[300px] overflow-y-auto pr-2"></div></div>
 
     <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
-        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0">
-            <h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2>
-            <div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div>
-        </header>
+        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2><div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div></header>
         <div class="scroll-container pb-10">
-            <div class="flex gap-4 mb-8 px-2">
-                <div class="bento-card p-6 flex-1 text-center">
-                    <p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-workouts">0</p>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Workouts</p>
-                </div>
-                <div class="bento-card p-6 flex-1 text-center">
-                    <p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-sets">0</p>
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Total Sets</p>
-                </div>
-            </div>
-            <div class="px-2">
-                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Personal Records</h3>
-                <div id="pb-list" class="bento-card overflow-hidden"></div>
-            </div>
+            <div class="flex gap-4 mb-8 px-2"><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-workouts">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Workouts</p></div><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-sets">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Total Sets</p></div></div>
+            <div class="px-2"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Personal Records</h3><div id="pb-list" class="bento-card overflow-hidden"></div></div>
         </div>
     </div>
 
-    <div id="synthesis-bar"><div onclick="synthesizeGrimoire()" class="zen-button press-effect shadow-2xl">Synthesize Grimoire</div></div>
+    <div id="synthesis-bar"><div onclick="draftArc()" class="zen-button press-effect shadow-2xl">Draft Training Arc</div></div>
 
     <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-10 flex flex-col hidden">
-        <div id="step-1" class="flex-1 flex flex-col justify-center">
-            <h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1>
-            <input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full focus:outline-none">
-            <div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div>
-        </div>
-        <div id="step-2" class="flex-1 flex flex-col justify-center hidden text-center">
-            <h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800 uppercase">Choose Your Vessel</h2>
-            <div class="grid grid-cols-1 gap-4">
-                <div onclick="saveType('lean')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Lean</div>
-                <div onclick="saveType('athletic')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Athletic</div>
-                <div onclick="saveType('solid')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Solid</div>
-            </div>
-        </div>
+        <div id="step-1" class="flex-1 flex flex-col justify-center"><h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1><input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full focus:outline-none"><div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div></div>
+        <div id="step-2" class="flex-1 flex flex-col justify-center hidden text-center"><h2 class="text-3xl font-bold mb-10 tracking-tight text-gray-800 uppercase">Choose Your Vessel</h2><div class="grid grid-cols-1 gap-4"><div onclick="saveType('lean')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Lean</div><div onclick="saveType('athletic')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Athletic</div><div onclick="saveType('solid')" class="bento-card p-6 font-bold uppercase tracking-widest press-effect cursor-pointer">Solid</div></div></div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full">
@@ -146,23 +103,21 @@
         <div class="px-2 mb-8 shrink-0">
             <div class="bento-card p-6 relative">
                 <div onclick="openAnalytics()" class="absolute top-6 right-6 pill bg-gray-100 text-gray-600 press-effect">Analytics</div>
-                <div class="flex flex-col mb-1 pr-20">
-                    <h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">Seeker</h2>
-                    <span id="user-level" class="text-xs font-black uppercase text-gray-400 mt-1">Level 1</span>
-                </div>
+                <div class="flex flex-col mb-1 pr-20"><h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">Seeker</h2><span id="user-level" class="text-xs font-black uppercase text-gray-400 mt-1">Level 1</span></div>
                 <div class="xp-container mt-6"><div id="xp-bar-fill" class="xp-bar"></div></div>
             </div>
             <p id="flavor-quote" class="text-[10px] text-gray-400 mt-6 font-medium italic opacity-70 px-2">---</p>
         </div>
 
         <div class="scroll-container pb-32">
-            <div class="press-effect bento-card p-8 mb-10 border-gray-200 cursor-pointer" onclick="startWorkout(fullRoutine, 'home')">
-                <span class="pill bg-black text-white mb-6 inline-block">The Main Quest</span>
-                <h3 class="text-2xl font-bold mb-1 text-gray-800 tracking-tighter uppercase">Path of the Warrior</h3>
-                <div class="mt-8 text-[10px] font-black uppercase tracking-[0.3em] text-black italic">Enter Arena →</div>
+            
+            <div class="mb-10 px-2">
+                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Training Arcs</h3>
+                <div id="training-arcs-list" class="grid grid-cols-1 gap-4">
+                    </div>
             </div>
 
-            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">The Warrior's Arsenal</h3>
+            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">Draft New Routine</h3>
             <div class="grid grid-cols-2 gap-4 px-2 mb-12">
                 <div onclick="toggleArsenal('Chest')" id="btn-Chest" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Chest</div>
                 <div onclick="toggleArsenal('Back')" id="btn-Back" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Back</div>
@@ -176,16 +131,21 @@
                 <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em] text-center">Recent Chronicles</h3>
                 <div id="chronicles-list" class="bento-card overflow-hidden"></div>
             </div>
+
         </div>
     </div>
 
     <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
-        <header class="mb-8 flex justify-between items-center pt-6 px-2 shrink-0">
-            <h2 id="selection-title" class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Grimoire</h2>
+        <header class="mb-6 flex justify-between items-center pt-6 px-2 shrink-0">
+            <h2 id="selection-title" class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Arc Builder</h2>
             <div onclick="closeSelectionUI()" class="pill cursor-pointer">Close</div>
         </header>
-        <div id="exercise-list" class="scroll-container mb-6"></div>
-        <div class="shrink-0 pt-2"><div onclick="startSelected()" class="zen-button press-effect italic">Invoke Strength</div></div>
+        <div id="exercise-list" class="scroll-container mb-4"></div>
+        <div class="shrink-0 pt-4 border-t border-gray-100">
+            <input type="text" id="arc-name-input" placeholder="Routine Name (e.g., GYM DÍA 1)" class="w-full text-center py-4 mb-4 border-b-2 border-gray-200 text-lg font-bold text-gray-800 uppercase tracking-widest focus:outline-none">
+            <div onclick="saveAndStartArc()" class="zen-button press-effect italic mb-3">Save & Invoke</div>
+            <div onclick="startSelectedOnly()" class="secondary-button press-effect text-[10px] text-gray-500">Quick Start (No Save)</div>
+        </div>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
@@ -214,14 +174,8 @@
             </div>
 
             <div class="grid grid-cols-2 gap-8 mb-10 w-full">
-                <div class="text-center">
-                    <label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Weight</label>
-                    <input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors">
-                </div>
-                <div class="text-center">
-                    <label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Reps</label>
-                    <input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors">
-                </div>
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Weight</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors"></div>
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Reps</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors"></div>
             </div>
 
             <div onclick="logSet()" class="zen-button mb-10 press-effect" role="button">Unleash</div>
@@ -252,6 +206,7 @@
         };
         const AURA_COLORS = { 'Chest': '#ff4d4d', 'Back': '#9d4edd', 'Arms': '#0077ff', 'Legs': '#38b000', 'Shoulders': '#00f5d4', 'Core': '#ffbe0b', 'Default': '#1a1a1a' };
 
+        // LIBRARY UPDATED TO MATCH YOUR APPLE NOTES
         const fullLibrary = [
             { en: "Bench Press", es: "Press de Banca", group: "Chest", target: "Chest" },
             { en: "Incline DB Press", es: "Press Inclinado", group: "Chest", target: "Upper Chest" },
@@ -260,24 +215,19 @@
             { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Lats" },
             { en: "Pull-ups", es: "Dominadas", group: "Back", target: "Lats" },
             { en: "Seated Row", es: "Remo Sentado", group: "Back", target: "Mid Back" },
-            { en: "T-Bar Row", es: "Remo en T", group: "Back", target: "Back Thickness" },
-            { en: "Dumbbell Military Press", es: "Press militar", group: "Shoulders", target: "Front Delts" },
-            { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders" },
+            { en: "Dumbbell Military Press", es: "Press militar mancuerna", group: "Shoulders", target: "Front Delts" },
             { en: "Lateral Raises", es: "Elevaciones laterales", group: "Shoulders", target: "Side Delts" },
-            { en: "Face Pulls", es: "Face Pulls", group: "Shoulders", target: "Rear Delts" },
-            { en: "Alternating DB Curl", es: "Curl alterno", group: "Arms", target: "Biceps" },
-            { en: "Hammer Curls", es: "Curl Martillo", group: "Arms", target: "Brachialis" },
+            { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders" },
+            { en: "Alternating DB Curl", es: "Curl alterno con mancuerna", group: "Arms", target: "Biceps" },
+            { en: "Barbell Curl", es: "Curl con barra", group: "Arms", target: "Biceps" },
+            { en: "Concentration Curl", es: "Curl concentrado", group: "Arms", target: "Biceps Peak" },
             { en: "Tricep Pushdown", es: "Extensión de Tríceps", group: "Arms", target: "Triceps" },
-            { en: "Skullcrushers", es: "Rompecráneos", group: "Arms", target: "Triceps" },
             { en: "Squats", es: "Sentadillas", group: "Legs", target: "Quads" },
             { en: "Leg Press", es: "Prensa de Piernas", group: "Legs", target: "Legs" },
-            { en: "Romanian Deadlift", es: "Peso Muerto Rumano", group: "Legs", target: "Hamstrings" },
-            { en: "Upper Abs Crunch", es: "Abdominales Superiores", group: "Core", target: "Abs" },
-            { en: "Leg Raises", es: "Elevación de Piernas", group: "Core", target: "Lower Abs" },
+            { en: "Upper Abs Crunch", es: "Upper abdomen", group: "Core", target: "Upper Abs" },
+            { en: "Leg Raises", es: "Lower abdomen", group: "Core", target: "Lower Abs" },
             { en: "Plank", es: "Plancha", group: "Core", target: "Core" }
         ];
-
-        const fullRoutine = fullLibrary.filter(ex => ["Bench Press", "Lat Pulldown", "Dumbbell Military Press", "Squats", "Upper Abs Crunch"].includes(ex.en));
 
         let activeSession = [];
         let selectedInMenu = [];
@@ -293,59 +243,39 @@
         let totalXp = parseInt(localStorage.getItem('zen-total-xp')) || 0;
 
         window.onload = () => {
-            updateFlavor(); // TIMELINE FIX: Now runs immediately on load
+            updateFlavor(); 
             const name = localStorage.getItem('zen-name');
-            if (!name) {
-                document.getElementById('onboarding').classList.remove('hidden');
-            } else { 
+            if (!name) { document.getElementById('onboarding').classList.remove('hidden'); } 
+            else { 
                 document.getElementById('display-name').textContent = name; 
-                updateLevelUI(); 
-                renderChronicles(); 
+                updateLevelUI(); renderChronicles(); renderArcs();
             }
         };
 
-        function openAnalytics() {
-            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
-            document.getElementById('stat-workouts').textContent = chronicles.length;
-
-            let totalSets = 0;
-            chronicles.forEach(c => { totalSets += (c.details ? c.details.length : 0); });
-            document.getElementById('stat-sets').textContent = totalSets;
-
-            const pbList = document.getElementById('pb-list');
-            let pbHTML = '';
-            let hasPBs = false;
+        // --- TRAINING ARCS LOGIC ---
+        function renderArcs() {
+            const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
+            const list = document.getElementById('training-arcs-list');
+            let html = '';
             
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('zen-pb-')) {
-                    hasPBs = true;
-                    const exName = key.replace('zen-pb-', '');
-                    const weight = localStorage.getItem(key);
-                    pbHTML += `
-                    <div class="chronicle-card">
-                        <p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate">${exName}</p>
-                        <span class="text-sm font-black text-[#1a1a1a] shrink-0">${weight} KG</span>
+            if(arcs.length === 0) {
+                html = `<div class="bento-card p-6 text-center text-[9px] font-bold text-gray-400 uppercase tracking-widest border-dashed border-2 border-gray-200">No Arcs Forged.<br>Draft a routine below.</div>`;
+            } else {
+                arcs.forEach((arc, i) => {
+                    html += `
+                    <div class="bento-card p-6 press-effect flex justify-between items-center cursor-pointer" onclick="startSavedArc(${i})">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p>
+                        </div>
+                        <div class="text-[10px] font-black uppercase tracking-[0.3em] text-black italic">Start →</div>
                     </div>`;
-                }
+                });
             }
-            
-            if(!hasPBs) { pbHTML = `<div class="p-8 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No records established.<br>Enter the arena.</div>`; }
-            pbList.innerHTML = pbHTML;
-            document.getElementById('analytics-window').classList.remove('hidden');
+            list.innerHTML = html;
         }
 
-        function closeAnalytics() { document.getElementById('analytics-window').classList.add('hidden'); }
-
-        function toggleArsenal(group) {
-            const idx = selectedGroups.indexOf(group);
-            const btn = document.getElementById(`btn-${group}`);
-            if (idx > -1) { selectedGroups.splice(idx, 1); btn.classList.remove(`active-${group}`); } 
-            else { selectedGroups.push(group); btn.classList.add(`active-${group}`); }
-            document.getElementById('synthesis-bar').classList.toggle('show', selectedGroups.length > 0);
-        }
-
-        function synthesizeGrimoire() {
+        function draftArc() {
             document.getElementById('synthesis-bar').classList.remove('show');
             const listDiv = document.getElementById('exercise-list');
             listDiv.innerHTML = ''; selectedInMenu = [];
@@ -355,11 +285,64 @@
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer";
                 item.onclick = () => toggleSelection(ex, item, filtered);
-                item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.target}</p></div><div class="selection-circle"></div>`;
+                item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.es}</p></div><div class="selection-circle"></div>`;
                 listDiv.appendChild(item);
             });
-            document.getElementById('selection-title').textContent = selectedGroups.length > 1 ? "Synthesis" : selectedGroups[0];
+            document.getElementById('selection-title').textContent = "Builder";
             document.getElementById('selection-ui').classList.remove('hidden');
+        }
+
+        function saveAndStartArc() {
+            if (selectedInMenu.length === 0) return alert("Select at least one technique.");
+            const nameInput = document.getElementById('arc-name-input').value.trim() || "Custom Routine";
+            
+            const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
+            arcs.push({ id: Date.now(), name: nameInput, exercises: selectedInMenu });
+            localStorage.setItem('zen-arcs', JSON.stringify(arcs));
+            
+            renderArcs(); closeSelectionUI(); resetPreparation();
+            startWorkout(selectedInMenu, 'arc');
+        }
+
+        function startSelectedOnly() {
+            if (selectedInMenu.length > 0) {
+                closeSelectionUI(); resetPreparation();
+                startWorkout(selectedInMenu, 'arc');
+            }
+        }
+
+        function startSavedArc(index) {
+            const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]");
+            const arc = arcs[index];
+            startWorkout(arc.exercises, 'arc');
+        }
+
+        // --- CORE SYSTEM & UI ---
+        function openAnalytics() {
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            document.getElementById('stat-workouts').textContent = chronicles.length;
+            let totalSets = 0; chronicles.forEach(c => { totalSets += (c.details ? c.details.length : 0); });
+            document.getElementById('stat-sets').textContent = totalSets;
+
+            const pbList = document.getElementById('pb-list'); let pbHTML = ''; let hasPBs = false;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('zen-pb-')) {
+                    hasPBs = true; const exName = key.replace('zen-pb-', ''); const weight = localStorage.getItem(key);
+                    pbHTML += `<div class="chronicle-card"><p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate">${exName}</p><span class="text-sm font-black text-[#1a1a1a] shrink-0">${weight} KG</span></div>`;
+                }
+            }
+            if(!hasPBs) { pbHTML = `<div class="p-8 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No records established.<br>Enter the arena.</div>`; }
+            pbList.innerHTML = pbHTML; document.getElementById('analytics-window').classList.remove('hidden');
+        }
+
+        function closeAnalytics() { document.getElementById('analytics-window').classList.add('hidden'); }
+
+        function toggleArsenal(group) {
+            const idx = selectedGroups.indexOf(group); const btn = document.getElementById(`btn-${group}`);
+            if (idx > -1) { selectedGroups.splice(idx, 1); btn.classList.remove(`active-${group}`); } 
+            else { selectedGroups.push(group); btn.classList.add(`active-${group}`); }
+            document.getElementById('synthesis-bar').classList.toggle('show', selectedGroups.length > 0);
         }
 
         function closeSelectionUI() { document.getElementById('selection-ui').classList.add('hidden'); if (selectedGroups.length > 0) document.getElementById('synthesis-bar').classList.add('show'); }
@@ -372,12 +355,10 @@
                 if (sIdx > -1) { circle.classList.add('active'); circle.textContent = sIdx + 1; } else { circle.classList.remove('active'); circle.textContent = ''; }
             });
         }
-        function startSelected() { if (selectedInMenu.length > 0) { document.getElementById('selection-ui').classList.add('hidden'); document.getElementById('synthesis-bar').classList.remove('show'); startWorkout(selectedInMenu, 'selection'); } }
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSystemSound(type) {
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
             if (type === 'xp') { osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); }
             else if (type === 'levelup') { osc.type = 'triangle'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.5); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6); }
         }
@@ -385,104 +366,55 @@
         function getXpRequired(lvl) { return SYSTEM_CONFIG.baseXp + (lvl * SYSTEM_CONFIG.xpScaling); }
         function updateLevelUI() {
             const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
-            document.getElementById('user-rank-title').textContent = RANKS[r].title;
-            document.getElementById('user-rank-sub').textContent = RANKS[r].sub;
-            document.getElementById('user-level').textContent = `Level ${level}`;
+            document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('user-rank-sub').textContent = RANKS[r].sub; document.getElementById('user-level').textContent = `Level ${level}`;
             let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpRequired(i);
-            const currentLevelXp = totalXp - xpInLevels;
-            const threshold = getXpRequired(level);
-            document.getElementById('xp-bar-fill').style.width = `${Math.min((currentLevelXp / threshold) * 100, 100)}%`;
+            document.getElementById('xp-bar-fill').style.width = `${Math.min(((totalXp - xpInLevels) / getXpRequired(level)) * 100, 100)}%`;
         }
 
         async function awardXP(amt) {
             totalXp += amt; localStorage.setItem('zen-total-xp', totalXp); playSystemSound('xp');
             let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpRequired(i);
-            if ((totalXp - xpInLevels) >= getXpRequired(level)) {
-                const oldR = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
-                level++; localStorage.setItem('zen-level', level);
-                const newR = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
-                if (oldR !== newR) await triggerCinematic('rank', newR); else await triggerCinematic('level', level);
-            }
+            if ((totalXp - xpInLevels) >= getXpRequired(level)) { level++; localStorage.setItem('zen-level', level); await triggerCinematic('level', level); }
             updateLevelUI();
         }
 
         async function triggerCinematic(type, val) {
-            const overlay = document.getElementById('system-overlay'); const l1 = overlay.children[0]; const l2 = overlay.children[1]; const l3 = overlay.children[2];
+            const overlay = document.getElementById('system-overlay');
             overlay.classList.add('active'); playSystemSound('levelup');
-            if (type === 'level') { l1.textContent = "You continued."; l2.textContent = "You endured."; l3.textContent = `Level Up — Level ${val}`; }
-            else { l1.textContent = "You have surpassed your limits."; l2.textContent = `Rank ${val} Achieved`; l3.textContent = RANKS[val].title; }
-            await new Promise(r => setTimeout(r, 200)); l1.classList.add('visible');
-            await new Promise(r => setTimeout(r, 800)); l2.classList.add('visible');
-            await new Promise(r => setTimeout(r, 800)); l3.classList.add('visible');
+            overlay.children[0].textContent = "You continued."; overlay.children[1].textContent = "You endured."; overlay.children[2].textContent = `Level Up — Level ${val}`;
+            await new Promise(r => setTimeout(r, 200)); overlay.children[0].classList.add('visible');
+            await new Promise(r => setTimeout(r, 800)); overlay.children[1].classList.add('visible');
+            await new Promise(r => setTimeout(r, 800)); overlay.children[2].classList.add('visible');
             await new Promise(r => setTimeout(r, 2500));
-            overlay.classList.remove('active'); l1.classList.remove('visible'); l2.classList.remove('visible'); l3.classList.remove('visible');
+            overlay.classList.remove('active'); overlay.children[0].classList.remove('visible'); overlay.children[1].classList.remove('visible'); overlay.children[2].classList.remove('visible');
         }
 
         function triggerLimitBreak(weight) {
-            const overlay = document.getElementById('limit-break-overlay');
-            document.getElementById('lb-record').textContent = weight + " KG";
-            overlay.classList.add('active');
-            setTimeout(() => { overlay.classList.remove('active'); }, 2500);
+            const overlay = document.getElementById('limit-break-overlay'); document.getElementById('lb-record').textContent = weight + " KG";
+            overlay.classList.add('active'); setTimeout(() => { overlay.classList.remove('active'); }, 2500);
         }
 
         function logSet() {
-            const wInput = document.getElementById('weight-input').value;
-            const rInput = document.getElementById('reps-input').value;
-            const w = parseFloat(wInput) || 0;
-            const r = parseInt(rInput) || 0;
-            const exName = activeSession[currentIdx].en;
-
-            sessionLog.push({ exercise: exName, weight: w, reps: r, form: currentSet });
-            currentExerciseLog.push({ w: w, r: r });
-
+            const w = parseFloat(document.getElementById('weight-input').value) || 0; const r = parseInt(document.getElementById('reps-input').value) || 0; const exName = activeSession[currentIdx].en;
+            sessionLog.push({ exercise: exName, weight: w, reps: r, form: currentSet }); currentExerciseLog.push({ w: w, r: r });
             const currentPB = parseFloat(localStorage.getItem('zen-pb-' + exName)) || 0;
-            if (w > currentPB) {
-                localStorage.setItem('zen-pb-' + exName, w);
-                triggerLimitBreak(w);
-                document.getElementById('history-label').textContent = `PB: ${w}kg`;
-            }
-
-            const row = document.createElement('div');
-            row.className = "set-row";
-            row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
+            if (w > currentPB) { localStorage.setItem('zen-pb-' + exName, w); triggerLimitBreak(w); document.getElementById('history-label').textContent = `PB: ${w}kg`; }
+            
+            const row = document.createElement('div'); row.className = "set-row"; row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`;
             document.getElementById('history-list').prepend(row);
-            
-            awardXP(SYSTEM_CONFIG.xpPerSet);
-            currentSet++;
-            document.getElementById('set-counter').textContent = `Form ${currentSet}`;
-            
-            loadShadowForSet();
-            startTimer(60);
+            awardXP(SYSTEM_CONFIG.xpPerSet); currentSet++; document.getElementById('set-counter').textContent = `Form ${currentSet}`;
+            loadShadowForSet(); startTimer(60);
         }
 
-        function saveShadowData() {
-            if(currentExerciseLog.length > 0) {
-                const exName = activeSession[currentIdx].en;
-                localStorage.setItem('zen-shadow-' + exName, JSON.stringify(currentExerciseLog));
-            }
-        }
+        function saveShadowData() { if(currentExerciseLog.length > 0) { localStorage.setItem('zen-shadow-' + activeSession[currentIdx].en, JSON.stringify(currentExerciseLog)); } }
 
         function loadShadowForSet() {
-            const shadowText = document.getElementById('shadow-record-text');
-            const wInput = document.getElementById('weight-input');
-            const rInput = document.getElementById('reps-input');
+            const shadowText = document.getElementById('shadow-record-text'); const wInput = document.getElementById('weight-input'); const rInput = document.getElementById('reps-input');
             const shadowSet = shadowArray[currentSet - 1];
-            
-            if (shadowSet) {
-                shadowText.textContent = `SHADOW: ${shadowSet.w}KG x ${shadowSet.r}`;
-                shadowText.style.opacity = '1';
-                wInput.value = shadowSet.w;
-                rInput.value = shadowSet.r;
-            } else {
-                shadowText.textContent = "SHADOW: NONE";
-                shadowText.style.opacity = '0.3';
-                if (currentExerciseLog.length > 0) {
-                    wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w;
-                    rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r;
-                } else {
-                    wInput.value = "";
-                    rInput.value = "";
-                }
+            if (shadowSet) { shadowText.textContent = `SHADOW: ${shadowSet.w}KG x ${shadowSet.r}`; shadowText.style.opacity = '1'; wInput.value = shadowSet.w; rInput.value = shadowSet.r; } 
+            else {
+                shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3';
+                if (currentExerciseLog.length > 0) { wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w; rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r; } else { wInput.value = ""; rInput.value = ""; }
             }
         }
 
@@ -493,56 +425,26 @@
             resetForNewExercise(); 
         }
 
-        function resetForNewExercise() {
-            currentSet = 1; currentExerciseLog = [];
-            const exName = activeSession[currentIdx].en;
-            shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + exName) || "[]");
-            document.getElementById('history-list').innerHTML = ''; 
-            document.getElementById('set-counter').textContent = `Form 1`;
-            updateUI(); loadShadowForSet();
-        }
-
+        function resetForNewExercise() { currentSet = 1; currentExerciseLog = []; shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + activeSession[currentIdx].en) || "[]"); document.getElementById('history-list').innerHTML = ''; document.getElementById('set-counter').textContent = `Form 1`; updateUI(); loadShadowForSet(); }
         function nextExercise() { saveShadowData(); if (currentIdx < activeSession.length - 1) { currentIdx++; resetForNewExercise(); } else { skipTimer(); concludeQuest(); } }
         function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); } }
 
         function concludeQuest() {
-            saveShadowData();
-            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
-            const newRecord = {
-                date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
-                summary: [...new Set(activeSession.map(ex => ex.group))].join(", "),
-                details: sessionLog
-            };
-            chronicles.unshift(newRecord);
+            saveShadowData(); const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: [...new Set(activeSession.map(ex => ex.group))].join(", "), details: sessionLog });
             localStorage.setItem('zen-chronicles', JSON.stringify(chronicles.slice(0, 5)));
             renderChronicles(); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation();
         }
 
-        function resetPreparation() {
-            selectedGroups = [];
-            Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; });
-            document.getElementById('synthesis-bar').classList.remove('show');
-        }
+        function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); }
 
         function renderChronicles() {
-            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
-            const list = document.getElementById('chronicles-list');
-            if (chronicles.length > 0) {
-                document.getElementById('chronicles-section').classList.remove('hidden');
-                list.innerHTML = chronicles.map((c, i) => `
-                    <div onclick="openHistory(${i})" class="chronicle-card press-effect cursor-pointer">
-                        <div class="flex-1 pr-4 truncate">
-                            <p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate w-full">${c.summary}</p>
-                            <p class="text-[8px] font-black text-gray-400 uppercase mt-1">View Log →</p>
-                        </div>
-                        <span class="text-[9px] font-black text-gray-300 uppercase shrink-0">${c.date}</span>
-                    </div>
-                `).join('');
-            }
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]"); const list = document.getElementById('chronicles-list');
+            if (chronicles.length > 0) { document.getElementById('chronicles-section').classList.remove('hidden'); list.innerHTML = chronicles.map((c, i) => `<div onclick="openHistory(${i})" class="chronicle-card press-effect cursor-pointer"><div class="flex-1 pr-4 truncate"><p class="text-xs font-bold text-gray-800 uppercase tracking-tight truncate w-full">${c.summary}</p><p class="text-[8px] font-black text-gray-400 uppercase mt-1">View Log →</p></div><span class="text-[9px] font-black text-gray-300 uppercase shrink-0">${c.date}</span></div>`).join(''); }
         }
 
         function openHistory(index) {
-            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]"); const quest = chronicles[index];
+            const quest = JSON.parse(localStorage.getItem('zen-chronicles') || "[]")[index];
             document.getElementById('history-detail-content').innerHTML = quest.details.map(d => `<div class="set-row"><div class="text-left"><p class="text-[10px] font-bold text-gray-800">${d.exercise}</p><p class="text-[8px] font-black text-gray-400 uppercase">Form ${d.form}</p></div><span class="font-bold text-gray-800 text-xs">${d.weight}kg x ${d.reps}</span></div>`).join('');
             document.getElementById('ui-shield').classList.add('active'); document.getElementById('history-modal').classList.add('show');
         }
@@ -553,34 +455,18 @@
         function confirmRetreat() { skipTimer(); cancelRetreat(); document.getElementById('workout-ui').classList.add('hidden'); updateFlavor(); resetPreparation(); }
         function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
         function startTimer(seconds) { clearInterval(timerInterval); let time = seconds; document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').textContent = time; timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) skipTimer(); }, 1000); }
-        
         function updateFlavor() { 
-            const h = new Date().getHours();
-            let timeText = "Active";
-            if(h < 12) timeText = "Dawn";
-            else if(h < 18) timeText = "Solar";
-            else timeText = "Twilight";
-            document.getElementById('time-greeting').textContent = `Timeline: ${timeText}`;
-
-            const quotes = ["Keep moving forward.", "No matter how many times you’re knocked down, get back up.", "Arise.", "The journey is what matters.", "I have no enemies..."]; 
-            document.getElementById('flavor-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)]; 
+            const h = new Date().getHours(); document.getElementById('time-greeting').textContent = `Timeline: ${h < 12 ? "Dawn" : h < 18 ? "Solar" : "Twilight"}`;
+            const quotes = ["Keep moving forward.", "Arise.", "The journey is what matters.", "I have no enemies..."]; document.getElementById('flavor-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)]; 
         }
         
         function updateUI() {
             const ex = activeSession[currentIdx];
-            document.getElementById('ex-name-en').textContent = ex.en;
-            document.getElementById('ex-name-es').textContent = ex.es;
-            document.getElementById('progress-text').textContent = `Stage ${currentIdx + 1} / ${activeSession.length}`;
-            
-            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0;
-            document.getElementById('history-label').textContent = currentPB > 0 ? `PB: ${currentPB}kg` : "New Art";
-            
+            document.getElementById('ex-name-en').textContent = ex.en; document.getElementById('ex-name-es').textContent = ex.es; document.getElementById('progress-text').textContent = `Stage ${currentIdx + 1} / ${activeSession.length}`;
+            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; document.getElementById('history-label').textContent = currentPB > 0 ? `PB: ${currentPB}kg` : "New Art";
             document.getElementById('spirit-aura').style.backgroundColor = AURA_COLORS[ex.group] || '#1a1a1a';
-            const targetEl = document.getElementById('target-muscle');
-            if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase();
-            
-            const backBtn = document.getElementById('back-btn');
-            if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; }
+            const targetEl = document.getElementById('target-muscle'); if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase();
+            const backBtn = document.getElementById('back-btn'); if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; }
             document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance';
         }
         
