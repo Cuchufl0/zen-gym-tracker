@@ -3,367 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Iron Grimoire">
     <meta id="theme-meta" name="theme-color" content="#F2EBDC">
-    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    
     <title>Iron Grimoire</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Lora:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    
     <style>
-        :root { --parchment: #F2EBDC; --ink: #2B2B2B; --oxblood: #7B1818; --moss: #4A5D4E; --iron: #333333; }
-        
-        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; touch-action: manipulation; }
-        *::-webkit-scrollbar { display: none !important; width: 0 !important; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        html, body { overscroll-behavior: none !important; touch-action: pan-y; background-color: var(--parchment); color: var(--ink); font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.04; pointer-events: none; background-image: url("https://www.transparenttextures.com/patterns/stardust.png"); z-index: 9999; }
-        
+        :root { --parchment: #F2EBDC; --ink: #2B2B2B; --oxblood: #7B1818; --iron: #333333; }
+        * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        *::-webkit-scrollbar { display: none; }
+        html, body { overscroll-behavior: none; background-color: var(--parchment); color: var(--ink); font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
         h1, h2, h3, .font-serif { font-family: 'Lora', serif; }
-        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: var(--ink) !important; background: transparent !important; text-align: center; font-family: 'Lora', serif; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-
-        .horizontal-scroll { display: flex; overflow-x: auto; gap: 0.5rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
-        
-        .grimoire-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0,0,0,0.1); border-radius: 24px; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); transition: 0.3s; }
-        .btn-primary { background: var(--iron); color: var(--parchment); border-radius: 18px; padding: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; transition: 0.2s; cursor: pointer; }
-        .btn-endure { background: var(--oxblood); color: white; border-radius: 18px; padding: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; text-align: center; box-shadow: 0 4px 0px #4d0f0f; cursor: pointer; }
-        
-        .rank-seal { width: 32px; height: 32px; background: var(--iron); color: var(--parchment); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; box-shadow: 0 0 0 4px var(--parchment), 0 0 0 5px rgba(0,0,0,0.1); }
+        .grimoire-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0,0,0,0.1); border-radius: 24px; }
+        .btn-primary { background: var(--iron); color: var(--parchment); border-radius: 18px; padding: 20px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
+        .btn-endure { background: var(--oxblood); color: white; border-radius: 18px; padding: 22px; font-weight: 900; text-transform: uppercase; text-align: center; box-shadow: 0 4px 0px #4d0f0f; }
+        .rank-seal { width: 32px; height: 32px; background: var(--iron); color: var(--parchment); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
         .xp-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
         .xp-bar { height: 100%; background: var(--iron); width: 0%; transition: width 1s ease; }
-
-        .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-        
-        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); color: var(--parchment); padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
+        .scroll-container { flex: 1; overflow-y: auto; padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); color: var(--parchment); padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.5s; z-index: 9999; border-radius: 40px 40px 0 0; }
         #timer-bar.show { transform: translateY(0); }
-
-        .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s;}
-        .pill.active { background: var(--iron); color: var(--parchment); }
-        
-        #system-overlay { position: fixed; inset: 0; z-index: 20000; background: var(--iron); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--parchment); opacity: 0; transition: 0.5s; padding-bottom: env(safe-area-inset-bottom); }
-        #system-overlay.active { display: flex; opacity: 1; }
-        
-        #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
-        #ui-shield.active { display: block; }
-
-        #retreat-modal, #swap-modal, #quest-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: var(--parchment); border: 2px solid var(--iron); border-radius: 24px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; flex-direction: column; }
-        #retreat-modal.show, #swap-modal.show, #quest-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        
-        .order-badge { position: absolute; top: 12px; right: 12px; background: var(--oxblood); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
-        .quest-card { min-width: 240px; background: var(--ink); color: var(--parchment); border-radius: 20px; padding: 16px; scroll-snap-align: start; }
-        
-        #summary-ui { position: fixed; inset: 0; background: var(--ink); z-index: 150; padding: 60px 24px calc(60px + env(safe-area-inset-bottom)); display: none; flex-direction: column; items-center; justify-content: center; color: var(--parchment); }
+        .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        .quest-card { min-width: 240px; background: var(--ink); color: var(--parchment); border-radius: 20px; padding: 16px; }
     </style>
 </head>
 <body class="p-6">
 
-    <div id="limit-break-overlay" class="fixed inset-0 z-[21000] bg-[#F2EBDC] hidden flex-col items-center justify-center text-center pb-[env(safe-area-inset-bottom)]"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2 font-serif">Mortal Limit Broken</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-50">New Peak Reached</p><p id="lb-record" class="text-3xl font-bold mt-6 font-serif">---</p></div>
-    <div id="system-overlay"><p class="text-[10px] uppercase tracking-[0.4em] opacity-60 mb-4">The Grimoire Updates</p><h1 id="sys-title" class="text-4xl font-bold italic mb-2 font-serif">---</h1><p id="sys-subtitle" class="text-sm italic opacity-80">---</p></div>
-    <div id="ui-shield"></div>
+    <div id="ui-shield" class="fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm"></div>
 
-    <div id="retreat-modal"><h2 class="text-2xl font-bold tracking-tighter mb-2 uppercase text-center font-serif">Abandon Expedition?</h2><div onclick="cancelRetreat()" class="btn-primary mb-4 mt-8">Endure</div><div onclick="confirmRetreat()" class="text-[11px] font-black uppercase tracking-[0.3em] text-red-800 p-4 cursor-pointer text-center">Flee</div></div>
-    <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-bold tracking-tighter uppercase font-serif">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3 max-h-64"></div></div>
-    <div id="quest-modal"><div class="flex justify-between items-start mb-6 border-b border-black/10 pb-4"><div><h2 id="qm-title" class="text-2xl font-bold tracking-tighter uppercase font-serif leading-tight">---</h2><span id="qm-rank" class="text-[8px] uppercase tracking-widest font-black py-1 px-2 rounded-full bg-black text-white mt-2 inline-block">---</span></div><div onclick="closeQuestModal()" class="pill cursor-pointer shrink-0 ml-2">Close</div></div><div class="mb-6"><h3 class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">Guild Notes</h3><p id="qm-desc" class="text-xs opacity-80 leading-relaxed">---</p></div><div class="mb-8"><h3 class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">Required Arts</h3><ul id="qm-arts" class="text-sm font-bold opacity-80 space-y-1 ml-2 border-l-2 border-black/10 pl-3"></ul></div><div onclick="acceptQuest()" class="btn-primary mt-auto">Accept Quest</div></div>
-
-    <div id="summary-ui">
-        <h1 class="text-5xl font-bold tracking-tighter uppercase italic mb-2 text-center font-serif">Expedition Cleared</h1>
-        <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-50 mb-12 text-center" id="summary-arc-name">---</p>
-        <div class="w-full max-w-sm mx-auto flex flex-col gap-4 mb-12">
-            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Total Tonnage</span><span class="text-2xl font-bold font-serif" id="summary-volume">0 kg</span></div>
-            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Records Broken</span><span class="text-2xl font-bold text-[#7B1818]" id="summary-prs">0</span></div>
-            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Time Elapsed</span><span class="text-2xl font-bold opacity-80 font-serif" id="summary-time">00:00</span></div>
-        </div>
-        <div onclick="closeSummary()" class="bg-[#F2EBDC] text-[#2B2B2B] rounded-[18px] w-full max-w-sm mx-auto font-bold text-center py-5 uppercase tracking-widest text-[10px] cursor-pointer">Return to Grimoire</div>
+    <div id="onboarding" class="fixed inset-0 bg-[#F2EBDC] z-[1000] p-10 flex flex-col hidden">
+        <h1 class="text-5xl font-bold tracking-tighter mb-4 italic font-serif">Iron Grimoire.</h1>
+        <input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl border-b-2 border-black/10 py-4 w-full focus:outline-none bg-transparent">
+        <div onclick="saveName()" class="btn-primary mt-16">Initialize</div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full hidden">
-        <header class="mb-6 pt-8 flex justify-between items-start px-2 shrink-0">
-            <div><h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase opacity-40 mb-2 font-black">Timeline: Dawn</h1><h2 class="text-4xl font-bold tracking-tighter italic font-serif">Warrior, <span id="display-name" class="opacity-30">---</span></h2></div>
-            <div onclick="resetApp()" class="pill opacity-30 mt-2">Burn Grimoire</div>
+        <header class="mb-6 pt-8 flex justify-between items-start px-2">
+            <div><p class="text-[10px] uppercase opacity-40 font-black">Timeline: Dawn</p><h2 class="text-4xl font-bold font-serif italic">Warrior, <span id="display-name" class="opacity-30">---</span></h2></div>
+            <div onclick="resetApp()" class="pill opacity-30">Burn Grimoire</div>
         </header>
-        
         <div class="scroll-container">
-            <div class="mb-8"><h3 class="text-[9px] font-black mb-3 opacity-60 uppercase tracking-[0.4em] px-2">The Guild Board</h3><div class="horizontal-scroll px-2 pb-2" id="quest-board-container"></div></div>
-            
-            <div class="px-2 mb-8"><div class="grimoire-card p-6 relative overflow-hidden cursor-pointer" onclick="openProfile()"><div class="flex justify-between items-end mb-2"><div class="flex items-center gap-3"><div id="home-rank-letter" class="rank-seal">E</div><div><h2 id="user-rank-title" class="text-xl font-bold tracking-tighter font-serif">The Seeker</h2><p id="user-level" class="text-[10px] font-black uppercase opacity-40 mt-1">Level 1</p></div></div><span id="xp-text" class="text-[9px] font-black opacity-40 uppercase tracking-widest">0 / 120 XP</span></div><div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div></div></div>
-
-            <div class="px-2 mb-10"><div onclick="openBuilder()" class="grimoire-card p-6 flex justify-between items-center cursor-pointer border border-black/10 bg-white/60"><div><p class="font-bold uppercase tracking-tighter font-serif text-lg">Custom Expedition</p><p class="text-[8px] opacity-40 uppercase mt-1">Draft your own arts</p></div><div class="pill bg-[#333333] text-[#F2EBDC]">Draft</div></div></div>
-            <div class="mb-10 px-2 hidden" id="active-expeditions-container"><h3 class="text-[9px] font-black mb-4 opacity-60 uppercase tracking-[0.4em]">Active Expeditions</h3><div id="expedition-list" class="grid grid-cols-1 gap-4"></div></div>
+            <div class="mb-8"><h3 class="text-[9px] font-black opacity-60 uppercase px-2 mb-3">Guild Board</h3><div id="quest-board-container" class="flex overflow-x-auto gap-2 px-2"></div></div>
+            <div class="px-2 mb-8" onclick="openProfile()">
+                <div class="grimoire-card p-6"><div class="flex justify-between items-end mb-2"><div class="flex items-center gap-3"><div id="home-rank-letter" class="rank-seal">E</div><div><h2 id="user-rank-title" class="font-bold font-serif">Seeker</h2><p id="user-level" class="text-[10px] opacity-40">Level 1</p></div></div><span id="xp-text" class="text-[9px] opacity-40">0/120 XP</span></div><div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div></div>
+            </div>
+            <div class="px-2"><div onclick="openBuilder()" class="grimoire-card p-6 flex justify-between items-center bg-white/60"><div><p class="font-bold font-serif text-lg">Custom Expedition</p><p class="text-[8px] opacity-40 uppercase">Draft your own arts</p></div><div class="pill bg-black text-white">Draft</div></div></div>
         </div>
-    </div>
-
-    <div id="selection-ui" class="fixed inset-0 bg-[#F2EBDC] z-[60] p-6 hidden flex flex-col">
-        <header class="mb-4 flex justify-between items-center pt-6 px-2 shrink-0"><h2 class="text-3xl font-bold tracking-tighter uppercase italic font-serif">The Builder</h2><div onclick="closeBuilder()" class="pill">Close</div></header>
-        <div class="horizontal-scroll mb-4 px-2 shrink-0 pb-2 border-b border-black/5" id="equipment-filters"><div onclick="setFilter('All')" id="flt-All" class="pill bg-[#333333] text-[#F2EBDC] shrink-0">All</div><div onclick="setFilter('bodyweight')" id="flt-bodyweight" class="pill shrink-0">Bodyweight</div><div onclick="setFilter('barbell')" id="flt-barbell" class="pill shrink-0">Barbell</div><div onclick="setFilter('dumbbell')" id="flt-dumbbell" class="pill shrink-0">Dumbbell</div><div onclick="setFilter('machine')" id="flt-machine" class="pill shrink-0">Machine</div><div onclick="setFilter('cable')" id="flt-cable" class="pill shrink-0">Cable</div></div>
-        <div id="exercise-list" class="flex-1 overflow-y-auto px-2 mb-2 pb-10"></div>
-        <div class="pt-4 shrink-0 bg-[#F2EBDC] border-t border-black/5 pb-[calc(20px + env(safe-area-inset-bottom))]"><div id="reorder-list" class="max-h-32 overflow-y-auto mb-4 px-2 space-y-2"></div><input type="text" id="arc-name-input" placeholder="Expedition Name" class="w-full text-center py-4 mb-2 text-xl font-bold uppercase tracking-widest focus:outline-none bg-transparent"><div onclick="saveAndStartArc()" class="btn-primary italic">Commence</div></div>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-[#F2EBDC] z-[70] p-6 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-8 px-2 mb-6 shrink-0"><div onclick="retreatClick()" class="pill text-red-800 bg-red-100/50">Retreat</div><div class="flex flex-col items-center"><span id="global-clock" class="text-xs font-black tracking-widest">00:00</span><span class="text-[7px] uppercase opacity-40 font-black">Elapsed</span></div><div onclick="openSwapModal()" class="pill">Swap Art</div></header>
-        <div class="flex-1 overflow-y-auto px-2 pb-6">
-            <div class="w-full h-56 grimoire-card mb-6 overflow-hidden relative flex items-center justify-center border-2 border-black/5"><img id="active-character" src="default.png" class="w-full h-full object-cover object-top mix-blend-multiply opacity-80 scale-110" onerror="this.style.opacity=0"><div class="absolute bottom-4 px-4 py-1 bg-white/60 backdrop-blur-sm border border-black/10 rounded-full text-[9px] font-black uppercase tracking-widest" id="target-muscle">---</div></div>
-            <div class="flex justify-between items-start mb-1"><h2 id="ex-name" class="text-2xl font-bold tracking-tighter italic font-serif">---</h2><span id="trial-counter" class="text-[9px] font-black opacity-40 uppercase mt-2">Trial 1</span></div>
-            <div class="flex justify-between items-center border-b border-black/5 pb-4 mb-6"><p id="ex-sub" class="text-xs italic opacity-40">---</p><span id="history-label" class="text-[9px] font-black text-white bg-black px-3 py-1 rounded-full uppercase tracking-tighter">NEW ART</span></div>
-            <div id="echo-box" class="flex justify-center mb-6"><span id="echo-text" class="text-[9px] font-black opacity-40 uppercase tracking-[0.2em] bg-black/5 px-4 py-2 rounded-full border border-black/5">Echo: ---</span></div>
-            <div class="flex justify-end mb-4"><div id="btn-warmup" onclick="toggleWarmup()" class="pill border border-black/10">Warm-Up: OFF</div></div>
-            <div class="grid grid-cols-2 gap-10 mb-8" id="reps-ui">
-                <div class="text-center"><label class="text-[9px] uppercase opacity-40 font-black block mb-2">Load (KG)</label><input type="number" inputmode="decimal" id="weight-input" oninput="calculatePlates()" placeholder="0" class="text-5xl w-full focus:outline-none font-bold"></div>
-                <div class="text-center"><label class="text-[9px] uppercase opacity-40 font-black block mb-2">Reps</label><input type="number" inputmode="decimal" id="reps-input" placeholder="0" class="text-5xl w-full focus:outline-none font-bold"></div>
+        <header class="flex justify-between items-center pt-8 mb-6"><div onclick="retreatClick()" class="pill text-red-800">Retreat</div><span id="global-clock" class="text-xs font-black">00:00</span><div onclick="openSwapModal()" class="pill">Swap</div></header>
+        <div class="flex-1 overflow-y-auto">
+            <div class="w-full h-48 grimoire-card mb-6 overflow-hidden flex items-center justify-center border-2 border-black/5"><img id="active-character" class="w-full h-full object-cover mix-blend-multiply opacity-80" onerror="this.style.opacity=0"></div>
+            <h2 id="ex-name" class="text-2xl font-bold font-serif italic">---</h2>
+            <p id="ex-sub" class="text-xs opacity-40 border-b border-black/5 pb-4 mb-6">---</p>
+            <div class="grid grid-cols-2 gap-10 mb-8">
+                <div class="text-center"><label class="text-[9px] opacity-40 font-black block mb-2 uppercase">Load (KG)</label><input type="number" id="weight-input" class="text-5xl w-full font-bold focus:outline-none"></div>
+                <div class="text-center"><label class="text-[9px] opacity-40 font-black block mb-2 uppercase">Reps</label><input type="number" id="reps-input" class="text-5xl w-full font-bold focus:outline-none"></div>
             </div>
-            <div id="time-ui" class="hidden flex-col items-center mb-10 w-full"><div class="text-5xl font-bold mb-6 font-serif" id="stopwatch-display">00:00</div><div class="flex gap-4 w-full px-4"><div onclick="toggleStopwatch()" id="btn-stopwatch" class="flex-1 pill py-4 font-bold text-xs text-center border border-black/10">Start</div><div onclick="resetStopwatch()" class="pill py-4 font-bold text-xs text-center px-6">Reset</div></div><input type="hidden" id="time-input" value="0"></div>
-            <div id="plate-math-ui" class="hidden flex-col items-center mb-8 w-full"><div onclick="cycleBar()" id="bar-weight" class="pill mb-3">Bar: 20kg</div><div id="plate-display" class="flex gap-1 flex-wrap justify-center"></div></div>
             <button onclick="logSet()" class="w-full btn-endure mb-10">Endure</button>
-            <div id="trial-history" class="space-y-3 pb-4"></div>
+            <div id="trial-history" class="space-y-2"></div>
         </div>
-        <footer class="pt-4 flex gap-4 w-full bg-[#F2EBDC] border-t border-black/5 shrink-0 px-4 pb-[calc(12px + env(safe-area-inset-bottom))]">
-            <div id="back-btn" onclick="prevArt()" class="w-20 py-6 rounded-2xl bg-black/5 text-center text-[10px] font-bold uppercase hidden flex items-center justify-center">Back</div>
-            <div id="progress-text" class="flex-1 py-6 text-center text-[10px] font-black opacity-30 uppercase tracking-[0.2em] flex items-center justify-center">1 / 4</div>
-            <div id="next-btn" onclick="nextArt()" class="flex-[2] py-6 rounded-2xl bg-[#333333] text-[#F2EBDC] text-center text-xs font-black uppercase tracking-widest shadow-md flex items-center justify-center">Advance</div>
+        <footer class="pt-4 flex gap-4 border-t border-black/5 pb-[env(safe-area-inset-bottom)]">
+            <div id="progress-text" class="flex-1 text-center text-[10px] opacity-30 font-black uppercase">1 / 4</div>
+            <div onclick="nextArt()" class="flex-[2] btn-primary py-4 text-xs">Advance</div>
         </footer>
     </div>
 
-    <div id="profile-window" class="fixed inset-0 bg-[#F2EBDC] z-[80] p-6 hidden flex flex-col">
-        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-bold italic uppercase font-serif">The Status</h2><div onclick="closeProfile()" class="pill">Close</div></header>
-        <div class="scroll-container flex flex-col items-center">
-            <div class="w-full max-w-[280px] h-[360px] grimoire-card mb-8 overflow-hidden relative border-2 border-black/5"><img id="profile-avatar" src="rank-e.png" class="w-full h-full object-cover object-top mix-blend-multiply scale-110" onerror="this.style.opacity=0"></div>
-            <h1 id="profile-name" class="text-4xl font-bold italic mb-1 uppercase tracking-tighter font-serif">---</h1>
-            <div class="flex items-center gap-2 mb-2"><p id="profile-rank" class="text-lg font-bold italic opacity-60 font-serif">Rank E • Seeker</p></div>
-            <p id="profile-sub" class="text-[9px] font-black uppercase opacity-30 text-center px-10 mb-10 leading-loose">---</p>
-            <div class="w-full px-6 mb-10"><div class="flex justify-between items-end mb-2"><span id="profile-level-txt" class="text-xs font-bold uppercase">Level 1</span><span id="profile-xp-txt" class="text-[9px] font-black opacity-30 uppercase">0 / 120 XP</span></div><div class="xp-container"><div id="profile-xp-bar" class="xp-bar"></div></div></div>
-            <div class="flex gap-4 w-full px-6 mb-8"><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-quests">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Expeditions</p></div><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-volume">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Tonnage</p></div></div>
-            <div onclick="openChronicles()" class="w-full max-w-xs btn-primary italic text-sm mb-10">Read the Chronicles</div>
-        </div>
+    <div id="quest-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] bg-[#F2EBDC] border-2 border-black p-8 rounded-[24px] z-[10000] hidden flex-col">
+        <h2 id="qm-title" class="text-2xl font-bold font-serif uppercase">---</h2>
+        <p id="qm-desc" class="text-xs opacity-70 my-4">---</p>
+        <div onclick="acceptQuest()" class="btn-primary mt-4">Accept Quest</div>
+        <div onclick="closeQuestModal()" class="text-center text-[10px] opacity-40 mt-4 uppercase">Close</div>
+    </div>
+
+    <div id="profile-window" class="fixed inset-0 bg-[#F2EBDC] z-[80] p-6 hidden flex flex-col overflow-y-auto">
+        <header class="flex justify-between items-center pt-8 mb-8"><h2 class="text-2xl font-bold font-serif">The Status</h2><div onclick="closeProfile()" class="pill">Back</div></header>
+        <h1 id="profile-name" class="text-3xl font-bold font-serif text-center">---</h1>
+        <p id="profile-rank" class="text-center opacity-60 mb-8 italic">---</p>
+        <div class="btn-primary" onclick="openChronicles()">Read the Chronicles</div>
     </div>
 
     <div id="chronicles-window" class="fixed inset-0 bg-[#F2EBDC] z-[90] p-6 hidden flex flex-col">
-        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-bold italic uppercase font-serif">Chronicles</h2><div onclick="closeChronicles()" class="pill">Back</div></header>
-        <div class="flex-1 overflow-y-auto px-2 space-y-4 pb-10" id="chronicles-list"></div>
+        <header class="flex justify-between items-center pt-8 mb-8"><h2 class="text-2xl font-bold font-serif">Chronicles</h2><div onclick="closeChronicles()" class="pill">Back</div></header>
+        <div id="chronicles-list" class="space-y-4 overflow-y-auto"></div>
     </div>
 
-    <div id="timer-bar"><div class="flex gap-2 justify-center mb-8"><div onclick="adjustTimer(30)" class="pill bg-white/10 text-white">30s</div><div onclick="adjustTimer(60)" class="pill bg-white/20 text-white shadow-lg">60s</div><div onclick="adjustTimer(120)" class="pill bg-white/10 text-white">120s</div></div><div class="text-center mb-8"><span id="timer-display" class="text-8xl font-serif">60</span><p class="text-[9px] font-black uppercase tracking-[0.4em] opacity-40 mt-4">Stamina Recovery</p></div><div onclick="skipTimer()" class="text-center py-4 text-[10px] font-black uppercase opacity-40 cursor-pointer">Awaken</div></div>
+    <div id="timer-bar"><div class="text-center"><span id="timer-display" class="text-8xl font-serif">60</span><p class="text-[10px] opacity-40 mt-4">Recovery</p></div><div onclick="skipTimer()" class="text-center py-4 text-[10px] opacity-40 mt-4">Skip</div></div>
 
     <script>
+        // CRITICAL: Constants defined first
         const SYSTEM_CONFIG = { xpPerSet: 10, baseXp: 100, xpScaling: 20 };
         const RANKS = { E: { title: "The Seeker", sub: "A mere mortal entering the struggle." }, D: { title: "The Disciple", sub: "The body begins to harden." }, C: { title: "The Practitioner", sub: "Power is taking root." }, B: { title: "The Adept", sub: "The iron is now part of your soul." }, A: { title: "The Ascendant", sub: "Mortal limits are a distant memory." }, S: { title: "The Transcendent", sub: "You have overridden reality itself." } };
         const QUESTS = [
-            { id: 'q1', name: 'Clear the Cellar', rank: 'Novice', desc: 'Beginner Full Body. Guild Note: Rest in the tavern tomorrow.', arts: ['Pushups', 'Goblet Squat', 'Dumbbell Row', 'Plank'] },
-            { id: 'q2', name: 'The Long March', rank: 'Novice', desc: 'Core & Endurance. Prepare for travel.', arts: ['Walking Lunges', 'Mountain Climbers', 'Wall Sit'] },
-            { id: 'q3', name: 'Forge the Iron Golem', rank: 'Adept', desc: 'Heavy Push Day. Build your armor.', arts: ['Barbell Bench Press', 'Overhead Press', 'Tricep Dips', 'Lateral Raises'] },
-            { id: 'q4', name: 'Scale the Obsidian Tower', rank: 'Adept', desc: 'Heavy Pull Day. Unyielding grip.', arts: ['Pull-ups', 'Barbell Row', 'Lat Pulldown', 'Barbell Curl'] },
-            { id: 'q5', name: 'Hold the Vanguard', rank: 'Adept', desc: 'Heavy Leg Day. Become unmovable.', arts: ['Barbell Squats', 'Leg Press', 'Romanian Deadlift (Bar)', 'Standing Calf Raises'] },
-            { id: 'q6', name: 'Subjugate the Behemoth', rank: 'Veteran', desc: 'The Big Three. High CNS tax.', arts: ['Deadlift', 'Barbell Squats', 'Barbell Bench Press', 'Barbell Row'] }
+            { id: 'q1', name: 'Clear the Cellar', rank: 'Novice', desc: 'Full Body Beginner.', arts: ['Pushups', 'Barbell Squat', 'Dumbbell Row', 'Plank'] },
+            { id: 'q2', name: 'Forge Iron Golem', rank: 'Adept', desc: 'Heavy Push Day.', arts: ['Barbell Bench Press', 'Overhead Press', 'Tricep Dips'] }
         ];
-
-        let level = 1, totalXp = 0, userName = "", selectedArts = [], activeExpedition = [], currentIdx = 0, currentTrial = 1, sessionLog = [], currentSessionTonnage = 0, currentSessionPRs = 0, pendingQuest = null;
-        let globalSeconds = 0, globalInterval, timerInterval, exStopwatchSeconds = 0, exStopwatchInterval = null, isStopwatchRunning = false, barWeightIdx = 0, currentFilter = 'All', isWarmup = false;
-        const BAR_WEIGHTS = [20, 15, 10, 0];
-        
         const fullLibrary = [
-            { en: "Pushups", group: "Chest", target: "Chest", equip: "bodyweight" }, { en: "Decline Pushups", group: "Chest", target: "Upper Chest", equip: "bodyweight" }, { en: "Incline Pushups", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Chest Dips", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Barbell Bench Press", group: "Chest", target: "Chest", equip: "barbell" }, { en: "Incline Barbell Press", group: "Chest", target: "Upper Chest", equip: "barbell" }, { en: "Decline Barbell Press", group: "Chest", target: "Lower Chest", equip: "barbell" }, { en: "Dumbbell Bench Press", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Press", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Decline DB Press", group: "Chest", target: "Lower Chest", equip: "dumbbell" }, { en: "Dumbbell Flys", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Flys", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Pec Deck Fly", group: "Chest", target: "Chest", equip: "machine" }, { en: "Machine Chest Press", group: "Chest", target: "Chest", equip: "machine" }, { en: "Incline Machine Press", group: "Chest", target: "Upper Chest", equip: "machine" }, { en: "Cable Crossovers", group: "Chest", target: "Chest", equip: "cable" }, { en: "Low-to-High Cable Fly", group: "Chest", target: "Upper Chest", equip: "cable" }, { en: "High-to-Low Cable Fly", group: "Chest", target: "Lower Chest", equip: "cable" }, { en: "Dumbbell Pullover", group: "Chest", target: "Chest", equip: "dumbbell" }, 
-            { en: "Pull-ups", group: "Back", target: "Lats", equip: "bodyweight" }, { en: "Chin-ups", group: "Back", target: "Lats / Biceps", equip: "bodyweight" }, { en: "Barbell Row", group: "Back", target: "Back Thickness", equip: "barbell" }, { en: "Pendlay Row", group: "Back", target: "Mid Back", equip: "barbell" }, { en: "Dumbbell Row", group: "Back", target: "Lats", equip: "dumbbell" }, { en: "Incline DB Row", group: "Back", target: "Mid Back", equip: "dumbbell" }, { en: "Lat Pulldown", group: "Back", target: "Lats", equip: "cable" }, { en: "Reverse Grip Pulldown", group: "Back", target: "Lats / Lower", equip: "cable" }, { en: "V-Bar Pulldown", group: "Back", target: "Lats", equip: "cable" }, { en: "Seated Cable Row", group: "Back", target: "Mid Back", equip: "cable" }, { en: "Straight Arm Pulldown", group: "Back", target: "Lats", equip: "cable" }, { en: "T-Bar Row", group: "Back", target: "Back Thickness", equip: "machine" }, { en: "Machine Row", group: "Back", target: "Mid Back", equip: "machine" }, { en: "Hyperextensions", group: "Back", target: "Lower Back", equip: "bodyweight" }, { en: "Deadlift", group: "Back", target: "Lower Back", equip: "barbell" }, 
-            { en: "Pike Pushups", group: "Shoulders", target: "Front Delts", equip: "bodyweight" }, { en: "Overhead Press", group: "Shoulders", target: "Front Delts", equip: "barbell" }, { en: "Dumbbell Military Press", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Arnold Press", group: "Shoulders", target: "Shoulders", equip: "dumbbell" }, { en: "Machine Shoulder Press", group: "Shoulders", target: "Front Delts", equip: "machine" }, { en: "Lateral Raises", group: "Shoulders", target: "Side Delts", equip: "dumbbell" }, { en: "Cable Lateral Raises", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Machine Lateral Raises", group: "Shoulders", target: "Side Delts", equip: "machine" }, { en: "Front Raises (DB)", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Front Raises (Cable)", group: "Shoulders", target: "Front Delts", equip: "cable" }, { en: "Face Pulls", group: "Shoulders", target: "Rear Delts", equip: "cable" }, { en: "Reverse Pec Deck", group: "Shoulders", target: "Rear Delts", equip: "machine" }, { en: "DB Rear Delt Flys", group: "Shoulders", target: "Rear Delts", equip: "dumbbell" }, { en: "Dumbbell Shrugs", group: "Shoulders", target: "Traps", equip: "dumbbell" }, { en: "Barbell Shrugs", group: "Shoulders", target: "Traps", equip: "barbell" }, { en: "Upright Row (BB)", group: "Shoulders", target: "Side Delts", equip: "barbell" }, { en: "Upright Row (Cable)", group: "Shoulders", target: "Side Delts", equip: "cable" }, 
-            { en: "Barbell Curl", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "EZ Bar Curl", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Alternating DB Curl", group: "Arms", target: "Biceps", equip: "dumbbell" }, { en: "Hammer Curls", group: "Arms", target: "Brachialis", equip: "dumbbell" }, { en: "Concentration Curl", group: "Arms", target: "Biceps Peak", equip: "dumbbell" }, { en: "Incline DB Curl", group: "Arms", target: "Biceps Long Head", equip: "dumbbell" }, { en: "Preacher Curl (Machine)", group: "Arms", target: "Biceps", equip: "machine" }, { en: "Preacher Curl (EZ)", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Cable Bicep Curl", group: "Arms", target: "Biceps", equip: "cable" }, { en: "Reverse Curl (EZ)", group: "Arms", target: "Forearms", equip: "barbell" }, { en: "Tricep Dips", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Bench Dips", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Close Grip Bench", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Skullcrushers", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Overhead DB Extension", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Kickbacks", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Pushdown (Straight)", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Rope Pushdown", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Overhead Tricep Ext (Cable)", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Machine Tricep Ext", group: "Arms", target: "Triceps", equip: "machine" }, 
-            { en: "Bodyweight Squats", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Walking Lunges", group: "Legs", target: "Legs", equip: "bodyweight" }, { en: "Pistol Squats", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Barbell Squats", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Front Squat", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Goblet Squat", group: "Legs", target: "Quads", equip: "dumbbell" }, { en: "Bulgarian Split Squat", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Romanian Deadlift (Bar)", group: "Legs", target: "Hamstrings", equip: "barbell" }, { en: "Romanian Deadlift (DB)", group: "Legs", target: "Hamstrings", equip: "dumbbell" }, { en: "DB Lunges", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Leg Press", group: "Legs", target: "Legs", equip: "machine" }, { en: "Hack Squat", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Extension", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Curl (Seated)", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Leg Curl (Lying)", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Hip Thrust", group: "Legs", target: "Glutes", equip: "barbell" }, { en: "Standing Calf Raises", group: "Legs", target: "Calves", equip: "machine" }, { en: "Seated Calf Raises", group: "Legs", target: "Calves", equip: "machine" }, 
-            { en: "Plank", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Upper Abs Crunch", group: "Core", target: "Upper Abs", equip: "bodyweight" }, { en: "Leg Raises", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Hanging Leg Raises", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Russian Twists", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "Bicycle Crunches", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "V-Ups", group: "Core", target: "Abs", equip: "bodyweight" }, { en: "Mountain Climbers", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Wall Sit", group: "Legs", target: "Quads", equip: "bodyweight", type: "time" }, { en: "Cable Crunch", group: "Core", target: "Abs", equip: "cable" }, { en: "Woodchoppers", group: "Core", target: "Obliques", equip: "cable" }, { en: "Ab Machine", group: "Core", target: "Abs", equip: "machine" }
+            { en: "Pushups", group: "Chest" }, { en: "Barbell Bench Press", group: "Chest" },
+            { en: "Barbell Row", group: "Back" }, { en: "Dumbbell Row", group: "Back" },
+            { en: "Overhead Press", group: "Shoulders" }, { en: "Barbell Squat", group: "Legs" },
+            { en: "Tricep Dips", group: "Arms" }, { en: "Plank", group: "Core" }
         ];
 
-        function setTheme(color) { document.getElementById('theme-meta').setAttribute('content', color); }
-        
+        let level = 1, totalXp = 0, userName = "", selectedArts = [], activeEx = [], currentIdx = 0, sessionLog = [], timerInterval;
+        let globalSec = 0, globalInt;
+
         window.onload = () => {
-            loadState();
-            if(!userName) { document.getElementById('onboarding').classList.remove('hidden'); } 
-            else { 
-                document.getElementById('display-name').textContent = userName; 
-                document.getElementById('home-screen').classList.remove('hidden'); 
-                updateLevelUI(); buildQuestBoard(); renderExpeditions();
-            }
+            try {
+                userName = localStorage.getItem('grimoire-name') || "";
+                level = parseInt(localStorage.getItem('grimoire-level')) || 1;
+                totalXp = parseInt(localStorage.getItem('grimoire-total-xp')) || 0;
+                
+                if(!userName) { document.getElementById('onboarding').classList.remove('hidden'); }
+                else { 
+                    document.getElementById('display-name').textContent = userName;
+                    document.getElementById('home-screen').classList.remove('hidden');
+                    updateUI(); buildBoard();
+                }
+            } catch(e) { console.error("Boot Error", e); }
         };
 
-        function loadState() { 
-            userName = localStorage.getItem('grimoire-name') || ""; 
-            level = parseInt(localStorage.getItem('grimoire-level')) || 1; 
-            totalXp = parseInt(localStorage.getItem('grimoire-total-xp')) || 0; 
+        function updateUI() {
+            const r = level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
+            document.getElementById('user-rank-title').textContent = RANKS[r].title;
+            document.getElementById('user-level').textContent = `Level ${level}`;
+            const req = (SYSTEM_CONFIG.baseXp + (level * SYSTEM_CONFIG.xpScaling));
+            document.getElementById('xp-bar-fill').style.width = `${(totalXp % req / req) * 100}%`;
+            localStorage.setItem('grimoire-level', level);
+            localStorage.setItem('grimoire-total-xp', totalXp);
         }
 
-        function saveName() { 
-            const n = document.getElementById('user-name-input').value.trim(); 
-            if(n) { localStorage.setItem('grimoire-name', n); location.reload(); } 
+        function buildBoard() {
+            const container = document.getElementById('quest-board-container');
+            container.innerHTML = QUESTS.map(q => `<div onclick="openQuestModal('${q.id}')" class="quest-card cursor-pointer shrink-0"><h4 class="font-serif font-bold">${q.name}</h4><p class="text-[8px] opacity-50 uppercase">${q.rank}</p></div>`).join('');
         }
 
-        function updateLevelUI() {
-            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
-            document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('home-rank-letter').textContent = r; document.getElementById('user-level').textContent = `Level ${level}`;
-            let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += (SYSTEM_CONFIG.baseXp + (i * SYSTEM_CONFIG.xpScaling)); 
-            const currentXp = totalXp - xpInLevels; const threshold = (SYSTEM_CONFIG.baseXp + (level * SYSTEM_CONFIG.xpScaling));
-            const pct = `${(currentXp/threshold)*100}%`;
-            document.getElementById('xp-bar-fill').style.width = pct; document.getElementById('xp-text').textContent = `${currentXp} / ${threshold} XP`;
-            if(document.getElementById('profile-xp-bar')) {
-                document.getElementById('profile-level-txt').textContent = `Level ${level}`;
-                document.getElementById('profile-xp-txt').textContent = `${currentXp} / ${threshold} XP`;
-                document.getElementById('profile-xp-bar').style.width = pct;
-                document.getElementById('profile-rank').textContent = `Rank ${r} • ${RANKS[r].title}`;
-                document.getElementById('profile-sub').textContent = RANKS[r].sub;
-            }
-            localStorage.setItem('grimoire-level', level); localStorage.setItem('grimoire-total-xp', totalXp);
+        function openQuestModal(id) {
+            const q = QUESTS.find(x => x.id === id);
+            document.getElementById('qm-title').textContent = q.name;
+            document.getElementById('qm-desc').textContent = q.desc;
+            document.getElementById('ui-shield').classList.remove('hidden');
+            document.getElementById('quest-modal').classList.remove('hidden');
+            window.pendingQuest = q;
         }
 
-        function buildQuestBoard() {
-            const qContainer = document.getElementById('quest-board-container'); qContainer.innerHTML = '';
-            QUESTS.forEach(q => {
-                const badge = q.rank === 'Novice' ? 'bg-[#4A5D4E]' : q.rank === 'Adept' ? 'bg-[#7B1818]' : 'bg-black text-white';
-                qContainer.innerHTML += `<div class="quest-card cursor-pointer" onclick="openQuestModal('${q.id}')"><div class="flex justify-between items-start mb-2"><h4 class="font-bold font-serif italic text-lg leading-tight w-3/4">${q.name}</h4><span class="text-[8px] uppercase font-black py-1 px-2 rounded-full ${badge}">${q.rank}</span></div><p class="text-[9px] opacity-60 mb-2">${q.desc}</p><p class="text-[8px] uppercase opacity-40 truncate">${q.arts.join(' • ')}</p></div>`;
-            });
+        function closeQuestModal() { 
+            document.getElementById('ui-shield').classList.add('hidden');
+            document.getElementById('quest-modal').classList.add('hidden');
         }
 
-        function openQuestModal(id) { 
-            pendingQuest = QUESTS.find(q => q.id === id); 
-            document.getElementById('qm-title').textContent = pendingQuest.name; 
-            document.getElementById('qm-rank').textContent = pendingQuest.rank; 
-            document.getElementById('qm-desc').textContent = pendingQuest.desc; 
-            document.getElementById('qm-arts').innerHTML = pendingQuest.arts.map(a => `<li>${a}</li>`).join('');
-            document.getElementById('ui-shield').classList.add('active'); document.getElementById('quest-modal').classList.add('show'); 
+        function acceptQuest() {
+            const q = window.pendingQuest;
+            selectedArts = q.arts.map(name => fullLibrary.find(l => l.en === name) || {en: name, group: "General"});
+            closeQuestModal();
+            startEx(selectedArts);
         }
 
-        function closeQuestModal() { pendingQuest = null; document.getElementById('ui-shield').classList.remove('active'); document.getElementById('quest-modal').classList.remove('show'); }
-
-        function acceptQuest() { 
-            selectedArts = pendingQuest.arts.map(n => fullLibrary.find(a => a.en === n)); 
-            document.getElementById('summary-arc-name').textContent = pendingQuest.name; 
-            closeQuestModal(); startExpedition(selectedArts); 
-        }
-
-        function openBuilder() { selectedArts = []; document.getElementById('arc-name-input').value = ""; document.getElementById('selection-ui').classList.remove('hidden'); setFilter('All'); }
-        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
-
-        function setFilter(f) { 
-            currentFilter = f; 
-            ['All', 'bodyweight', 'barbell', 'dumbbell', 'machine', 'cable'].forEach(x => document.getElementById(`flt-${x}`).className = x===f ? "pill bg-[#333333] text-[#F2EBDC] shrink-0" : "pill shrink-0 border border-black/10"); 
-            renderBuilderList(); 
-        }
-
-        function renderBuilderList() {
-            const list = document.getElementById('exercise-list'); list.innerHTML = '';
-            fullLibrary.filter(a => currentFilter==='All' || a.equip===currentFilter).forEach(art => {
-                const selIdx = selectedArts.findIndex(s => s.en === art.en);
-                const card = document.createElement('div'); card.className = "grimoire-card p-6 mb-4 flex justify-between items-center cursor-pointer relative";
-                if(selIdx > -1) { card.style.borderColor = 'var(--iron)'; card.innerHTML += `<div class="order-badge">${selIdx + 1}</div>`; }
-                card.onclick = () => { if(selIdx > -1) { selectedArts.splice(selIdx, 1); } else { selectedArts.push(art); } renderBuilderList(); };
-                card.innerHTML += `<div><p class="font-bold">${art.en}</p><p class="text-[8px] uppercase opacity-40">${art.equip}</p></div>`; list.appendChild(card);
-            });
-            renderReorderList();
-        }
-
-        function renderReorderList() {
-            const rList = document.getElementById('reorder-list'); rList.innerHTML = '';
-            selectedArts.forEach((art, i) => {
-                rList.innerHTML += `<div class="flex justify-between items-center bg-white/40 border border-black/5 p-3 rounded-xl text-xs font-bold"><span class="truncate pr-2">${i+1}. ${art.en}</span><div class="flex gap-2"><div onclick="moveArt(${i},-1)" class="w-6 h-6 flex items-center justify-center bg-[#333333] text-[#F2EBDC] rounded cursor-pointer">▲</div><div onclick="moveArt(${i},1)" class="w-6 h-6 flex items-center justify-center bg-[#333333] text-[#F2EBDC] rounded cursor-pointer">▼</div></div></div>`;
-            });
-        }
-
-        function moveArt(i, d) { if(i+d >= 0 && i+d < selectedArts.length) { [selectedArts[i], selectedArts[i+d]] = [selectedArts[i+d], selectedArts[i]]; renderBuilderList(); } }
-
-        function saveAndStartArc() { 
-            const name = document.getElementById('arc-name-input').value || "Custom Expedition"; 
-            document.getElementById('summary-arc-name').textContent = name; startExpedition(selectedArts); 
-        }
-
-        function startExpedition(arts) { 
-            activeExpedition = arts; currentIdx = 0; sessionLog = []; currentSessionTonnage = 0; currentSessionPRs = 0; 
-            document.getElementById('selection-ui').classList.add('hidden'); document.getElementById('home-screen').classList.add('hidden'); 
-            document.getElementById('workout-ui').classList.remove('hidden'); startGlobalClock(); resetTrial(); 
+        function startEx(arts) {
+            activeEx = arts; currentIdx = 0; sessionLog = [];
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('workout-ui').classList.remove('hidden');
+            resetTrial();
+            globalSec = 0; globalInt = setInterval(() => { globalSec++; const m = Math.floor(globalSec/60).toString().padStart(2,'0'), s = (globalSec%60).toString().padStart(2,'0'); document.getElementById('global-clock').textContent = `${m}:${s}`; }, 1000);
         }
 
         function resetTrial() {
-            currentTrial = 1; isWarmup = false; updateWarmupBtn(); const art = activeExpedition[currentIdx];
-            document.getElementById('ex-name').textContent = art.en; document.getElementById('ex-sub').textContent = `${art.group} • ${art.target}`;
-            document.getElementById('progress-text').textContent = `${currentIdx + 1} / ${activeExpedition.length}`;
-            document.getElementById('active-character').src = `${art.group.toLowerCase()}.png`;
-            document.getElementById('target-muscle').textContent = art.target.toUpperCase();
-            const pb = localStorage.getItem(`grimoire-pb-${art.en}`) || 0; document.getElementById('history-label').textContent = pb > 0 ? `BEST: ${pb}KG` : "NEW ART";
-            const echo = JSON.parse(localStorage.getItem(`grimoire-echo-${art.en}`) || "[]")[0];
-            if(art.type === 'time') { document.getElementById('reps-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('flex'); resetStopwatch(); } 
-            else { document.getElementById('reps-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('flex'); if(echo) { document.getElementById('weight-input').value = echo.w; document.getElementById('reps-input').value = echo.r; } }
-            document.getElementById('echo-text').textContent = echo ? `Echo: ${echo.w}kg x ${echo.r}` : "Echo: None";
-            document.getElementById('back-btn').classList.toggle('hidden', currentIdx === 0); calculatePlates();
+            const art = activeEx[currentIdx];
+            document.getElementById('ex-name').textContent = art.en;
+            document.getElementById('ex-sub').textContent = art.group;
+            document.getElementById('progress-text').textContent = `${currentIdx+1} / ${activeEx.length}`;
+            document.getElementById('trial-history').innerHTML = '';
         }
 
         function logSet() {
-            const art = activeExpedition[currentIdx]; let w = parseFloat(document.getElementById('weight-input').value) || 0, r = parseInt(document.getElementById('reps-input').value) || 0;
-            if(isWarmup) { sessionLog.push({ art: art.en, w, r, trial: "W" }); } 
+            const w = document.getElementById('weight-input').value || 0;
+            const r = document.getElementById('reps-input').value || 0;
+            sessionLog.push({ art: activeEx[currentIdx].en, w, r });
+            const row = document.createElement('div');
+            row.className = "flex justify-between text-xs opacity-50 border-b pb-1";
+            row.innerHTML = `<span>Set</span><span>${w}kg x ${r}</span>`;
+            document.getElementById('trial-history').prepend(row);
+            totalXp += 10; updateUI(); startTimer();
+        }
+
+        function startTimer() {
+            let t = 60; document.getElementById('timer-bar').classList.add('show');
+            timerInterval = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if(t<=0) skipTimer(); }, 1000);
+        }
+
+        function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); }
+
+        function nextArt() {
+            if(currentIdx < activeEx.length - 1) { currentIdx++; resetTrial(); }
             else { 
-                currentSessionTonnage += (w*r); const pb = parseFloat(localStorage.getItem(`grimoire-pb-${art.en}`)) || 0;
-                if(w > pb) { localStorage.setItem(`grimoire-pb-${art.en}`, w); currentSessionPRs++; triggerLimitBreak(w); }
-                sessionLog.push({ art: art.en, w, r, trial: currentTrial }); currentTrial++; 
+                clearInterval(globalInt);
+                const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
+                ch.unshift({ date: new Date().toLocaleDateString(), arts: sessionLog, time: document.getElementById('global-clock').textContent });
+                localStorage.setItem('grimoire-chronicles', JSON.stringify(ch));
+                location.reload();
             }
-            const row = document.createElement('div'); row.className = "flex justify-between items-center opacity-60 border-b border-black/5 pb-2";
-            row.innerHTML = `<span class="text-[9px] font-black uppercase">${isWarmup ? 'Warm-Up' : 'Trial ' + (currentTrial-1)}</span><span class="font-bold">${w}kg x ${r}</span>`;
-            document.getElementById('trial-history').prepend(row); awardXp(10); startTimer(60);
         }
 
-        function awardXp(a) { totalXp += a; updateLevelUI(); }
-        function triggerLimitBreak(w) { setTheme('#F2EBDC'); document.getElementById('lb-record').textContent = w + " KG"; document.getElementById('limit-break-overlay').classList.remove('hidden'); setTimeout(() => { document.getElementById('limit-break-overlay').classList.add('hidden'); setTheme('#F2EBDC'); }, 2500); }
-
-        function startTimer(s) { 
-            clearInterval(timerInterval); let t = s; 
-            setTheme('#2B2B2B'); document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); 
-            document.getElementById('timer-display').textContent = t; 
-            timerInterval = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if(t<=0) skipTimer(); }, 1000); 
+        function openProfile() { 
+            document.getElementById('profile-name').textContent = userName;
+            document.getElementById('profile-rank').textContent = RANKS[level >= 20 ? 'C' : 'E'].title;
+            document.getElementById('profile-window').classList.remove('hidden'); 
         }
-
-        function skipTimer() { clearInterval(timerInterval); setTheme('#F2EBDC'); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
-        function adjustTimer(s) { clearInterval(timerInterval); let t = s; document.getElementById('timer-display').textContent = t; timerInterval = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if(t<=0) skipTimer(); }, 1000); }
-
-        function nextArt() { 
-            const logs = sessionLog.filter(l => l.art === activeExpedition[currentIdx].en && l.trial !== "W");
-            localStorage.setItem(`grimoire-echo-${activeExpedition[currentIdx].en}`, JSON.stringify(logs.map(l => ({w:l.w, r:l.r}))));
-            if(currentIdx < activeExpedition.length - 1) { currentIdx++; resetTrial(); } else { concludeExpedition(); } 
-        }
-        function prevArt() { if(currentIdx > 0) { currentIdx--; resetTrial(); } }
-
-        function concludeExpedition() {
-            setTheme('#2B2B2B'); document.getElementById('workout-ui').classList.add('hidden');
-            document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG"; 
-            document.getElementById('summary-prs').textContent = currentSessionPRs; 
-            document.getElementById('summary-time').textContent = document.getElementById('global-clock').textContent;
-            document.getElementById('summary-ui').style.display = 'flex';
-            const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
-            ch.unshift({ date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}), arcName: document.getElementById('summary-arc-name').textContent, arts: sessionLog, time: document.getElementById('global-clock').textContent, vol: currentSessionTonnage });
-            localStorage.setItem('grimoire-chronicles', JSON.stringify(ch));
-        }
-
-        function closeSummary() { setTheme('#F2EBDC'); location.reload(); }
-        function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
-        function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
-        function confirmRetreat() { location.reload(); }
-        function openProfile() { openProfileData(); document.getElementById('profile-window').classList.remove('hidden'); }
-        function openProfileData() { const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]"); document.getElementById('stat-quests').textContent = ch.length; let v = 0; ch.forEach(c => v += (c.vol || 0)); document.getElementById('stat-volume').textContent = v > 1000 ? (v/1000).toFixed(1)+'k' : v; updateLevelUI(); }
         function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
-        function openChronicles() { const l = document.getElementById('chronicles-list'); const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]"); l.innerHTML = ch.length ? '' : '<p class="text-center opacity-40 uppercase py-10">Ledger is empty</p>'; ch.forEach(c => { l.innerHTML += `<div class="grimoire-card p-5 mb-3"><div class="flex justify-between border-b border-black/10 pb-2 mb-2"><h3 class="font-bold font-serif italic">${c.arcName}</h3><span class="text-[9px] font-black opacity-40">${c.date}</span></div><div class="mb-3 space-y-1">${c.arts.map(a => `<div class="flex justify-between text-[10px] opacity-60"><span>${a.art}</span><span>${a.w}kg x ${a.r}</span></div>`).join('')}</div><div class="flex justify-between text-[8px] font-black opacity-40 uppercase"><p>Time: ${c.time}</p><p>Vol: ${c.vol}kg</p></div></div>`; }); document.getElementById('chronicles-window').classList.remove('hidden'); }
-        function closeChronicles() { document.getElementById('chronicles-window').classList.add('hidden'); }
-        function renderExpeditions() { const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); if(arcs.length) { document.getElementById('active-expeditions-container').classList.remove('hidden'); document.getElementById('expedition-list').innerHTML = arcs.map((a,i) => `<div class="grimoire-card p-6 flex justify-between items-center"><div><p class="font-bold font-serif">${a.name}</p><p class="text-[8px] opacity-40 uppercase">${a.exercises.length} Arts</p></div><div onclick="startExpeditionFromHome(${i})" class="pill bg-black text-white">Commence</div></div>`).join(''); } }
-        function startExpeditionFromHome(i) { const a = JSON.parse(localStorage.getItem('grimoire-arcs'))[i]; document.getElementById('summary-arc-name').textContent = a.name; startExpedition(a.exercises); }
-        function resetApp() { if(confirm("Burn the Grimoire?")) { localStorage.clear(); location.reload(); } }
-        function startGlobalClock() { globalSeconds = 0; globalInterval = setInterval(() => { globalSeconds++; const m = Math.floor(globalSeconds/60).toString().padStart(2,'0'), s = (globalSeconds%60).toString().padStart(2,'0'); document.getElementById('global-clock').textContent = `${m}:${s}`; }, 1000); }
-        function toggleWarmup() { isWarmup = !isWarmup; updateWarmupBtn(); }
-        function updateWarmupBtn() { const b = document.getElementById('btn-warmup'); b.textContent = isWarmup ? "Warm-Up: ON" : "Warm-Up: OFF"; b.className = isWarmup ? "pill bg-orange-100 text-orange-800 border border-orange-200" : "pill border border-black/10"; }
-        function calculatePlates() { const ui = document.getElementById('plate-math-ui'), display = document.getElementById('plate-display'), art = activeExpedition[currentIdx]; if(art.equip!=='barbell') { ui.classList.add('hidden'); return; } ui.classList.remove('hidden'); ui.classList.add('flex'); const t = parseFloat(document.getElementById('weight-input').value)||0, b = BAR_WEIGHTS[barWeightIdx]; let pS = (t-b)/2; display.innerHTML = [20,10,5,2.5,1.25].reduce((a,p)=>{while(pS>=p){a.push(p); pS-=p; pS=Math.round(pS*100)/100;} return a;}, []).map(p=>`<span class="px-2 py-1 bg-black text-white rounded text-[8px] font-bold">${p}</span>`).join('') || '<span class="text-[9px] opacity-40">Bar Only</span>'; }
-        function cycleBar() { barWeightIdx = (barWeightIdx+1)%BAR_WEIGHTS.length; document.getElementById('bar-weight').textContent = `Bar: ${BAR_WEIGHTS[barWeightIdx]}kg`; calculatePlates(); }
-        function openSwapModal() { const curr = activeExpedition[currentIdx], alts = fullLibrary.filter(a => a.group===curr.group && a.en!==curr.en); document.getElementById('swap-list').innerHTML = alts.map(a => `<div onclick="executeSwap('${a.en}')" class="grimoire-card p-4 cursor-pointer flex justify-between items-center mb-2"><div><p class="font-bold">${a.en}</p><p class="text-[8px] opacity-40">${a.equip} • ${a.target}</p></div></div>`).join(''); document.getElementById('ui-shield').classList.add('active'); document.getElementById('swap-modal').classList.add('show'); }
-        function closeSwapModal() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('swap-modal').classList.remove('show'); }
-        function executeSwap(e) { activeExpedition[currentIdx] = fullLibrary.find(a=>a.en===e); closeSwapModal(); resetTrial(); }
-        function toggleStopwatch() { const b = document.getElementById('btn-stopwatch'); if(isStopwatchRunning) { clearInterval(exStopwatchInterval); isStopwatchRunning = false; b.textContent = "Start"; } else { isStopwatchRunning = true; b.textContent = "Stop"; exStopwatchInterval = setInterval(() => { exStopwatchSeconds++; document.getElementById('stopwatch-display').textContent = `${Math.floor(exStopwatchSeconds/60).toString().padStart(2,'0')}:${(exStopwatchSeconds%60).toString().padStart(2,'0')}`; document.getElementById('time-input').value = exStopwatchSeconds; }, 1000); } }
-        function resetStopwatch() { clearInterval(exStopwatchInterval); isStopwatchRunning = false; exStopwatchSeconds = 0; document.getElementById('stopwatch-display').textContent = "00:00"; document.getElementById('btn-stopwatch').textContent = "Start"; }
+        function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('grimoire-name', n); location.reload(); } }
+        function resetApp() { if(confirm("Burn Grimoire?")) { localStorage.clear(); location.reload(); } }
+        
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
     </script>
 </body>
 </html>
