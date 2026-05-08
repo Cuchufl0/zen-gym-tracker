@@ -3,429 +3,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta id="theme-meta" name="theme-color" content="#f3f4f6">
-    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-title" content="Zen Gym">
+    <meta name="theme-color" content="#1a1a1a">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Zen Tracker</title>
+    
+    <title>Zen Gym - V5.9.10</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f3f4f6; --surface: #ffffff; --text: #111827; --text-muted: #6b7280; --accent: #000000; }
-        * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; box-sizing: border-box; }
-        *::-webkit-scrollbar { display: none !important; }
-        html, body { overscroll-behavior: none; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100%; margin: 0; overflow: hidden; }
-        input { text-align: center; font-family: 'Inter', sans-serif; border: none; background: transparent; }
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
+        *::-webkit-scrollbar { display: none !important; width: 0 !important; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        html, body { overscroll-behavior: none !important; touch-action: pan-y; height: 100%; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
+        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: #1a1a1a !important; text-align: center; }
         
-        .zen-card { background: var(--surface); border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); transition: transform 0.2s ease; }
-        .zen-card:active { transform: scale(0.98); }
+        .scroll-container { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding: 0 4px; }
+        .horizontal-scroll { display: flex; overflow-x: auto; gap: 0.5rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        #system-overlay { position: fixed; inset: 0; z-index: 20000; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; opacity: 0; transition: opacity 0.5s ease; }
+        #system-overlay.active { display: flex; opacity: 1; }
+        .system-text { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
+        .system-text.visible { opacity: 1; }
+
+        #limit-break-overlay { position: fixed; inset: 0; z-index: 21000; background: white; color: black; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 0.1s; }
+        #limit-break-overlay.active { display: flex; opacity: 1; animation: limitFlash 2.5s ease-out forwards; }
+        @keyframes limitFlash { 0% { background: black; color: white; transform: scale(1.05); } 10% { background: white; color: black; transform: scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
         
-        .btn-primary { background: var(--accent); color: #ffffff; border-radius: 20px; padding: 20px; font-weight: 700; font-size: 16px; text-align: center; cursor: pointer; width: 100%; transition: opacity 0.2s; }
-        .btn-primary:active { opacity: 0.8; }
+        #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        #ui-shield.active { display: block; }
         
-        .btn-secondary { background: #f3f4f6; color: var(--text); border-radius: 20px; padding: 20px; font-weight: 700; font-size: 16px; text-align: center; cursor: pointer; width: 100%; }
+        #retreat-modal, #history-modal, #purge-modal, #swap-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: white; border-radius: 40px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; flex-direction: column; max-height: 70vh; }
+        #retreat-modal.show, #history-modal.show, #purge-modal.show, #swap-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        .zen-button { background: #1a1a1a; color: white; border-radius: 24px; padding: 20px; width: 100%; font-weight: 800; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; border: none; }
+        .secondary-button { background: #f0f0f0; color: #1a1a1a; border-radius: 24px; padding: 20px; width: 100%; font-weight: 800; text-align: center; transition: 0.2s; cursor: pointer; display: block; letter-spacing: 0.1em; text-transform: uppercase; border: none; }
+        .bento-card { background: white; border: 1px solid #e5e5e5; border-radius: 32px; transition: 0.3s; width: 100%; }
+        .pill { background: #f3f3f3; color: #555; padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+
+        .arsenal-btn { transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e5e5e5; cursor: pointer; }
+        .arsenal-btn.active-Chest { border-color: #ff4d4d; background: #fff5f5; color: #ff4d4d; }
+        .arsenal-btn.active-Back { border-color: #9d4edd; background: #f9f5ff; color: #9d4edd; }
+        .arsenal-btn.active-Arms { border-color: #0077ff; background: #f5faff; color: #0077ff; }
+        .arsenal-btn.active-Legs { border-color: #38b000; background: #f5fff5; color: #38b000; }
+        .arsenal-btn.active-Shoulders { border-color: #00f5d4; background: #f5ffff; color: #008f7d; }
+        .arsenal-btn.active-Core { border-color: #ffbe0b; background: #fffdf5; color: #b08d00; }
+
+        #synthesis-bar { position: fixed; bottom: 30px; left: 24px; right: 24px; transform: translateY(200%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 30; }
+        #synthesis-bar.show { transform: translateY(0); }
+
+        .xp-container { width: 100%; height: 8px; background: #e5e5e5; border-radius: 8px; margin-top: 10px; overflow: hidden; }
+        .xp-bar { height: 100%; background: #1a1a1a; width: 0%; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 8px; }
+        .aura-container { width: 100%; height: 260px; border-radius: 40px; position: relative; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 24px; border: 1px solid #f0f0f0; }
         
-        .pill { background: #f3f4f6; color: var(--text); padding: 8px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .pill-active { background: var(--accent); color: #ffffff; }
+        .set-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; width: 100%; }
+        .press-effect { transition: transform 0.1s; }
+        .is-pressed { transform: scale(0.96) !important; background-color: #f9f9f9 !important; }
+        .selection-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: transparent; transition: 0.2s; flex-shrink: 0; }
+        .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white !important; transform: scale(1.1); }
+        .chronicle-card { padding: 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; cursor: pointer; }
         
-        .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 140px; }
-        
-        /* Modals & Overlays */
-        #ui-shield { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 9998; display: none; }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 88%; max-width: 360px; background: var(--surface); border-radius: 32px; padding: 32px; z-index: 10000; display: none; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .modal.show { display: flex; }
-        
-        /* Timer */
-        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--accent); color: #ffffff; padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 320px; background: #1a1a1a; color: white; padding: 40px 20px; transform: translateY(100%); transition: 0.6s; z-index: 9999; border-radius: 44px 44px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #timer-bar.show { transform: translateY(0); }
+        
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .timeline-node::before { content: ''; position: absolute; left: -19px; top: 24px; width: 10px; height: 10px; background: #1a1a1a; border-radius: 50%; border: 2px solid white; z-index: 10; }
     </style>
 </head>
 <body class="p-6">
 
+    <div id="limit-break-overlay"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2">Limit Break</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">New Peak Reached</p><p id="lb-record" class="text-2xl font-bold mt-6">---</p></div>
+    <div id="system-overlay"><div id="sys-line-1" class="system-text text-gray-400 font-light tracking-[0.3em] uppercase text-[10px]"></div><div id="sys-line-2" class="system-text text-white font-bold tracking-tighter text-3xl"></div><div id="sys-line-3" class="system-text text-gray-400 italic text-sm mt-4"></div></div>
     <div id="ui-shield"></div>
 
-    <div id="onboarding" class="fixed inset-0 bg-[#f3f4f6] z-[2000] p-8 flex flex-col justify-center hidden">
-        <h1 class="text-4xl font-extrabold tracking-tight mb-2">Zen Tracker</h1>
-        <p class="text-gray-500 mb-12 font-medium">Focus on the movement.</p>
-        <input type="text" id="name-input" placeholder="Your Name" class="text-3xl border-b-2 border-gray-200 py-4 w-full focus:outline-none focus:border-black mb-12 font-bold placeholder-gray-300">
-        <div onclick="saveName()" class="btn-primary">Start Training</div>
+    <div id="summary-ui" class="fixed inset-0 bg-[#1a1a1a] z-[150] p-6 hidden flex flex-col items-center justify-center text-white">
+        <h1 class="text-5xl font-[900] tracking-tighter uppercase italic mb-2 text-white text-center">Quest Cleared</h1>
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mb-12 text-center" id="summary-arc-name">---</p>
+        <div class="w-full max-w-sm flex flex-col gap-4 mb-12">
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Volume</span><span class="text-2xl font-bold" id="summary-volume">0 kg</span></div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Reps</span><span class="text-2xl font-bold" id="summary-reps">0</span></div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Records Broken</span><span class="text-2xl font-bold text-[#ffbe0b]" id="summary-prs">0</span></div>
+            <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Time Elapsed</span><span class="text-2xl font-bold text-gray-300" id="summary-time">00:00</span></div>
+        </div>
+        <div onclick="closeSummary()" class="bg-white text-black rounded-[24px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer">Return to Sanctuary</div>
+    </div>
+
+    <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
+    <div id="purge-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p><div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div><div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div></div>
+    <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-extrabold tracking-tighter text-gray-800 uppercase">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3"></div></div>
+
+    <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
+        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2><div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div></header>
+        <div class="scroll-container pb-10">
+            <div class="flex gap-4 mb-8 px-2"><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-workouts">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Workouts</p></div><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-sets">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Total Sets</p></div></div>
+            <div class="px-2 mb-8"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Personal Records</h3><div id="pb-list" class="horizontal-scroll pb-2"></div></div>
+            <div class="px-2"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Combat History</h3><div id="analytics-timeline" class="border-l-2 border-gray-200 ml-2 pl-4 space-y-6"></div></div>
+            
+            <div class="px-2 mt-12 mb-8">
+                <h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">System Data Backup</h3>
+                <div class="flex gap-2">
+                    <div onclick="exportData()" class="flex-1 bento-card p-4 text-center text-[9px] font-black uppercase tracking-widest text-gray-600 press-effect cursor-pointer">Export DB</div>
+                    <div onclick="document.getElementById('import-file').click()" class="flex-1 bento-card p-4 text-center text-[9px] font-black uppercase tracking-widest text-gray-600 press-effect cursor-pointer bg-gray-100">Import DB</div>
+                    <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-window" class="fixed inset-0 bg-[#fcfcfc] z-[70] p-6 hidden flex flex-col">
+        <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0">
+            <h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Status</h2>
+            <div onclick="closeProfile()" class="pill bg-gray-100 text-gray-500 cursor-pointer press-effect">Close</div>
+        </header>
+        
+        <div class="flex-1 flex flex-col items-center pt-2 overflow-y-auto pb-10">
+            <div class="w-full max-w-[280px] h-[360px] bg-gray-50 rounded-[40px] border border-gray-100 flex items-center justify-center mb-8 overflow-hidden relative">
+                <img id="profile-avatar" src="rank-e.png" class="w-full h-full object-cover object-top mix-blend-multiply scale-[1.15]" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjwvc3ZnPg==';">
+            </div>
+            
+            <h1 id="profile-name" class="text-4xl font-[900] tracking-tighter uppercase italic text-gray-800 mb-1">---</h1>
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <img id="profile-rank-icon" src="icon-rank-e.png" class="w-6 h-6 object-contain" onerror="this.style.display='none'">
+                <h3 id="profile-rank" class="text-lg font-extrabold text-gray-800 tracking-tighter uppercase">---</h3>
+            </div>
+            <p id="profile-subtitle" class="text-[9px] font-black uppercase tracking-widest text-gray-400 text-center px-4 mb-10 leading-relaxed">---</p>
+            
+            <div class="w-full px-4 mb-10 max-w-sm">
+                <div class="flex justify-between items-end mb-2">
+                    <span id="profile-level" class="text-sm font-black uppercase text-gray-800">Level 1</span>
+                    <span id="profile-xp" class="text-[9px] font-black text-gray-400 uppercase tracking-widest">0 / 120 XP</span>
+                </div>
+                <div class="xp-container"><div id="profile-xp-bar" class="xp-bar"></div></div>
+            </div>
+
+            <div class="flex gap-4 w-full px-4 max-w-sm">
+                <div class="bento-card p-5 flex-1 text-center">
+                    <p class="text-3xl font-black text-gray-800 tracking-tighter" id="profile-stat-quests">0</p>
+                    <p class="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Quests</p>
+                </div>
+                <div class="bento-card p-5 flex-1 text-center">
+                    <p class="text-3xl font-black text-gray-800 tracking-tighter" id="profile-stat-volume">0</p>
+                    <p class="text-[8px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Tonnage</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="synthesis-bar"><div onclick="draftArc()" class="zen-button press-effect shadow-2xl">Draft Training Arc</div></div>
+
+    <div id="onboarding" class="fixed inset-0 bg-white z-[200] p-10 flex flex-col hidden">
+        <div class="flex-1 flex flex-col justify-center"><h1 class="text-5xl font-extrabold tracking-tighter mb-4 italic text-gray-800">Zen.</h1><input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl font-light border-b-2 border-gray-100 py-4 w-full focus:outline-none"><div onclick="saveName()" class="zen-button mt-16 press-effect">Enter Sanctuary</div></div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full hidden">
-        <header class="mb-8 pt-6 flex justify-between items-center">
-            <div>
-                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-widest mb-1">Overview</p>
-                <h2 class="text-3xl font-extrabold tracking-tight">Hello, <span id="display-name" class="text-gray-400">User</span></h2>
-            </div>
-            <div onclick="location.reload()" class="pill text-[10px] uppercase font-bold tracking-wider">Refresh</div>
+        <header class="mb-10 pt-8 flex justify-between items-start px-2 shrink-0">
+            <div><h1 class="text-[9px] tracking-[0.4em] uppercase text-gray-400 mb-2 font-black" id="time-greeting">Timeline: Dawn</h1><h2 class="text-4xl font-bold tracking-tighter text-gray-800 italic">Warrior, <span id="display-name" class="text-gray-300">Zen</span>.</h2></div>
+            <div onclick="resetApp()" class="pill cursor-pointer text-gray-400">Reset</div>
         </header>
-        
-        <div class="scroll-container space-y-6">
-            <div class="zen-card cursor-pointer" onclick="openProfile()">
-                <div class="flex justify-between items-end mb-4">
-                    <div>
-                        <h3 class="font-extrabold text-xl" id="rank-title">Level 1</h3>
-                        <p class="text-xs text-gray-500 font-medium mt-1">Keep showing up</p>
+
+        <div class="px-2 mb-8 shrink-0">
+            <div class="bento-card p-6 relative">
+                <div onclick="openAnalytics()" class="absolute top-6 right-6 pill bg-gray-100 text-gray-600 press-effect">Analytics</div>
+                <div class="flex justify-between items-end mb-1">
+                    <div onclick="openProfile()" class="flex flex-col pr-20 cursor-pointer press-effect">
+                        <div class="flex items-center gap-2">
+                            <span id="home-rank-letter" class="w-6 h-6 rounded bg-[#1a1a1a] text-white flex items-center justify-center text-[10px] font-black shadow-sm">E</span>
+                            <h2 id="user-rank-title" class="text-xl font-extrabold tracking-tighter text-gray-800">Seeker</h2>
+                        </div>
+                        <span id="user-level" class="text-xs font-black uppercase text-gray-400 mt-1">Level 1 <span class="text-gray-300 ml-1">▶</span></span>
                     </div>
-                    <span class="text-xs font-bold text-gray-400" id="xp-text">0 / 100 XP</span>
+                    <span id="xp-text" class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">0 / 120 XP</span>
                 </div>
-                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div id="xp-bar-fill" class="h-full bg-black w-0 transition-all duration-700 ease-out"></div>
-                </div>
+                <div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div>
             </div>
+            <p id="flavor-quote" class="text-[10px] text-gray-400 mt-6 font-medium italic opacity-70 px-2">---</p>
+        </div>
 
-            <div class="zen-card flex justify-between items-center cursor-pointer bg-white" onclick="openBuilder()">
-                <div>
-                    <p class="font-extrabold text-lg">Custom Workout</p>
-                    <p class="text-xs text-gray-500 font-medium mt-1">Select your exercises</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center font-bold text-xl text-gray-400 border border-gray-100">+</div>
-            </div>
-
-            <div id="saved-workouts-container" class="hidden pt-4">
-                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Saved Workouts</h3>
-                <div id="saved-list" class="space-y-4"></div>
-            </div>
-            
-            <div class="pt-2">
-                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Routines</h3>
-                <div id="routine-list" class="space-y-4"></div>
+        <div class="scroll-container pb-32">
+            <div class="mb-10 px-2"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Training Arcs</h3><div id="training-arcs-list" class="grid grid-cols-1 gap-4"></div></div>
+            <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">Draft New Routine</h3>
+            <div class="grid grid-cols-2 gap-4 px-2 mb-12">
+                <div onclick="toggleArsenal('Chest')" id="btn-Chest" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Chest</div>
+                <div onclick="toggleArsenal('Back')" id="btn-Back" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Back</div>
+                <div onclick="toggleArsenal('Shoulders')" id="btn-Shoulders" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Shoulders</div>
+                <div onclick="toggleArsenal('Arms')" id="btn-Arms" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Arms</div>
+                <div onclick="toggleArsenal('Legs')" id="btn-Legs" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Legs</div>
+                <div onclick="toggleArsenal('Core')" id="btn-Core" class="arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black">Core</div>
             </div>
         </div>
     </div>
 
-    <div id="routine-modal" class="modal">
-        <h2 id="rm-title" class="text-2xl font-extrabold tracking-tight mb-3">---</h2>
-        <p id="rm-desc" class="text-sm text-gray-500 mb-6 font-medium leading-relaxed">---</p>
-        <div class="bg-gray-50 rounded-2xl p-5 mb-8 border border-gray-100">
-            <p class="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-3">Exercises</p>
-            <ul id="rm-arts" class="text-sm font-semibold text-gray-700 space-y-2"></ul>
-        </div>
-        <div class="flex flex-col gap-3">
-            <div onclick="startRoutine()" class="btn-primary">Start Routine</div>
-            <div onclick="closeRoutineModal()" class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest py-3 cursor-pointer">Cancel</div>
-        </div>
-    </div>
-
-    <div id="selection-ui" class="fixed inset-0 bg-[#f3f4f6] z-[60] p-6 hidden flex flex-col">
-        <header class="mb-6 pt-6 flex justify-between items-center shrink-0">
-            <h2 class="text-3xl font-extrabold tracking-tight">Builder</h2>
-            <div onclick="closeBuilder()" class="pill">Done</div>
-        </header>
-        <div id="exercise-list" class="flex-1 overflow-y-auto space-y-3 pb-6"></div>
-        <div class="pt-4 shrink-0 border-t border-gray-200 pb-[env(safe-area-inset-bottom)]">
-            <input type="text" id="arc-name-input" placeholder="Name this workout" class="w-full py-4 mb-4 text-xl font-bold focus:outline-none placeholder-gray-400">
-            <div onclick="saveAndStartWorkout()" class="btn-primary">Start Workout</div>
-        </div>
-    </div>
-
-    <div id="workout-ui" class="fixed inset-0 bg-[#f3f4f6] z-[70] p-6 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-8 mb-8 shrink-0">
-            <div onclick="confirmEndWorkout()" class="text-sm font-bold text-red-500 tracking-wide cursor-pointer">End</div>
-            <span id="global-clock" class="text-sm font-bold font-mono bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm">00:00</span>
-            <div onclick="openSwapModal()" class="pill shadow-sm bg-white border border-gray-100">Swap</div>
+    <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
+        <header class="mb-4 flex justify-between items-center pt-6 px-2 shrink-0">
+            <h2 id="selection-title" class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Arc Builder</h2>
+            <div onclick="closeSelectionUI()" class="pill cursor-pointer">Close</div>
         </header>
         
-        <div class="flex-1 overflow-y-auto pb-10">
-            <div class="text-center mb-8">
-                <h2 id="ex-name" class="text-4xl font-extrabold tracking-tight mb-2">---</h2>
-                <p id="ex-sub" class="text-sm text-gray-400 font-semibold uppercase tracking-widest">---</p>
-            </div>
-            
-            <div class="flex justify-center items-center gap-4 mb-10">
-                <span id="echo-text" class="text-xs font-bold text-gray-500 bg-gray-200/50 px-4 py-2 rounded-full">Best: ---</span>
-                <div id="btn-warmup" onclick="toggleWarmup()" class="text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400">Warmup</div>
-            </div>
+        <div class="horizontal-scroll mb-4 px-2 shrink-0 pb-2 border-b border-gray-100" id="equipment-filters">
+            <div onclick="setFilter('All')" id="flt-All" class="pill bg-[#1a1a1a] text-white shrink-0">All</div>
+            <div onclick="setFilter('bodyweight')" id="flt-bodyweight" class="pill bg-gray-100 text-gray-500 shrink-0 press-effect">Bodyweight</div>
+            <div onclick="setFilter('barbell')" id="flt-barbell" class="pill bg-gray-100 text-gray-500 shrink-0 press-effect">Barbell</div>
+            <div onclick="setFilter('dumbbell')" id="flt-dumbbell" class="pill bg-gray-100 text-gray-500 shrink-0 press-effect">Dumbbell</div>
+            <div onclick="setFilter('machine')" id="flt-machine" class="pill bg-gray-100 text-gray-500 shrink-0 press-effect">Machine</div>
+            <div onclick="setFilter('cable')" id="flt-cable" class="pill bg-gray-100 text-gray-500 shrink-0 press-effect">Cable</div>
+        </div>
 
-            <div class="flex gap-4 mb-10">
-                <div class="flex-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-                    <label class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest">Weight (KG)</label>
-                    <input type="number" id="weight-input" class="text-5xl w-full font-extrabold focus:outline-none text-center" placeholder="0">
-                </div>
-                <div class="flex-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
-                    <label class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest">Reps</label>
-                    <input type="number" id="reps-input" class="text-5xl w-full font-extrabold focus:outline-none text-center" placeholder="0">
-                </div>
-            </div>
+        <div id="exercise-list" class="scroll-container mb-2 border-b border-gray-100"></div>
+        <div id="selected-order-list" class="shrink-0 max-h-32 overflow-y-auto mb-2 space-y-2 px-1"></div>
 
-            <div onclick="logSet()" class="btn-primary shadow-lg shadow-gray-200/50 mb-10">Log Set</div>
-            
-            <div id="trial-history" class="space-y-3"></div>
+        <div class="shrink-0 pt-2">
+            <input type="text" id="arc-name-input" placeholder="Routine Name" class="w-full text-center py-4 mb-4 border-b-2 border-gray-200 text-lg font-bold text-gray-800 uppercase tracking-widest focus:outline-none">
+            <div onclick="saveAndStartArc()" id="btn-save-arc" class="zen-button press-effect italic mb-3">Save & Invoke</div>
+            <div onclick="startSelectedOnly()" id="btn-quick-start" class="secondary-button press-effect text-[10px] text-gray-500">Quick Start (No Save)</div>
+        </div>
+    </div>
+
+    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
+        <div class="flex justify-between items-center mb-6 pt-8 px-2 shrink-0">
+            <div onclick="retreatClick()" class="pill bg-red-50 text-red-500 cursor-pointer press-effect">Retreat</div>
+            <div class="flex flex-col items-center">
+                <span id="global-clock-display" class="text-[12px] font-black tracking-[0.2em] text-gray-800">00:00</span>
+                <span class="text-[7px] font-black text-gray-400 uppercase tracking-widest">Elapsed</span>
+            </div>
+            <div onclick="openSwapModal()" class="pill bg-gray-100 text-gray-600 cursor-pointer press-effect text-center">Swap</div>
         </div>
         
-        <footer class="pt-4 border-t border-gray-200 shrink-0 pb-[calc(16px + env(safe-area-inset-bottom))]">
-            <div class="flex items-center justify-between gap-6">
-                <span id="progress-text" class="text-xs font-extrabold text-gray-400 w-16 text-center tracking-widest">1/4</span>
-                <div onclick="nextArt()" id="next-btn" class="btn-secondary flex-1 border border-gray-200 bg-white shadow-sm">Next Exercise</div>
+        <div class="flex-1 overflow-y-auto overflow-x-hidden px-2 pb-6">
+            <div class="aura-container" id="spirit-aura">
+                <img id="active-character" src="default.png" class="w-full h-full object-contain relative z-10 transition-opacity duration-300" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjwvc3ZnPg==';">
+                <span id="target-muscle" class="absolute bottom-4 text-[9px] bg-white/90 backdrop-blur-md px-5 py-2 rounded-full text-black font-black border border-gray-200 uppercase tracking-widest z-20 shadow-sm">&nbsp;</span>
             </div>
-        </footer>
-    </div>
+            
+            <div class="flex justify-between items-center mb-1">
+                <div class="flex items-center gap-2">
+                    <h2 id="ex-name-en" class="text-xl font-extrabold tracking-tighter text-gray-800 leading-tight">---</h2>
+                    <div onclick="openFormGuide()" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs cursor-pointer press-effect shrink-0">?</div>
+                </div>
+                <span id="set-counter" class="text-[9px] font-black text-gray-400 uppercase tracking-widest italic shrink-0">Form 1</span>
+            </div>
+            <div class="flex items-center justify-between mb-8 w-full border-b border-gray-100 pb-4">
+                <h3 id="ex-name-es" class="text-xs font-bold italic text-gray-400">---</h3>
+                <span id="history-label" class="text-[9px] font-black text-white uppercase bg-black px-2 py-1 rounded-full tracking-widest">PB: 0kg</span>
+            </div>
+            
+            <div id="shadow-record-box" class="w-full flex justify-center mb-6"><span id="shadow-record-text" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] bg-gray-50 px-4 py-2 rounded-full opacity-80 border border-gray-100">SHADOW: ---</span></div>
+            
+            <div class="flex justify-end mb-2 w-full">
+                <div id="btn-warmup" onclick="toggleWarmup()" class="pill bg-gray-100 text-gray-500 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-gray-200">Warm-Up: OFF</div>
+            </div>
 
-    <div id="profile-window" class="fixed inset-0 bg-[#f3f4f6] z-[80] p-6 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-8 mb-8 shrink-0">
-            <h2 class="text-3xl font-extrabold tracking-tight">History</h2>
-            <div onclick="closeProfile()" class="pill bg-white border border-gray-200 shadow-sm">Close</div>
-        </header>
-        <div id="chronicles-list" class="flex-1 overflow-y-auto space-y-4 pb-10"></div>
-        <div class="pt-4 shrink-0 pb-[env(safe-area-inset-bottom)]">
-            <div onclick="resetApp()" class="text-center text-xs text-red-500 font-bold py-4 tracking-widest uppercase cursor-pointer">Erase All Data</div>
+            <div id="reps-ui" class="grid grid-cols-2 gap-8 mb-6 w-full">
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Weight</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" oninput="calculatePlates()" placeholder="0" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors bg-transparent"></div>
+                <div class="text-center"><label class="text-[10px] uppercase text-gray-400 font-black mb-3 block tracking-[0.2em]">Reps</label><input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="10" class="w-full border-b-2 border-gray-100 py-2 text-4xl font-light text-gray-800 focus:border-gray-800 transition-colors bg-transparent"></div>
+            </div>
+
+            <div id="plate-math-ui" class="hidden flex-col items-center mb-8 w-full transition-opacity duration-300">
+                <div class="flex items-center gap-3 mb-2">
+                    <div onclick="cycleBarWeight()" id="bar-weight-pill" class="pill bg-gray-100 text-gray-800 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-gray-200">BAR: 20KG</div>
+                </div>
+                <div id="plate-load-display" class="flex flex-wrap justify-center gap-1 min-h-[24px]"></div>
+            </div>
+
+            <div id="time-ui" class="hidden flex-col items-center mb-10 w-full">
+                <div class="text-5xl font-light mb-6 text-gray-800 tracking-tighter" id="stopwatch-display">00:00</div>
+                <div class="flex gap-4 w-full px-4">
+                    <div onclick="toggleStopwatch()" id="btn-stopwatch" class="flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200">Start Timer</div>
+                    <div onclick="resetStopwatch()" class="pill bg-gray-50 text-gray-400 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-100 px-6">Reset</div>
+                </div>
+                <input type="hidden" id="time-input" value="0">
+            </div>
+            
+            <div onclick="logSet()" class="zen-button mb-10 press-effect shadow-lg" role="button">Unleash</div>
+            <div id="set-history" class="mb-4 w-full"><h4 class="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-4 text-center">Record of Forms</h4><div id="history-list" class="w-full"></div></div>
         </div>
-    </div>
-
-    <div id="swap-modal" class="modal">
-        <h2 class="text-2xl font-extrabold mb-6 tracking-tight">Swap Exercise</h2>
-        <div id="swap-list" class="max-h-64 overflow-y-auto space-y-3 mb-6"></div>
-        <div onclick="closeSwapModal()" class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest py-3 cursor-pointer">Cancel</div>
+        <div class="mt-auto pt-4 flex gap-4 w-full shrink-0 border-t border-gray-100 bg-white pb-2">
+            <div id="back-btn" onclick="prevExercise()" style="visibility: hidden;" class="flex-1 py-5 rounded-[24px] bg-gray-50 font-bold text-gray-500 text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer">Back</div>
+            <div id="progress-text" class="flex-1 py-5 font-black text-gray-300 text-[10px] uppercase tracking-[0.2em] text-center flex items-center justify-center">1/4</div>
+            <div id="next-btn" onclick="nextExercise()" class="flex-1 py-5 rounded-[24px] bg-[#1a1a1a] text-white font-bold text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer shadow-md">Advance</div>
+        </div>
     </div>
 
     <div id="timer-bar">
-        <div class="text-center mb-8">
-            <span id="timer-display" class="text-8xl font-extrabold font-mono tracking-tighter">60</span>
-            <p class="text-xs text-gray-400 font-bold uppercase mt-2 tracking-widest">Rest Timer</p>
+        <div class="flex gap-2 w-full justify-center mb-6 z-10">
+            <div onclick="adjustTimer(30)" id="btn-timer-30" class="pill bg-white/20 text-white cursor-pointer press-effect">30s (Haste)</div>
+            <div onclick="adjustTimer(60)" id="btn-timer-60" class="pill bg-white/40 text-white cursor-pointer press-effect">60s (Base)</div>
+            <div onclick="adjustTimer(120)" id="btn-timer-120" class="pill bg-white/20 text-white cursor-pointer press-effect">120s (Deep)</div>
         </div>
-        <div onclick="skipTimer()" class="text-center py-5 text-xs font-extrabold uppercase tracking-widest bg-white/10 rounded-2xl cursor-pointer">Skip Rest</div>
+        <div class="mb-6 flex flex-col items-center"><span class="text-8xl" id="timer-display">60</span><p class="text-[10px] font-black tracking-[0.4em] uppercase text-gray-400 mt-2">Stamina Recovery</p></div>
+        <div onclick="skipTimer()" class="bg-white/10 px-10 py-4 rounded-full font-black text-[9px] uppercase tracking-[0.3em] cursor-pointer">Awaken</div>
     </div>
 
     <script>
-        // Data and Logic
-        const LIB = [
-            { en: "Pushups", group: "Chest" }, { en: "Bench Press", group: "Chest" }, { en: "Incline Press", group: "Chest" },
-            { en: "Pull-ups", group: "Back" }, { en: "Barbell Row", group: "Back" }, { en: "Lat Pulldown", group: "Back" },
-            { en: "Overhead Press", group: "Shoulders" }, { en: "Lateral Raises", group: "Shoulders" },
-            { en: "Squat", group: "Legs" }, { en: "Leg Press", group: "Legs" }, { en: "Deadlift", group: "Back" },
-            { en: "Bicep Curls", group: "Arms" }, { en: "Tricep Pushdown", group: "Arms" }, { en: "Plank", group: "Core" }
+        const SYSTEM_CONFIG = { xpPerSet: 10, baseXp: 100, xpScaling: 20 };
+        const RANKS = { E: { title: "The Seeker", sub: "A new player has entered the dungeon." }, D: { title: "The Disciple", sub: "A true warrior does not need a sword to stand tall." }, C: { title: "The Practitioner", sub: "Equivalent Exchange: You are becoming what you give." }, B: { title: "The Adept", sub: "The System no longer guides you; it follows you." }, A: { title: "The Ascendant", sub: "You have surpassed the ceiling of human potential." }, S: { title: "The Transcendent", sub: "The legend ends here. A new eternity begins." } };
+
+        const fullLibrary = [
+            { en: "Pushups", es: "Flexiones", group: "Chest", target: "Chest", equip: "bodyweight" }, { en: "Decline Pushups", es: "Flexiones Declinadas", group: "Chest", target: "Upper Chest", equip: "bodyweight" }, { en: "Incline Pushups", es: "Flexiones Inclinadas", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Chest Dips", es: "Fondos de Pecho", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Barbell Bench Press", es: "Press de Banca (Barra)", group: "Chest", target: "Chest", equip: "barbell" }, { en: "Incline Barbell Press", es: "Press Inclinado (Barra)", group: "Chest", target: "Upper Chest", equip: "barbell" }, { en: "Decline Barbell Press", es: "Press Declinado (Barra)", group: "Chest", target: "Lower Chest", equip: "barbell" }, { en: "Dumbbell Bench Press", es: "Press de Banca (Manc)", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Press", es: "Press Inclinado (Manc)", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Decline DB Press", es: "Press Declinado (Manc)", group: "Chest", target: "Lower Chest", equip: "dumbbell" }, { en: "Dumbbell Flys", es: "Aperturas con Mancuernas", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Flys", es: "Aperturas Inclinadas", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Pec Deck Fly", es: "Pec Deck / Contrator", group: "Chest", target: "Chest", equip: "machine" }, { en: "Machine Chest Press", es: "Press de Pecho Máquina", group: "Chest", target: "Chest", equip: "machine" }, { en: "Incline Machine Press", es: "Press Inclinado Máquina", group: "Chest", target: "Upper Chest", equip: "machine" }, { en: "Cable Crossovers", es: "Cruces en Polea", group: "Chest", target: "Chest", equip: "cable" }, { en: "Low-to-High Cable Fly", es: "Cruces Ascendentes", group: "Chest", target: "Upper Chest", equip: "cable" }, { en: "High-to-Low Cable Fly", es: "Cruces Descendentes", group: "Chest", target: "Lower Chest", equip: "cable" }, { en: "Dumbbell Pullover", es: "Pullover con Mancuerna", group: "Chest", target: "Chest", equip: "dumbbell" }, 
+            { en: "Pull-ups", es: "Dominadas Prinas", group: "Back", target: "Lats", equip: "bodyweight" }, { en: "Chin-ups", es: "Dominadas Supinas", group: "Back", target: "Lats / Biceps", equip: "bodyweight" }, { en: "Barbell Row", es: "Remo con Barra", group: "Back", target: "Back Thickness", equip: "barbell" }, { en: "Pendlay Row", es: "Remo Pendlay", group: "Back", target: "Mid Back", equip: "barbell" }, { en: "Dumbbell Row", es: "Remo a una mano", group: "Back", target: "Lats", equip: "dumbbell" }, { en: "Incline DB Row", es: "Remo Inclinado (Manc)", group: "Back", target: "Mid Back", equip: "dumbbell" }, { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Reverse Grip Pulldown", es: "Jalón Supino", group: "Back", target: "Lats / Lower", equip: "cable" }, { en: "V-Bar Pulldown", es: "Jalón Agarre Estrecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Seated Cable Row", es: "Remo Sentado Polea", group: "Back", target: "Mid Back", equip: "cable" }, { en: "Straight Arm Pulldown", es: "Jalón Brazos Rectos", group: "Back", target: "Lats", equip: "cable" }, { en: "T-Bar Row", es: "Remo en T", group: "Back", target: "Back Thickness", equip: "machine" }, { en: "Machine Row", es: "Remo en Máquina", group: "Back", target: "Mid Back", equip: "machine" }, { en: "Hyperextensions", es: "Hipers", group: "Back", target: "Lower Back", equip: "bodyweight" }, { en: "Deadlift", es: "Peso Muerto Tradicional", group: "Back", target: "Lower Back", equip: "barbell" }, 
+            { en: "Pike Pushups", es: "Flexiones Lucio", group: "Shoulders", target: "Front Delts", equip: "bodyweight" }, { en: "Overhead Press", es: "Press Militar (Barra)", group: "Shoulders", target: "Front Delts", equip: "barbell" }, { en: "Dumbbell Military Press", es: "Press Militar (Manc)", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders", equip: "dumbbell" }, { en: "Machine Shoulder Press", es: "Press Hombros Máquina", group: "Shoulders", target: "Front Delts", equip: "machine" }, { en: "Lateral Raises", es: "Elevaciones Laterales", group: "Shoulders", target: "Side Delts", equip: "dumbbell" }, { en: "Cable Lateral Raises", es: "Laterales en Polea", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Machine Lateral Raises", es: "Laterales en Máquina", group: "Shoulders", target: "Side Delts", equip: "machine" }, { en: "Front Raises (DB)", es: "Elevaciones Frontales", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Front Raises (Cable)", es: "Frontales en Polea", group: "Shoulders", target: "Front Delts", equip: "cable" }, { en: "Face Pulls", es: "Face Pulls", group: "Shoulders", target: "Rear Delts", equip: "cable" }, { en: "Reverse Pec Deck", es: "Pájaros en Máquina", group: "Shoulders", target: "Rear Delts", equip: "machine" }, { en: "DB Rear Delt Flys", es: "Pájaros con Mancuerna", group: "Shoulders", target: "Rear Delts", equip: "dumbbell" }, { en: "Dumbbell Shrugs", es: "Encogimientos (Manc)", group: "Shoulders", target: "Traps", equip: "dumbbell" }, { en: "Barbell Shrugs", es: "Encogimientos (Barra)", group: "Shoulders", target: "Traps", equip: "barbell" }, { en: "Upright Row (BB)", es: "Remo al Mentón (Barra)", group: "Shoulders", target: "Side Delts", equip: "barbell" }, { en: "Upright Row (Cable)", es: "Remo Mentón (Polea)", group: "Shoulders", target: "Side Delts", equip: "cable" }, 
+            { en: "Barbell Curl", es: "Curl con Barra", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "EZ Bar Curl", es: "Curl Barra EZ", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Alternating DB Curl", es: "Curl Alterno (Manc)", group: "Arms", target: "Biceps", equip: "dumbbell" }, { en: "Hammer Curls", es: "Curl Martillo", group: "Arms", target: "Brachialis", equip: "dumbbell" }, { en: "Concentration Curl", es: "Curl Concentrado", group: "Arms", target: "Biceps Peak", equip: "dumbbell" }, { en: "Incline DB Curl", es: "Curl Inclinado", group: "Arms", target: "Biceps Long Head", equip: "dumbbell" }, { en: "Preacher Curl (Machine)", es: "Curl Predicador", group: "Arms", target: "Biceps", equip: "machine" }, { en: "Preacher Curl (EZ)", es: "Curl Banco Scott", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Cable Bicep Curl", es: "Curl en Polea", group: "Arms", target: "Biceps", equip: "cable" }, { en: "Reverse Curl (EZ)", es: "Curl Inverso", group: "Arms", target: "Forearms", equip: "barbell" }, { en: "Tricep Dips", es: "Fondos de Tríceps", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Bench Dips", es: "Fondos en Banco", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Close Grip Bench", es: "Press Banca Cerrado", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Skullcrushers", es: "Rompecráneos", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Overhead DB Extension", es: "Extensión Copa (Manc)", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Kickbacks", es: "Patada de Tríceps", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Pushdown (Straight)", es: "Extensión Polea Alta", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Rope Pushdown", es: "Extensión con Cuerda", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Overhead Tricep Ext (Cable)", es: "Extensión Tras Nuca Polea", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Machine Tricep Ext", es: "Extensión Tríceps Máquina", group: "Arms", target: "Triceps", equip: "machine" }, 
+            { en: "Bodyweight Squats", es: "Sentadillas Libres", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Walking Lunges", es: "Zancadas", group: "Legs", target: "Legs", equip: "bodyweight" }, { en: "Pistol Squats", es: "Sentadilla a 1 Pierna", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Barbell Squats", es: "Sentadilla (Barra)", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Front Squat", es: "Sentadilla Frontal", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Goblet Squat", es: "Sentadilla Goblet", group: "Legs", target: "Quads", equip: "dumbbell" }, { en: "Bulgarian Split Squat", es: "Sentadilla Búlgara", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Romanian Deadlift (Bar)", es: "Peso Muerto Rumano", group: "Legs", target: "Hamstrings", equip: "barbell" }, { en: "Romanian Deadlift (DB)", es: "PMR (Mancuernas)", group: "Legs", target: "Hamstrings", equip: "dumbbell" }, { en: "DB Lunges", es: "Zancadas con Mancuernas", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Leg Press", es: "Prensa", group: "Legs", target: "Legs", equip: "machine" }, { en: "Hack Squat", es: "Sentadilla Hack", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Extension", es: "Extensión Cuádriceps", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Curl (Seated)", es: "Curl Isquios Sentado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Leg Curl (Lying)", es: "Curl Isquios Tumbado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Hip Thrust", es: "Empuje de Cadera", group: "Legs", target: "Glutes", equip: "barbell" }, { en: "Standing Calf Raises", es: "Elevación Gemelos Pie", group: "Legs", target: "Calves", equip: "machine" }, { en: "Seated Calf Raises", es: "Elevación Gemelos Sentado", group: "Legs", target: "Calves", equip: "machine" }, 
+            { en: "Plank", es: "Plancha", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Upper Abs Crunch", es: "Crunch Abdominal", group: "Core", target: "Upper Abs", equip: "bodyweight" }, { en: "Leg Raises", es: "Elevación de Piernas", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Hanging Leg Raises", es: "Elevación Colgado", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Russian Twists", es: "Giro Ruso", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "Bicycle Crunches", es: "Bicicleta", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "V-Ups", es: "Abdominales en V", group: "Core", target: "Abs", equip: "bodyweight" }, { en: "Mountain Climbers", es: "Escaladores", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Wall Sit", es: "Sentadilla Isométrica", group: "Legs", target: "Quads", equip: "bodyweight", type: "time" }, { en: "Cable Crunch", es: "Crunch en Polea", group: "Core", target: "Abs", equip: "cable" }, { en: "Woodchoppers", es: "Hachazos Polea", group: "Core", target: "Obliques", equip: "cable" }, { en: "Ab Machine", es: "Máquina de Abs", group: "Core", target: "Abs", equip: "machine" }
         ];
 
-        const ROUTINES = [
-            { id: 'r1', name: 'Full Body Base', desc: 'A balanced routine for overall strength and fitness.', arts: ['Squat', 'Bench Press', 'Barbell Row', 'Plank'] },
-            { id: 'r2', name: 'Upper Body Focus', desc: 'Target the chest, back, and shoulders.', arts: ['Bench Press', 'Overhead Press', 'Pull-ups', 'Bicep Curls'] },
-            { id: 'r3', name: 'Lower Body Strength', desc: 'Build foundational leg power.', arts: ['Squat', 'Deadlift', 'Leg Press'] }
-        ];
+        let activeSession = []; let selectedInMenu = []; let selectedGroups = []; let editingArcIndex = -1; let arcToDeleteIndex = -1; let currentFilter = 'All';
+        let sessionLog = []; let currentExerciseLog = []; let shadowArray = []; let currentIdx = 0; let currentSet = 1; let timerInterval; let activeArcName = ""; let isWarmup = false; 
+        let currentSessionTonnage = 0; let currentSessionReps = 0; let currentSessionPRs = 0; let globalSeconds = 0; let globalTimerInterval = null; let exStopwatchSeconds = 0; let exStopwatchInterval = null; let isStopwatchRunning = false;
+        let level = parseInt(localStorage.getItem('zen-level')) || 1; let totalXp = parseInt(localStorage.getItem('zen-total-xp')) || 0;
 
-        let state = {
-            name: localStorage.getItem('zen-name') || "",
-            level: parseInt(localStorage.getItem('zen-level')) || 1,
-            xp: parseInt(localStorage.getItem('zen-xp')) || 0
-        };
+        // PLATE MATH STATE
+        const BAR_WEIGHTS = [20, 15, 10, 0];
+        let currentBarWeightIdx = 0;
 
-        let selectedArts = [], activeEx = [], currentIdx = 0, sessionLog = [], globalSec = 0, globalInt, timerInt, isWarmup = false, pendingRoutine = null;
-
-        window.onload = () => {
-            if (!state.name) { document.getElementById('onboarding').classList.remove('hidden'); }
-            else { 
-                document.getElementById('display-name').textContent = state.name;
-                document.getElementById('home-screen').classList.remove('hidden');
-                updateUI(); renderRoutines(); renderSavedWorkouts();
-            }
-        };
-
-        function updateUI() {
-            const req = 100 + (state.level * 20);
-            document.getElementById('rank-title').textContent = `Level ${state.level}`;
-            const curXp = state.xp % req;
-            document.getElementById('xp-text').textContent = `${curXp} / ${req} XP`;
-            // Add a small delay for the animation to look nice on load
-            setTimeout(() => {
-                document.getElementById('xp-bar-fill').style.width = `${(curXp / req) * 100}%`;
-            }, 100);
-            localStorage.setItem('zen-level', state.level);
-            localStorage.setItem('zen-xp', state.xp);
-        }
-
-        function renderRoutines() {
-            document.getElementById('routine-list').innerHTML = ROUTINES.map(r => `
-                <div onclick="openRoutine('${r.id}')" class="zen-card cursor-pointer flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-lg text-gray-900">${r.name}</h4>
-                        <p class="text-xs text-gray-500 font-medium mt-1">${r.arts.length} Exercises</p>
-                    </div>
-                    <div class="text-gray-300 font-bold">→</div>
-                </div>
-            `).join('');
-        }
-
-        function openRoutine(id) {
-            pendingRoutine = ROUTINES.find(x => x.id === id);
-            document.getElementById('rm-title').textContent = pendingRoutine.name;
-            document.getElementById('rm-desc').textContent = pendingRoutine.desc;
-            document.getElementById('rm-arts').innerHTML = pendingRoutine.arts.map(a => `<li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-black rounded-full"></div>${a}</li>`).join('');
-            document.getElementById('ui-shield').style.display = 'block';
-            document.getElementById('routine-modal').classList.add('show');
-        }
-
-        function closeRoutineModal() { document.getElementById('ui-shield').style.display = 'none'; document.getElementById('routine-modal').classList.remove('show'); }
-
-        function startRoutine() {
-            const arts = pendingRoutine.arts.map(n => LIB.find(l => l.en === n) || {en: n, group: "Other"});
-            closeRoutineModal(); startWorkout(arts);
-        }
-
-        function openBuilder() { selectedArts = []; renderBuilderList(); document.getElementById('selection-ui').classList.remove('hidden'); }
-        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
-
-        function renderBuilderList() {
-            const list = document.getElementById('exercise-list'); list.innerHTML = '';
-            LIB.forEach(art => {
-                const selIdx = selectedArts.findIndex(s => s.en === art.en);
-                const card = document.createElement('div');
-                card.className = "zen-card mb-3 flex justify-between items-center relative cursor-pointer";
-                if(selIdx > -1) {
-                    card.style.border = "2px solid #000";
-                    card.innerHTML += `<div class="absolute -top-2 -right-2 bg-black text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow-md">${selIdx + 1}</div>`;
-                }
-                card.onclick = () => { if(selIdx > -1) { selectedArts.splice(selIdx, 1); } else { selectedArts.push(art); } renderBuilderList(); };
-                card.innerHTML += `<div><p class="font-bold text-gray-900">${art.en}</p><p class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">${art.group}</p></div>`;
-                list.appendChild(card);
+        // SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Registration failed: ', err));
             });
         }
 
-        function saveAndStartWorkout() {
-            if(selectedArts.length === 0) return alert("Select at least one exercise.");
-            const name = document.getElementById('arc-name-input').value || "Custom Workout";
-            const saved = JSON.parse(localStorage.getItem('zen-saved') || "[]");
-            saved.push({ name, arts: selectedArts });
-            localStorage.setItem('zen-saved', JSON.stringify(saved));
-            startWorkout(selectedArts);
+        window.onload = () => {
+            updateFlavor(); 
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.has('reset')) { window.history.replaceState({}, document.title, window.location.pathname); }
+            const name = localStorage.getItem('zen-name');
+            if (!name) { document.getElementById('onboarding').classList.remove('hidden'); } 
+            else { document.getElementById('display-name').textContent = name; document.getElementById('home-screen').classList.remove('hidden'); updateLevelUI(); renderArcs(); resumeWorkoutIfActive(); }
+        };
+
+        // PLATE MATH ENGINE
+        function cycleBarWeight() {
+            currentBarWeightIdx = (currentBarWeightIdx + 1) % BAR_WEIGHTS.length;
+            const bw = BAR_WEIGHTS[currentBarWeightIdx];
+            document.getElementById('bar-weight-pill').textContent = `BAR: ${bw}KG`;
+            const ex = activeSession[currentIdx];
+            localStorage.setItem('zen-bar-' + ex.en, bw);
+            calculatePlates();
         }
 
-        function renderSavedWorkouts() {
-            const saved = JSON.parse(localStorage.getItem('zen-saved') || "[]");
-            if(saved.length > 0) {
-                document.getElementById('saved-workouts-container').classList.remove('hidden');
-                document.getElementById('saved-list').innerHTML = saved.map((s, i) => `
-                    <div onclick="startWorkout(JSON.parse(localStorage.getItem('zen-saved'))[${i}].arts)" class="zen-card cursor-pointer flex justify-between items-center">
-                        <div>
-                            <h4 class="font-bold text-lg text-gray-900">${s.name}</h4>
-                            <p class="text-xs text-gray-500 font-medium mt-1">${s.arts.length} Exercises</p>
-                        </div>
-                        <div class="bg-black text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Start</div>
-                    </div>
-                `).join('');
+        function calculatePlates() {
+            const ui = document.getElementById('plate-math-ui');
+            const display = document.getElementById('plate-load-display');
+            const ex = activeSession[currentIdx];
+            
+            if(ex.equip !== 'barbell' || ex.type === 'time') {
+                ui.classList.add('hidden');
+                ui.classList.remove('flex');
+                return;
+            }
+            
+            ui.classList.remove('hidden');
+            ui.classList.add('flex');
+            
+            const bw = BAR_WEIGHTS[currentBarWeightIdx];
+            const total = parseFloat(document.getElementById('weight-input').value) || 0;
+            
+            if(total <= bw) {
+                display.innerHTML = '<span class="text-[9px] font-black uppercase text-gray-300 tracking-[0.2em] mt-1">Bar Only / Under Weight</span>';
+                return;
+            }
+            
+            let perSide = (total - bw) / 2;
+            const plates = [20, 10, 5, 2.5, 1.25];
+            let load = [];
+            
+            for(let p of plates) {
+                while(perSide >= p) {
+                    load.push(p);
+                    perSide -= p;
+                    perSide = Math.round(perSide * 100) / 100; // prevent decimal bugs
+                }
+            }
+            
+            if(load.length === 0) {
+                display.innerHTML = '<span class="text-[9px] font-black uppercase text-gray-300 tracking-[0.2em] mt-1">Load Plates</span>';
+            } else {
+                display.innerHTML = `<span class="text-[9px] font-black uppercase text-gray-400 tracking-[0.2em] mr-2 mt-1">LOAD:</span>` + load.map(p => `<span class="bg-[#1a1a1a] text-white px-2 py-1 rounded-md text-[10px] font-bold">${p}</span>`).join('');
             }
         }
 
-        function startWorkout(arts) {
-            activeEx = arts; currentIdx = 0; sessionLog = []; globalSec = 0; isWarmup = false;
-            document.getElementById('home-screen').classList.add('hidden');
-            document.getElementById('selection-ui').classList.add('hidden');
-            document.getElementById('workout-ui').classList.remove('hidden');
-            resetExercise();
-            globalInt = setInterval(() => { globalSec++; const m = Math.floor(globalSec/60).toString().padStart(2,'0'), s = (globalSec%60).toString().padStart(2,'0'); document.getElementById('global-clock').textContent = `${m}:${s}`; }, 1000);
+        // AUDIO CONTEXT & TIMERS
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSystemSound(type) { 
+            if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); 
+            if (type === 'xp') { osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } 
+            else if (type === 'levelup') { osc.type = 'triangle'; osc.frequency.setValueAtTime(200, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.5); gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6); } 
+            else if (type === 'timer') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime); osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.15); gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6); osc.start(); osc.stop(audioCtx.currentTime + 0.6); }
         }
 
-        function resetExercise() {
-            const art = activeEx[currentIdx];
-            document.getElementById('ex-name').textContent = art.en;
-            document.getElementById('ex-sub').textContent = art.group;
-            document.getElementById('progress-text').textContent = `${currentIdx+1} / ${activeEx.length}`;
-            document.getElementById('next-btn').textContent = currentIdx === activeEx.length - 1 ? "Finish Workout" : "Next Exercise";
-            document.getElementById('trial-history').innerHTML = '';
-            document.getElementById('weight-input').value = ""; document.getElementById('reps-input').value = "";
-            const pb = localStorage.getItem(`zen-pb-${art.en}`) || 0;
-            document.getElementById('echo-text').textContent = pb > 0 ? `Best: ${pb}kg` : "No data";
-            
-            // Reset warmup styling visually
-            isWarmup = false;
-            document.getElementById('btn-warmup').className = "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400";
+        function triggerTimerAlarm() {
+            if ("vibrate" in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
+            playSystemSound('timer');
         }
+        
+        function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
+        
+        function startTimer(seconds) { clearInterval(timerInterval); let time = seconds; updateTimerUI(seconds); document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').textContent = time; timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) { triggerTimerAlarm(); skipTimer(); } }, 1000); }
+        
+        function adjustTimer(seconds) { clearInterval(timerInterval); let time = seconds; updateTimerUI(seconds); document.getElementById('timer-display').textContent = time; timerInterval = setInterval(() => { time--; document.getElementById('timer-display').textContent = time; if(time <= 0) { triggerTimerAlarm(); skipTimer(); } }, 1000); }
+        
+        function updateTimerUI(activeSecs) { document.getElementById('btn-timer-30').className = activeSecs === 30 ? "pill bg-white/40 text-white cursor-pointer press-effect shadow-lg" : "pill bg-white/10 text-white cursor-pointer press-effect"; document.getElementById('btn-timer-60').className = activeSecs === 60 ? "pill bg-white/40 text-white cursor-pointer press-effect shadow-lg" : "pill bg-white/10 text-white cursor-pointer press-effect"; document.getElementById('btn-timer-120').className = activeSecs === 120 ? "pill bg-white/40 text-white cursor-pointer press-effect shadow-lg" : "pill bg-white/10 text-white cursor-pointer press-effect"; }
+
+        function saveWorkoutState() { const state = { activeSession, currentIdx, currentSet, sessionLog, currentExerciseLog, activeArcName, currentSessionTonnage, currentSessionReps, currentSessionPRs, globalSeconds, isWarmup }; localStorage.setItem('zen-active-workout', JSON.stringify(state)); }
+        function resumeWorkoutIfActive() { const savedState = localStorage.getItem('zen-active-workout'); if (savedState) { const state = JSON.parse(savedState); activeSession = state.activeSession; currentIdx = state.currentIdx; currentSet = state.currentSet; sessionLog = state.sessionLog; currentExerciseLog = state.currentExerciseLog; activeArcName = state.activeArcName; currentSessionTonnage = state.currentSessionTonnage; currentSessionReps = state.currentSessionReps; currentSessionPRs = state.currentSessionPRs; globalSeconds = state.globalSeconds; isWarmup = state.isWarmup; document.getElementById('home-screen').classList.add('hidden'); document.getElementById('workout-ui').classList.remove('hidden'); shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + activeSession[currentIdx].en) || "[]"); document.getElementById('history-list').innerHTML = ''; const currentExLogs = sessionLog.filter(l => l.exercise === activeSession[currentIdx].en); currentExLogs.reverse().forEach(log => { const row = document.createElement('div'); row.className = "set-row"; if(log.form === "W") { row.classList.add('opacity-60'); if(log.time > 0) row.innerHTML = `<span class="font-black text-orange-400 text-[9px] uppercase italic">Warm-Up</span><span class="font-bold text-gray-800">${log.time}s</span>`; else row.innerHTML = `<span class="font-black text-orange-400 text-[9px] uppercase italic">Warm-Up</span><span class="font-bold text-gray-800">${log.weight}kg x ${log.reps}</span>`; } else { if(log.time > 0) row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${log.form}</span><span class="font-bold text-gray-800">${log.time}s</span>`; else row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${log.form}</span><span class="font-bold text-gray-800">${log.weight}kg x ${log.reps}</span>`; } document.getElementById('history-list').appendChild(row); }); clearInterval(globalTimerInterval); globalTimerInterval = setInterval(() => { globalSeconds++; const mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0'); const secs = String(globalSeconds % 60).padStart(2, '0'); document.getElementById('global-clock-display').textContent = `${mins}:${secs}`; }, 1000); const btn = document.getElementById('btn-warmup'); if(isWarmup) { btn.textContent = "Warm-Up: ON"; btn.className = "pill bg-orange-100 text-orange-600 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-orange-200"; } else { btn.textContent = "Warm-Up: OFF"; btn.className = "pill bg-gray-100 text-gray-500 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-gray-200"; } const ex = activeSession[currentIdx]; if(ex.type === 'time') { document.getElementById('reps-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('flex'); resetStopwatch(); } else { document.getElementById('reps-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('flex'); } updateUI(); loadShadowForSet(); } }
+        function toggleWarmup() { isWarmup = !isWarmup; const btn = document.getElementById('btn-warmup'); if(isWarmup) { btn.textContent = "Warm-Up: ON"; btn.className = "pill bg-orange-100 text-orange-600 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-orange-200"; } else { btn.textContent = "Warm-Up: OFF"; btn.className = "pill bg-gray-100 text-gray-500 press-effect cursor-pointer font-black text-[9px] uppercase tracking-widest border border-gray-200"; } saveWorkoutState(); }
+        function startGlobalClock() { globalSeconds = 0; clearInterval(globalTimerInterval); document.getElementById('global-clock-display').textContent = "00:00"; globalTimerInterval = setInterval(() => { globalSeconds++; const mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0'); const secs = String(globalSeconds % 60).padStart(2, '0'); document.getElementById('global-clock-display').textContent = `${mins}:${secs}`; }, 1000); }
+        function stopGlobalClock() { clearInterval(globalTimerInterval); const mins = String(Math.floor(globalSeconds / 60)).padStart(2, '0'); const secs = String(globalSeconds % 60).padStart(2, '0'); return `${mins}:${secs}`; }
+        function toggleStopwatch() { const btn = document.getElementById('btn-stopwatch'); if(isStopwatchRunning) { clearInterval(exStopwatchInterval); isStopwatchRunning = false; btn.textContent = "Start Timer"; btn.className = "flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200"; document.getElementById('time-input').value = exStopwatchSeconds; } else { isStopwatchRunning = true; btn.textContent = "Stop"; btn.className = "flex-1 pill bg-red-100 text-red-600 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-red-200"; exStopwatchInterval = setInterval(() => { exStopwatchSeconds++; const mins = String(Math.floor(exStopwatchSeconds / 60)).padStart(2, '0'); const secs = String(exStopwatchSeconds % 60).padStart(2, '0'); document.getElementById('stopwatch-display').textContent = `${mins}:${secs}`; document.getElementById('time-input').value = exStopwatchSeconds; }, 1000); } }
+        function resetStopwatch() { clearInterval(exStopwatchInterval); isStopwatchRunning = false; exStopwatchSeconds = 0; document.getElementById('stopwatch-display').textContent = "00:00"; document.getElementById('time-input').value = 0; const btn = document.getElementById('btn-stopwatch'); btn.textContent = "Start Timer"; btn.className = "flex-1 pill bg-gray-100 text-gray-800 press-effect text-center py-4 font-bold text-xs uppercase tracking-widest border border-gray-200"; }
+        function openFormGuide() { const exName = activeSession[currentIdx].en; const query = encodeURIComponent(exName + ' exercise proper form short'); window.open('https://www.youtube.com/results?search_query=' + query, '_blank'); }
+        function exportData() { let data = {}; for(let i=0; i<localStorage.length; i++) { let key = localStorage.key(i); if(key.startsWith('zen-')) data[key] = localStorage.getItem(key); } const blob = new Blob([JSON.stringify(data)], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `zen-gym-backup-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+        function importData(e) { const file = e.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(evt) { try { const data = JSON.parse(evt.target.result); for(let key in data) { if(key.startsWith('zen-')) localStorage.setItem(key, data[key]); } alert("System Override Complete. Reloading."); location.reload(); } catch(err) { alert("Invalid backup file."); } }; reader.readAsText(file); }
+        function renderArcs() { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); const list = document.getElementById('training-arcs-list'); let html = ''; if(arcs.length === 0) { html = `<div class="bento-card p-6 text-center text-[9px] font-bold text-gray-400 uppercase tracking-widest border-dashed border-2 border-gray-200">No Arcs Forged.<br>Draft a routine below.</div>`; } else { arcs.forEach((arc, i) => { html += `<div class="bento-card p-6 flex flex-col gap-4"><div class="flex justify-between items-start"><div><h4 class="text-lg font-bold text-gray-800 tracking-tighter uppercase">${arc.name}</h4><p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">${arc.exercises.length} Techniques</p></div><div onclick="startSavedArc(${i})" class="pill bg-black text-white press-effect cursor-pointer text-center flex items-center justify-center">Start</div></div><div class="flex gap-2 border-t border-gray-100 pt-4"><div onclick="editArc(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-gray-500 cursor-pointer press-effect py-2">Modify</div><div onclick="confirmPurge(${i})" class="flex-1 text-center text-[9px] font-black uppercase tracking-widest text-red-400 cursor-pointer press-effect py-2">Erase</div></div></div>`; }); } list.innerHTML = html; }
+        function confirmPurge(index) { arcToDeleteIndex = index; document.getElementById('ui-shield').classList.add('active'); document.getElementById('purge-modal').classList.add('show'); }
+        function cancelPurge() { arcToDeleteIndex = -1; document.getElementById('ui-shield').classList.remove('active'); document.getElementById('purge-modal').classList.remove('show'); }
+        function executePurge() { if(arcToDeleteIndex > -1) { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); arcs.splice(arcToDeleteIndex, 1); localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); } cancelPurge(); }
+        function setFilter(equip) { currentFilter = equip; ['All', 'bodyweight', 'barbell', 'dumbbell', 'machine', 'cable'].forEach(f => { const el = document.getElementById(`flt-${f}`); if(f === equip) { el.className = "pill bg-[#1a1a1a] text-white shrink-0"; } else { el.className = "pill bg-gray-100 text-gray-500 shrink-0 press-effect"; } }); renderBuilderList(); }
+        function renderSelectedOrder() { const container = document.getElementById('selected-order-list'); if(selectedInMenu.length === 0) { container.innerHTML = ''; return; } let html = '<h3 class="text-[9px] font-black mb-2 text-gray-800 uppercase tracking-[0.4em] text-center mt-2">Active Sequence</h3>'; selectedInMenu.forEach((ex, i) => { html += `<div class="flex justify-between items-center bg-gray-50 rounded-xl p-3 border border-gray-100"><span class="text-[10px] font-bold text-gray-800 truncate flex-1">${i + 1}. ${ex.en}</span><div class="flex gap-1 shrink-0"><div onclick="moveExercise(${i}, -1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === 0 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▲</div><div onclick="moveExercise(${i}, 1)" class="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full text-[10px] font-black press-effect cursor-pointer ${i === selectedInMenu.length - 1 ? 'opacity-30 pointer-events-none' : ''} text-gray-500">▼</div></div></div>`; }); container.innerHTML = html; }
+        function moveExercise(index, dir) { if(index + dir < 0 || index + dir >= selectedInMenu.length) return; const temp = selectedInMenu[index]; selectedInMenu[index] = selectedInMenu[index + dir]; selectedInMenu[index + dir] = temp; renderSelectedOrder(); renderBuilderList(); }
+        function renderBuilderList() { const listDiv = document.getElementById('exercise-list'); listDiv.innerHTML = ''; let baseList = fullLibrary; if(editingArcIndex === -1 && selectedGroups.length > 0) { baseList = fullLibrary.filter(ex => selectedGroups.includes(ex.group)); } const filtered = currentFilter === 'All' ? baseList : baseList.filter(ex => ex.equip === currentFilter); filtered.forEach(ex => { const item = document.createElement('div'); item.className = "flex items-center justify-between p-6 mb-4 bento-card press-effect cursor-pointer"; item.onclick = () => toggleSelection(ex, item, filtered); item.innerHTML = `<div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest">${ex.group} • ${ex.equip}</p></div><div class="selection-circle"></div>`; listDiv.appendChild(item); }); Array.from(listDiv.children).forEach((item, i) => { const sIdx = selectedInMenu.findIndex(s => s.en === filtered[i].en); const circle = item.querySelector('.selection-circle'); if (sIdx > -1) { circle.classList.add('active'); circle.textContent = sIdx + 1; } else { circle.classList.remove('active'); circle.textContent = ''; } }); }
+        function editArc(index) { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); const arc = arcs[index]; editingArcIndex = index; selectedInMenu = [...arc.exercises]; document.getElementById('arc-name-input').value = arc.name; document.getElementById('selection-title').textContent = "Modify Arc"; document.getElementById('btn-save-arc').textContent = "Update Arc"; document.getElementById('btn-quick-start').classList.add('hidden'); setFilter('All'); renderSelectedOrder(); document.getElementById('selection-ui').classList.remove('hidden'); }
+        function draftArc() { editingArcIndex = -1; document.getElementById('synthesis-bar').classList.remove('show'); document.getElementById('arc-name-input').value = ""; document.getElementById('selection-title').textContent = "Builder"; document.getElementById('btn-save-arc').textContent = "Save & Invoke"; document.getElementById('btn-quick-start').classList.remove('hidden'); selectedInMenu = []; setFilter('All'); renderSelectedOrder(); document.getElementById('selection-ui').classList.remove('hidden'); }
+        function saveAndStartArc() { if (selectedInMenu.length === 0) return alert("Select at least one technique."); const nameInput = document.getElementById('arc-name-input').value.trim() || "Custom Routine"; const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); activeArcName = nameInput; if (editingArcIndex > -1) { arcs[editingArcIndex].name = nameInput; arcs[editingArcIndex].exercises = selectedInMenu; localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); closeSelectionUI(); resetPreparation(); } else { arcs.push({ id: Date.now(), name: nameInput, exercises: selectedInMenu }); localStorage.setItem('zen-arcs', JSON.stringify(arcs)); renderArcs(); closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc'); } }
+        function startSelectedOnly() { activeArcName = ""; if (selectedInMenu.length > 0) { closeSelectionUI(); resetPreparation(); startWorkout(selectedInMenu, 'arc'); } }
+        function startSavedArc(index) { const arcs = JSON.parse(localStorage.getItem('zen-arcs') || "[]"); activeArcName = arcs[index].name; startWorkout(arcs[index].exercises, 'arc'); }
+        function openAnalytics() { const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]"); document.getElementById('stat-workouts').textContent = chronicles.length; let totalSets = 0; chronicles.forEach(c => { totalSets += (c.details ? c.details.length : 0); }); document.getElementById('stat-sets').textContent = totalSets; const pbList = document.getElementById('pb-list'); let pbHTML = ''; let hasPBs = false; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key.startsWith('zen-pb-')) { hasPBs = true; const exName = key.replace('zen-pb-', ''); const weight = localStorage.getItem(key); pbHTML += `<div class="bento-card p-4 shrink-0 w-36 snap-center"><p class="text-[10px] font-bold text-gray-800 uppercase tracking-tight truncate">${exName}</p><span class="text-xl font-black text-[#1a1a1a]">${weight} KG</span></div>`; } } if(!hasPBs) { pbHTML = `<div class="p-8 w-full text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">No records established.</div>`; } pbList.innerHTML = pbHTML; const timeline = document.getElementById('analytics-timeline'); if(chronicles.length === 0) { timeline.innerHTML = `<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-4">No history recorded.</p>`; } else { let tlHTML = ''; chronicles.forEach((c, i) => { const timeHTML = c.time ? `<span class="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-2">${c.time}</span>` : ''; const detailsHTML = c.details.map(d => `<div class="flex justify-between text-[10px] border-b border-gray-50 py-2"><span class="font-bold text-gray-700">${d.exercise} <span class="text-gray-400 font-normal italic">F${d.form}</span></span><span class="font-black text-gray-500">${d.time > 0 ? d.time + 's' : (d.weight ? d.weight + 'kg x ' + d.reps : '-')}</span></div>`).join(''); tlHTML += `<div class="relative timeline-node"><div class="bento-card p-5 press-effect cursor-pointer" onclick="toggleTimelineDetail(${i})"><div class="flex justify-between items-center mb-1"><div class="flex items-center"><span class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${c.date}</span>${timeHTML}</div><span class="text-[8px] font-black text-black uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-full">Cleared</span></div><h4 class="text-sm font-bold text-gray-800 uppercase tracking-tighter truncate">${c.summary}</h4><div id="timeline-detail-${i}" class="hidden mt-4 pt-2 border-t border-gray-100">${detailsHTML}</div></div></div>`; }); timeline.innerHTML = tlHTML; } document.getElementById('analytics-window').classList.remove('hidden'); }
+        function toggleTimelineDetail(i) { document.getElementById(`timeline-detail-${i}`).classList.toggle('hidden'); }
+        function closeAnalytics() { document.getElementById('analytics-window').classList.add('hidden'); }
+        
+        function openProfile() {
+            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
+            
+            document.getElementById('profile-name').textContent = localStorage.getItem('zen-name') || "Warrior";
+            
+            // Sets "RANK E • THE SEEKER" and loads the tiny emblem icon
+            document.getElementById('profile-rank').textContent = `Rank ${r} • ${RANKS[r].title}`;
+            const icon = document.getElementById('profile-rank-icon');
+            icon.src = `icon-rank-${r.toLowerCase()}.png`;
+            icon.style.display = 'block';
+
+            document.getElementById('profile-subtitle').textContent = RANKS[r].sub;
+            document.getElementById('profile-avatar').src = `rank-${r.toLowerCase()}.png`; 
+            
+            let xpInLevels = 0; 
+            for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); 
+            const currentLevelXp = totalXp - xpInLevels; 
+            const threshold = getXpRequired(level);
+            
+            document.getElementById('profile-level').textContent = `Level ${level}`;
+            document.getElementById('profile-xp').textContent = `${currentLevelXp} / ${threshold} XP`;
+            document.getElementById('profile-xp-bar').style.width = `${Math.min((currentLevelXp / threshold) * 100, 100)}%`;
+            
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            document.getElementById('profile-stat-quests').textContent = chronicles.length;
+            
+            let lifetimeVolume = 0;
+            chronicles.forEach(c => {
+                if (c.details) {
+                    c.details.forEach(set => {
+                        if (set.weight && set.reps) lifetimeVolume += (set.weight * set.reps);
+                    });
+                }
+            });
+            document.getElementById('profile-stat-volume').textContent = lifetimeVolume > 1000 ? (lifetimeVolume/1000).toFixed(1) + 'k' : lifetimeVolume;
+
+            document.getElementById('profile-window').classList.remove('hidden');
+        }
+
+        function closeProfile() {
+            document.getElementById('profile-window').classList.add('hidden');
+        }
+
+        function toggleArsenal(group) { const idx = selectedGroups.indexOf(group); const btn = document.getElementById(`btn-${group}`); if (idx > -1) { selectedGroups.splice(idx, 1); btn.classList.remove(`active-${group}`); } else { selectedGroups.push(group); btn.classList.add(`active-${group}`); } document.getElementById('synthesis-bar').classList.toggle('show', selectedGroups.length > 0); }
+        function closeSelectionUI() { document.getElementById('selection-ui').classList.add('hidden'); if (selectedGroups.length > 0) document.getElementById('synthesis-bar').classList.add('show'); editingArcIndex = -1; currentFilter = 'All'; document.getElementById('selected-order-list').innerHTML = ''; }
+        function toggleSelection(ex, element, options) { const idx = selectedInMenu.findIndex(s => s.en === ex.en); if (idx > -1) selectedInMenu.splice(idx, 1); else selectedInMenu.push(ex); renderBuilderList(); renderSelectedOrder(); }
+        function openSwapModal() { const currEx = activeSession[currentIdx]; const alternatives = fullLibrary.filter(ex => ex.group === currEx.group && ex.en !== currEx.en); const list = document.getElementById('swap-list'); if(alternatives.length === 0) { list.innerHTML = `<p class="text-center text-[10px] font-bold text-gray-400 uppercase mt-4">No alternative arts.</p>`; } else { list.innerHTML = alternatives.map(ex => `<div onclick="executeSwap('${ex.en}')" class="bento-card p-4 press-effect cursor-pointer flex justify-between items-center"><div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest mt-1">${ex.target} • ${ex.equip}</p></div><span class="text-[10px] font-black uppercase tracking-widest text-gray-300">Select</span></div>`).join(''); } document.getElementById('ui-shield').classList.add('active'); document.getElementById('swap-modal').classList.add('show'); }
+        function closeSwapModal() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('swap-modal').classList.remove('show'); }
+        function executeSwap(newExEn) { const newEx = fullLibrary.find(ex => ex.en === newExEn); if(newEx) { saveShadowData(); activeSession[currentIdx] = newEx; closeSwapModal(); resetForNewExercise(); saveWorkoutState(); } }
+
+        function getXpRequired(lvl) { return SYSTEM_CONFIG.baseXp + (lvl * SYSTEM_CONFIG.xpScaling); }
+        
+        function updateLevelUI() { 
+            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E'; 
+            document.getElementById('user-rank-title').textContent = RANKS[r].title; 
+            
+            // Updates the letter on the Home Screen
+            const homeLetter = document.getElementById('home-rank-letter');
+            if(homeLetter) homeLetter.textContent = r;
+
+            document.getElementById('user-level').textContent = `Level ${level}`; 
+            let xpInLevels = 0; 
+            for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); 
+            const currentLevelXp = totalXp - xpInLevels; 
+            const threshold = getXpRequired(level); 
+            document.getElementById('xp-text').textContent = `${currentLevelXp} / ${threshold} XP`; 
+            document.getElementById('xp-bar-fill').style.width = `${Math.min((currentLevelXp / threshold) * 100, 100)}%`; 
+        }
+
+        async function awardXP(amt) { totalXp += amt; localStorage.setItem('zen-total-xp', totalXp); playSystemSound('xp'); let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); if ((totalXp - xpInLevels) >= getXpRequired(level)) { level++; localStorage.setItem('zen-level', level); await triggerCinematic('level', level); } updateLevelUI(); }
+        async function triggerCinematic(type, val) { const overlay = document.getElementById('system-overlay'); overlay.classList.add('active'); playSystemSound('levelup'); overlay.children[0].textContent = "You continued."; overlay.children[1].textContent = "You endured."; overlay.children[2].textContent = `Level Up — Level ${val}`; await new Promise(r => setTimeout(r, 200)); overlay.children[0].classList.add('visible'); await new Promise(r => setTimeout(r, 800)); overlay.children[1].classList.add('visible'); await new Promise(r => setTimeout(r, 800)); overlay.children[2].classList.add('visible'); await new Promise(r => setTimeout(r, 2500)); overlay.classList.remove('active'); overlay.children[0].classList.remove('visible'); overlay.children[1].classList.remove('visible'); overlay.children[2].classList.remove('visible'); }
+        function triggerLimitBreak(weight) { const overlay = document.getElementById('limit-break-overlay'); document.getElementById('lb-record').textContent = weight + " KG"; overlay.classList.add('active'); setTimeout(() => { overlay.classList.remove('active'); }, 2500); }
 
         function logSet() {
-            const w = document.getElementById('weight-input').value || 0, r = document.getElementById('reps-input').value || 0;
-            if(w == 0 && r == 0) return; // Prevent empty logs
-            
-            sessionLog.push({ art: activeEx[currentIdx].en, w, r, warmup: isWarmup });
-            if (!isWarmup) {
-                const pb = parseFloat(localStorage.getItem(`zen-pb-${activeEx[currentIdx].en}`)) || 0;
-                if (w > pb) localStorage.setItem(`zen-pb-${activeEx[currentIdx].en}`, w);
-                state.xp += 10; updateUI();
-            }
-            
-            const row = document.createElement('div'); 
-            row.className = "flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 text-sm shadow-sm";
-            row.innerHTML = `<span class="${isWarmup ? 'text-gray-400 font-semibold' : 'text-black font-bold'}">${isWarmup ? 'Warm-up' : 'Working Set'}</span><span class="font-extrabold text-lg">${w}kg <span class="text-gray-400 text-sm mx-1 font-medium">×</span> ${r}</span>`;
-            document.getElementById('trial-history').prepend(row);
-            startTimer(60);
+            const ex = activeSession[currentIdx]; let w = 0, r = 0, t = 0;
+            if(ex.type === 'time') { t = parseInt(document.getElementById('time-input').value) || 0; } else { w = parseFloat(document.getElementById('weight-input').value) || 0; r = parseInt(document.getElementById('reps-input').value) || 0; }
+            const row = document.createElement('div'); row.className = "set-row"; 
+            if(isWarmup) { sessionLog.push({ exercise: ex.en, weight: w, reps: r, time: t, form: "W" }); row.classList.add('opacity-60'); if(ex.type === 'time') { row.innerHTML = `<span class="font-black text-orange-400 text-[9px] uppercase italic">Warm-Up</span><span class="font-bold text-gray-800">${t}s</span>`; } else { row.innerHTML = `<span class="font-black text-orange-400 text-[9px] uppercase italic">Warm-Up</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`; } document.getElementById('history-list').prepend(row); startTimer(60); saveWorkoutState(); return; }
+            if(ex.type !== 'time') { currentSessionReps += r; currentSessionTonnage += (w * r); const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; if (w > currentPB) { localStorage.setItem('zen-pb-' + ex.en, w); currentSessionPRs++; triggerLimitBreak(w); document.getElementById('history-label').textContent = `PB: ${w}kg`; } }
+            sessionLog.push({ exercise: ex.en, weight: w, reps: r, time: t, form: currentSet }); currentExerciseLog.push({ w: w, r: r, t: t });
+            if(ex.type === 'time') { row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${t}s</span>`; } else { row.innerHTML = `<span class="font-black text-gray-400 text-[9px] uppercase italic">Form ${currentSet}</span><span class="font-bold text-gray-800">${w}kg x ${r}</span>`; }
+            document.getElementById('history-list').prepend(row);
+            awardXP(SYSTEM_CONFIG.xpPerSet); currentSet++; document.getElementById('set-counter').textContent = `Form ${currentSet}`; loadShadowForSet(); startTimer(60); saveWorkoutState();
         }
 
-        function startTimer(s) {
-            clearInterval(timerInt); let t = s;
-            document.getElementById('timer-bar').classList.add('show');
-            document.getElementById('ui-shield').style.display = 'block';
-            document.getElementById('theme-meta').setAttribute('content', '#000000');
-            document.getElementById('timer-display').textContent = t;
-            timerInt = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if (t <= 0) skipTimer(); }, 1000);
-        }
-
-        function skipTimer() { 
-            clearInterval(timerInt); 
-            document.getElementById('timer-bar').classList.remove('show'); 
-            document.getElementById('ui-shield').style.display = 'none'; 
-            document.getElementById('theme-meta').setAttribute('content', '#f3f4f6');
-        }
-
-        function nextArt() { if (currentIdx < activeEx.length - 1) { currentIdx++; resetExercise(); } else { endWorkout(); } }
-
-        function endWorkout() {
-            clearInterval(globalInt);
-            if(sessionLog.length > 0) {
-                const ch = JSON.parse(localStorage.getItem('zen-history') || "[]");
-                ch.unshift({ date: new Date().toLocaleDateString(), arts: sessionLog, time: document.getElementById('global-clock').textContent });
-                localStorage.setItem('zen-history', JSON.stringify(ch));
-            }
-            location.reload();
-        }
-
-        function confirmEndWorkout() { if(confirm("End workout early?")) endWorkout(); }
-
-        function toggleWarmup() { 
-            isWarmup = !isWarmup; 
-            const b = document.getElementById('btn-warmup'); 
-            b.className = isWarmup 
-                ? "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-gray-900 text-white shadow-md" 
-                : "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400"; 
-        }
-
-        function openSwapModal() {
-            const curr = activeEx[currentIdx];
-            const alts = LIB.filter(a => a.group === curr.group && a.en !== curr.en);
-            document.getElementById('swap-list').innerHTML = alts.map(a => `
-                <div onclick="executeSwap('${a.en}')" class="zen-card p-4 flex justify-between items-center cursor-pointer border border-gray-100">
-                    <span class="font-bold text-gray-900">${a.en}</span>
-                    <span class="text-xs text-gray-400 font-bold uppercase">Select</span>
-                </div>
-            `).join('') || '<p class="text-sm text-gray-400 text-center py-4">No alternatives in this group.</p>';
-            document.getElementById('ui-shield').style.display = 'block';
-            document.getElementById('swap-modal').classList.add('show');
-        }
-
-        function executeSwap(name) { activeEx[currentIdx] = LIB.find(l => l.en === name); closeSwapModal(); resetExercise(); }
-        function closeSwapModal() { document.getElementById('ui-shield').style.display = 'none'; document.getElementById('swap-modal').classList.remove('show'); }
-
-        function openProfile() { 
-            const list = document.getElementById('chronicles-list');
-            const ch = JSON.parse(localStorage.getItem('zen-history') || "[]");
-            list.innerHTML = ch.map(c => `
-                <div class="zen-card mb-4 bg-white">
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
-                        <span class="font-extrabold text-sm">${c.date}</span>
-                        <span class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-md">${c.time}</span>
-                    </div>
-                    <div class="space-y-2">
-                        ${c.arts.map(a => `
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="${a.warmup ? 'text-gray-400 font-medium' : 'text-gray-700 font-bold'}">${a.art}${a.warmup ? ' <span class="text-[10px] uppercase tracking-widest ml-1 bg-gray-100 px-1 rounded">(W)</span>' : ''}</span>
-                                <span class="font-extrabold text-gray-900">${a.w}kg <span class="text-gray-400 mx-0.5 text-xs">×</span> ${a.r}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('') || '<p class="text-center text-gray-400 font-medium text-sm py-12">No workouts recorded yet.</p>';
-            document.getElementById('profile-window').classList.remove('hidden'); 
-        }
-        function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
-        function saveName() { const n = document.getElementById('name-input').value.trim(); if(n) { localStorage.setItem('zen-name', n); location.reload(); } }
-        function resetApp() { if(confirm("Erase all data? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
+        function saveShadowData() { if(currentExerciseLog.length > 0) { localStorage.setItem('zen-shadow-' + activeSession[currentIdx].en, JSON.stringify(currentExerciseLog)); } }
+        function loadShadowForSet() { const shadowText = document.getElementById('shadow-record-text'); const shadowSet = shadowArray[currentSet - 1]; const ex = activeSession[currentIdx]; if(ex.type === 'time') { if(shadowSet && shadowSet.t) { shadowText.textContent = `SHADOW: ${shadowSet.t}S`; shadowText.style.opacity = '1'; } else { shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3'; } } else { const wInput = document.getElementById('weight-input'); const rInput = document.getElementById('reps-input'); if (shadowSet) { shadowText.textContent = `SHADOW: ${shadowSet.w}KG x ${shadowSet.r}`; shadowText.style.opacity = '1'; wInput.value = shadowSet.w; rInput.value = shadowSet.r; } else { shadowText.textContent = "SHADOW: NONE"; shadowText.style.opacity = '0.3'; if (currentExerciseLog.length > 0) { wInput.value = currentExerciseLog[currentExerciseLog.length - 1].w; rInput.value = currentExerciseLog[currentExerciseLog.length - 1].r; } else { wInput.value = ""; rInput.value = ""; } } calculatePlates(); } }
+        function startWorkout(exercises, from) { activeSession = exercises; sessionLog = []; currentIdx = 0; currentSessionTonnage = 0; currentSessionReps = 0; currentSessionPRs = 0; document.getElementById('home-screen').classList.add('hidden'); document.getElementById('workout-ui').classList.remove('hidden'); startGlobalClock(); resetForNewExercise(); saveWorkoutState(); }
+        function resetForNewExercise() { currentSet = 1; currentExerciseLog = []; const ex = activeSession[currentIdx]; shadowArray = JSON.parse(localStorage.getItem('zen-shadow-' + ex.en) || "[]"); document.getElementById('history-list').innerHTML = ''; document.getElementById('set-counter').textContent = `Form 1`; if(isWarmup) toggleWarmup(); if(ex.type === 'time') { document.getElementById('reps-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('flex'); resetStopwatch(); } else { document.getElementById('reps-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('flex'); } updateUI(); loadShadowForSet(); if(ex.equip === 'barbell') { const savedBar = localStorage.getItem('zen-bar-' + ex.en); if(savedBar !== null) { currentBarWeightIdx = BAR_WEIGHTS.indexOf(parseInt(savedBar)); if(currentBarWeightIdx === -1) currentBarWeightIdx = 0; } else { currentBarWeightIdx = 0; } document.getElementById('bar-weight-pill').textContent = `BAR: ${BAR_WEIGHTS[currentBarWeightIdx]}KG`; } calculatePlates(); }
+        function nextExercise() { saveShadowData(); if (currentIdx < activeSession.length - 1) { currentIdx++; resetForNewExercise(); saveWorkoutState(); } else { skipTimer(); concludeQuest(); } }
+        function prevExercise() { saveShadowData(); if (currentIdx > 0) { currentIdx--; resetForNewExercise(); saveWorkoutState(); } }
+        function concludeQuest() { saveShadowData(); const totalTime = stopGlobalClock(); const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]"); const baseGroups = [...new Set(activeSession.map(ex => ex.group))].join(", "); const finalSummary = activeArcName ? `${activeArcName} — ${baseGroups}` : baseGroups; chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), summary: finalSummary, details: sessionLog, time: totalTime }); localStorage.setItem('zen-chronicles', JSON.stringify(chronicles)); localStorage.removeItem('zen-active-workout'); document.getElementById('workout-ui').classList.add('hidden'); document.getElementById('summary-arc-name').textContent = finalSummary; document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG"; document.getElementById('summary-reps').textContent = currentSessionReps; document.getElementById('summary-prs').textContent = currentSessionPRs; document.getElementById('summary-time').textContent = totalTime; document.getElementById('summary-ui').classList.remove('hidden'); }
+        function closeSummary() { document.getElementById('summary-ui').classList.add('hidden'); document.getElementById('home-screen').classList.remove('hidden'); updateFlavor(); resetPreparation(); updateLevelUI(); }
+        function resetPreparation() { selectedGroups = []; Array.from(document.querySelectorAll('.arsenal-btn')).forEach(btn => { btn.className = "arsenal-btn bento-card p-8 text-center text-[9px] uppercase font-black"; }); document.getElementById('synthesis-bar').classList.remove('show'); activeArcName = ""; currentFilter = 'All'; document.getElementById('selected-order-list').innerHTML = ''; }
+        function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
+        function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
+        function confirmRetreat() { stopGlobalClock(); skipTimer(); cancelRetreat(); localStorage.removeItem('zen-active-workout'); document.getElementById('workout-ui').classList.add('hidden'); document.getElementById('home-screen').classList.remove('hidden'); updateFlavor(); resetPreparation(); updateLevelUI(); }
+        
+        function updateFlavor() { const h = new Date().getHours(); document.getElementById('time-greeting').textContent = `Timeline: ${h < 12 ? "Dawn" : h < 18 ? "Solar" : "Twilight"}`; const quotes = ["Keep moving forward.", "Arise.", "The journey is what matters.", "I have no enemies..."]; if(document.getElementById('flavor-quote')) { document.getElementById('flavor-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)]; } }
+        function updateUI() { const ex = activeSession[currentIdx]; document.getElementById('ex-name-en').textContent = ex.en; document.getElementById('ex-name-es').textContent = ex.es; document.getElementById('progress-text').textContent = `${currentIdx + 1}/${activeSession.length}`; const validGroups = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core']; const imgName = validGroups.includes(ex.group) ? ex.group.toLowerCase() + '.png' : 'default.png'; document.getElementById('active-character').src = imgName; const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; document.getElementById('history-label').textContent = currentPB > 0 && ex.type !== 'time' ? `PB: ${currentPB}kg` : (ex.type === 'time' ? "Time" : "New Art"); const targetEl = document.getElementById('target-muscle'); if (targetEl) targetEl.textContent = `${ex.group} • ${ex.target || "TECHNIQUE"}`.toUpperCase(); const backBtn = document.getElementById('back-btn'); if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; } document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance'; }
+        function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('zen-name', n); document.getElementById('onboarding').classList.add('hidden'); document.getElementById('display-name').textContent = n; document.getElementById('home-screen').classList.remove('hidden'); updateLevelUI(); renderArcs(); } }
+        function resetApp() { if(confirm("Abandon legacy? This is permanent.")) { localStorage.clear(); window.location.replace(window.location.pathname + '?reset=' + new Date().getTime()); } }
+        document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true}); document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
     </script>
 </body>
 </html>
