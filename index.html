@@ -5,182 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta id="theme-meta" name="theme-color" content="#F9FAFB">
+    <meta id="theme-meta" name="theme-color" content="#f3f4f6">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>Zen Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #F9FAFB; --card: #FFFFFF; --text: #111827; --accent: #000000; --muted: #9CA3AF; }
+        :root { --bg: #f3f4f6; --surface: #ffffff; --text: #111827; --text-muted: #6b7280; --accent: #000000; }
         * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; box-sizing: border-box; }
         *::-webkit-scrollbar { display: none !important; }
         html, body { overscroll-behavior: none; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100%; margin: 0; overflow: hidden; }
         input { text-align: center; font-family: 'Inter', sans-serif; border: none; background: transparent; }
-        .zen-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
-        .btn-primary { background: var(--accent); color: #FFFFFF; border-radius: 16px; padding: 18px; font-weight: 700; text-align: center; cursor: pointer; width: 100%; transition: transform 0.1s; }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-secondary { background: #F3F4F6; color: var(--text); border-radius: 16px; padding: 18px; font-weight: 700; text-align: center; cursor: pointer; }
-        .scroll-container { flex: 1; overflow-y: auto; padding-bottom: 120px; }
-        .pill { background: #F3F4F6; color: var(--text); padding: 6px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
-        .xp-bar-bg { width: 100%; height: 8px; background: #F3F4F6; border-radius: 9999px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s ease; }
         
-        /* Modal & Overlays */
-        #ui-shield { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9998; display: none; }
-        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 360px; background: var(--card); border-radius: 24px; padding: 24px; z-index: 10000; display: none; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--accent); color: #FFF; padding: 30px 20px calc(30px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.4s ease-out; z-index: 9999; border-radius: 32px 32px 0 0; }
+        .zen-card { background: var(--surface); border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); transition: transform 0.2s ease; }
+        .zen-card:active { transform: scale(0.98); }
+        
+        .btn-primary { background: var(--accent); color: #ffffff; border-radius: 20px; padding: 20px; font-weight: 700; font-size: 16px; text-align: center; cursor: pointer; width: 100%; transition: opacity 0.2s; }
+        .btn-primary:active { opacity: 0.8; }
+        
+        .btn-secondary { background: #f3f4f6; color: var(--text); border-radius: 20px; padding: 20px; font-weight: 700; font-size: 16px; text-align: center; cursor: pointer; width: 100%; }
+        
+        .pill { background: #f3f4f6; color: var(--text); padding: 8px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .pill-active { background: var(--accent); color: #ffffff; }
+        
+        .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 140px; }
+        
+        /* Modals & Overlays */
+        #ui-shield { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 9998; display: none; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 88%; max-width: 360px; background: var(--surface); border-radius: 32px; padding: 32px; z-index: 10000; display: none; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal.show { display: flex; }
+        
+        /* Timer */
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--accent); color: #ffffff; padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
         #timer-bar.show { transform: translateY(0); }
     </style>
 </head>
-<body class="p-5">
+<body class="p-6">
 
     <div id="ui-shield"></div>
 
-    <div id="onboarding" class="fixed inset-0 bg-[#F9FAFB] z-[2000] p-8 flex flex-col justify-center hidden">
-        <h1 class="text-4xl font-bold mb-2">Welcome to Zen.</h1>
-        <p class="text-gray-500 mb-10">Enter your name to begin.</p>
-        <input type="text" id="name-input" placeholder="Your Name" class="text-3xl border-b-2 border-gray-200 py-3 w-full focus:outline-none focus:border-black mb-10">
-        <div onclick="saveName()" class="btn-primary">Continue</div>
+    <div id="onboarding" class="fixed inset-0 bg-[#f3f4f6] z-[2000] p-8 flex flex-col justify-center hidden">
+        <h1 class="text-4xl font-extrabold tracking-tight mb-2">Zen Tracker</h1>
+        <p class="text-gray-500 mb-12 font-medium">Focus on the movement.</p>
+        <input type="text" id="name-input" placeholder="Your Name" class="text-3xl border-b-2 border-gray-200 py-4 w-full focus:outline-none focus:border-black mb-12 font-bold placeholder-gray-300">
+        <div onclick="saveName()" class="btn-primary">Start Training</div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full hidden">
-        <header class="mb-8 pt-4 flex justify-between items-center">
+        <header class="mb-8 pt-6 flex justify-between items-center">
             <div>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Good Session</p>
-                <h2 class="text-3xl font-bold">Hello, <span id="display-name" class="text-gray-400">User</span></h2>
+                <p class="text-[11px] text-gray-400 font-bold uppercase tracking-widest mb-1">Overview</p>
+                <h2 class="text-3xl font-extrabold tracking-tight">Hello, <span id="display-name" class="text-gray-400">User</span></h2>
             </div>
-            <img src="icon-192.png" alt="Profile" class="w-12 h-12 rounded-full bg-gray-200" onclick="openProfile()">
+            <div onclick="location.reload()" class="pill text-[10px] uppercase font-bold tracking-wider">Refresh</div>
         </header>
         
         <div class="scroll-container space-y-6">
             <div class="zen-card cursor-pointer" onclick="openProfile()">
-                <div class="flex justify-between items-end mb-3">
+                <div class="flex justify-between items-end mb-4">
                     <div>
-                        <h3 class="font-bold text-lg" id="rank-title">Level 1</h3>
-                        <p class="text-xs text-gray-500 font-semibold mt-1">Consistency is key</p>
+                        <h3 class="font-extrabold text-xl" id="rank-title">Level 1</h3>
+                        <p class="text-xs text-gray-500 font-medium mt-1">Keep showing up</p>
                     </div>
                     <span class="text-xs font-bold text-gray-400" id="xp-text">0 / 100 XP</span>
                 </div>
-                <div class="xp-bar-bg"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
-            </div>
-
-            <div class="zen-card flex justify-between items-center cursor-pointer" onclick="openBuilder()">
-                <div>
-                    <p class="font-bold text-lg">Empty Workout</p>
-                    <p class="text-xs text-gray-500 mt-1">Build from scratch</p>
+                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div id="xp-bar-fill" class="h-full bg-black w-0 transition-all duration-700 ease-out"></div>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-lg">+</div>
             </div>
 
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-1">Routines</h3>
-                <div id="routine-list" class="space-y-3"></div>
+            <div class="zen-card flex justify-between items-center cursor-pointer bg-white" onclick="openBuilder()">
+                <div>
+                    <p class="font-extrabold text-lg">Custom Workout</p>
+                    <p class="text-xs text-gray-500 font-medium mt-1">Select your exercises</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center font-bold text-xl text-gray-400 border border-gray-100">+</div>
+            </div>
+
+            <div id="saved-workouts-container" class="hidden pt-4">
+                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Saved Workouts</h3>
+                <div id="saved-list" class="space-y-4"></div>
+            </div>
+            
+            <div class="pt-2">
+                <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Routines</h3>
+                <div id="routine-list" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
     <div id="routine-modal" class="modal">
-        <h2 id="rm-title" class="text-2xl font-bold mb-2">---</h2>
-        <p id="rm-desc" class="text-sm text-gray-500 mb-6 leading-relaxed">---</p>
-        <div class="bg-gray-50 rounded-xl p-4 mb-6">
-            <p class="text-[10px] font-bold uppercase text-gray-400 mb-2">Exercises</p>
-            <ul id="rm-arts" class="text-sm font-semibold space-y-1"></ul>
+        <h2 id="rm-title" class="text-2xl font-extrabold tracking-tight mb-3">---</h2>
+        <p id="rm-desc" class="text-sm text-gray-500 mb-6 font-medium leading-relaxed">---</p>
+        <div class="bg-gray-50 rounded-2xl p-5 mb-8 border border-gray-100">
+            <p class="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-3">Exercises</p>
+            <ul id="rm-arts" class="text-sm font-semibold text-gray-700 space-y-2"></ul>
         </div>
-        <div class="flex gap-3">
-            <div onclick="closeRoutineModal()" class="btn-secondary flex-1">Cancel</div>
-            <div onclick="startRoutine()" class="btn-primary flex-[2]">Start</div>
+        <div class="flex flex-col gap-3">
+            <div onclick="startRoutine()" class="btn-primary">Start Routine</div>
+            <div onclick="closeRoutineModal()" class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest py-3 cursor-pointer">Cancel</div>
         </div>
     </div>
 
-    <div id="selection-ui" class="fixed inset-0 bg-[#F9FAFB] z-[60] p-5 hidden flex flex-col">
-        <header class="mb-6 pt-4 flex justify-between items-center shrink-0">
-            <h2 class="text-2xl font-bold">Select Exercises</h2>
+    <div id="selection-ui" class="fixed inset-0 bg-[#f3f4f6] z-[60] p-6 hidden flex flex-col">
+        <header class="mb-6 pt-6 flex justify-between items-center shrink-0">
+            <h2 class="text-3xl font-extrabold tracking-tight">Builder</h2>
             <div onclick="closeBuilder()" class="pill">Done</div>
         </header>
         <div id="exercise-list" class="flex-1 overflow-y-auto space-y-3 pb-6"></div>
-        <div class="pt-4 shrink-0 bg-[#F9FAFB] border-t border-gray-100 pb-[env(safe-area-inset-bottom)]">
-            <input type="text" id="arc-name-input" placeholder="Workout Name" class="w-full py-4 mb-3 text-lg font-bold focus:outline-none">
+        <div class="pt-4 shrink-0 border-t border-gray-200 pb-[env(safe-area-inset-bottom)]">
+            <input type="text" id="arc-name-input" placeholder="Name this workout" class="w-full py-4 mb-4 text-xl font-bold focus:outline-none placeholder-gray-400">
             <div onclick="saveAndStartWorkout()" class="btn-primary">Start Workout</div>
         </div>
     </div>
 
-    <div id="workout-ui" class="fixed inset-0 bg-[#F9FAFB] z-[70] p-5 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-4 mb-8 shrink-0">
-            <div onclick="confirmEndWorkout()" class="text-sm font-bold text-red-500">End</div>
-            <span id="global-clock" class="text-sm font-bold font-mono">00:00</span>
-            <div onclick="openSwapModal()" class="pill">Swap</div>
+    <div id="workout-ui" class="fixed inset-0 bg-[#f3f4f6] z-[70] p-6 hidden flex flex-col">
+        <header class="flex justify-between items-center pt-8 mb-8 shrink-0">
+            <div onclick="confirmEndWorkout()" class="text-sm font-bold text-red-500 tracking-wide cursor-pointer">End</div>
+            <span id="global-clock" class="text-sm font-bold font-mono bg-white px-3 py-1 rounded-lg border border-gray-200 shadow-sm">00:00</span>
+            <div onclick="openSwapModal()" class="pill shadow-sm bg-white border border-gray-100">Swap</div>
         </header>
-        <div class="flex-1 overflow-y-auto">
-            <h2 id="ex-name" class="text-3xl font-bold mb-1">---</h2>
-            <p id="ex-sub" class="text-sm text-gray-400 font-semibold mb-8">---</p>
+        
+        <div class="flex-1 overflow-y-auto pb-10">
+            <div class="text-center mb-8">
+                <h2 id="ex-name" class="text-4xl font-extrabold tracking-tight mb-2">---</h2>
+                <p id="ex-sub" class="text-sm text-gray-400 font-semibold uppercase tracking-widest">---</p>
+            </div>
             
-            <div class="flex justify-between items-center mb-8 bg-gray-50 p-4 rounded-2xl">
-                <span id="echo-text" class="text-xs font-bold text-gray-500">Previous: ---</span>
-                <div id="btn-warmup" onclick="toggleWarmup()" class="text-xs font-bold px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100">Warmup: OFF</div>
+            <div class="flex justify-center items-center gap-4 mb-10">
+                <span id="echo-text" class="text-xs font-bold text-gray-500 bg-gray-200/50 px-4 py-2 rounded-full">Best: ---</span>
+                <div id="btn-warmup" onclick="toggleWarmup()" class="text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400">Warmup</div>
             </div>
 
-            <div class="flex gap-4 mb-8">
-                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                    <label class="text-[10px] text-gray-400 font-bold block mb-2 uppercase text-center">Weight (kg)</label>
-                    <input type="number" id="weight-input" class="text-4xl w-full font-bold focus:outline-none" placeholder="0">
+            <div class="flex gap-4 mb-10">
+                <div class="flex-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+                    <label class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest">Weight (KG)</label>
+                    <input type="number" id="weight-input" class="text-5xl w-full font-extrabold focus:outline-none text-center" placeholder="0">
                 </div>
-                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                    <label class="text-[10px] text-gray-400 font-bold block mb-2 uppercase text-center">Reps</label>
-                    <input type="number" id="reps-input" class="text-4xl w-full font-bold focus:outline-none" placeholder="0">
+                <div class="flex-1 bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center">
+                    <label class="text-[10px] text-gray-400 font-bold mb-3 uppercase tracking-widest">Reps</label>
+                    <input type="number" id="reps-input" class="text-5xl w-full font-extrabold focus:outline-none text-center" placeholder="0">
                 </div>
             </div>
 
-            <div onclick="logSet()" class="btn-primary mb-10 shadow-lg shadow-gray-200">Log Set</div>
+            <div onclick="logSet()" class="btn-primary shadow-lg shadow-gray-200/50 mb-10">Log Set</div>
             
-            <div id="trial-history" class="space-y-2 pb-20"></div>
+            <div id="trial-history" class="space-y-3"></div>
         </div>
-        <footer class="pt-4 border-t border-gray-100 shrink-0 pb-[calc(10px + env(safe-area-inset-bottom))]">
-            <div class="flex items-center justify-between gap-4">
-                <span id="progress-text" class="text-xs font-bold text-gray-400 w-16 text-center">1/4</span>
-                <div onclick="nextArt()" id="next-btn" class="btn-secondary flex-1 text-sm py-4">Next Exercise</div>
+        
+        <footer class="pt-4 border-t border-gray-200 shrink-0 pb-[calc(16px + env(safe-area-inset-bottom))]">
+            <div class="flex items-center justify-between gap-6">
+                <span id="progress-text" class="text-xs font-extrabold text-gray-400 w-16 text-center tracking-widest">1/4</span>
+                <div onclick="nextArt()" id="next-btn" class="btn-secondary flex-1 border border-gray-200 bg-white shadow-sm">Next Exercise</div>
             </div>
         </footer>
     </div>
 
-    <div id="profile-window" class="fixed inset-0 bg-[#F9FAFB] z-[80] p-5 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-4 mb-8 shrink-0">
-            <h2 class="text-2xl font-bold">History</h2>
-            <div onclick="closeProfile()" class="pill">Close</div>
+    <div id="profile-window" class="fixed inset-0 bg-[#f3f4f6] z-[80] p-6 hidden flex flex-col">
+        <header class="flex justify-between items-center pt-8 mb-8 shrink-0">
+            <h2 class="text-3xl font-extrabold tracking-tight">History</h2>
+            <div onclick="closeProfile()" class="pill bg-white border border-gray-200 shadow-sm">Close</div>
         </header>
         <div id="chronicles-list" class="flex-1 overflow-y-auto space-y-4 pb-10"></div>
-        <div class="pt-4 pb-[env(safe-area-inset-bottom)]">
-            <div onclick="resetApp()" class="text-center text-xs text-red-400 font-bold py-4">Reset App Data</div>
+        <div class="pt-4 shrink-0 pb-[env(safe-area-inset-bottom)]">
+            <div onclick="resetApp()" class="text-center text-xs text-red-500 font-bold py-4 tracking-widest uppercase cursor-pointer">Erase All Data</div>
         </div>
     </div>
 
     <div id="swap-modal" class="modal">
-        <h2 class="text-xl font-bold mb-4">Swap Exercise</h2>
-        <div id="swap-list" class="max-h-64 overflow-y-auto space-y-2 mb-4"></div>
-        <div onclick="closeSwapModal()" class="btn-secondary">Cancel</div>
+        <h2 class="text-2xl font-extrabold mb-6 tracking-tight">Swap Exercise</h2>
+        <div id="swap-list" class="max-h-64 overflow-y-auto space-y-3 mb-6"></div>
+        <div onclick="closeSwapModal()" class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest py-3 cursor-pointer">Cancel</div>
     </div>
 
     <div id="timer-bar">
-        <div class="text-center mb-6">
-            <span id="timer-display" class="text-7xl font-bold font-mono">60</span>
-            <p class="text-[10px] text-gray-300 font-bold uppercase mt-2 tracking-wider">Rest Timer</p>
+        <div class="text-center mb-8">
+            <span id="timer-display" class="text-8xl font-extrabold font-mono tracking-tighter">60</span>
+            <p class="text-xs text-gray-400 font-bold uppercase mt-2 tracking-widest">Rest Timer</p>
         </div>
-        <div onclick="skipTimer()" class="text-center py-4 text-xs font-bold uppercase tracking-wider bg-white/10 rounded-2xl cursor-pointer">Skip Rest</div>
+        <div onclick="skipTimer()" class="text-center py-5 text-xs font-extrabold uppercase tracking-widest bg-white/10 rounded-2xl cursor-pointer">Skip Rest</div>
     </div>
 
     <script>
-        // Clean, Minimal Engine
+        // Data and Logic
         const LIB = [
             { en: "Pushups", group: "Chest" }, { en: "Bench Press", group: "Chest" }, { en: "Incline Press", group: "Chest" },
             { en: "Pull-ups", group: "Back" }, { en: "Barbell Row", group: "Back" }, { en: "Lat Pulldown", group: "Back" },
             { en: "Overhead Press", group: "Shoulders" }, { en: "Lateral Raises", group: "Shoulders" },
             { en: "Squat", group: "Legs" }, { en: "Leg Press", group: "Legs" }, { en: "Deadlift", group: "Back" },
-            { en: "Bicep Curls", group: "Arms" }, { en: "Tricep Extensions", group: "Arms" }, { en: "Plank", group: "Core" }
+            { en: "Bicep Curls", group: "Arms" }, { en: "Tricep Pushdown", group: "Arms" }, { en: "Plank", group: "Core" }
         ];
 
         const ROUTINES = [
-            { id: 'r1', name: 'Full Body Fundamentals', desc: 'A perfectly balanced routine to build total body strength.', arts: ['Squat', 'Bench Press', 'Barbell Row', 'Plank'] },
-            { id: 'r2', name: 'Upper Body Power', desc: 'Focus on pushing and pulling heavy weight.', arts: ['Bench Press', 'Overhead Press', 'Pull-ups', 'Bicep Curls'] },
-            { id: 'r3', name: 'Lower Body Strength', desc: 'Build the foundation with compound leg movements.', arts: ['Squat', 'Deadlift', 'Leg Press'] }
+            { id: 'r1', name: 'Full Body Base', desc: 'A balanced routine for overall strength and fitness.', arts: ['Squat', 'Bench Press', 'Barbell Row', 'Plank'] },
+            { id: 'r2', name: 'Upper Body Focus', desc: 'Target the chest, back, and shoulders.', arts: ['Bench Press', 'Overhead Press', 'Pull-ups', 'Bicep Curls'] },
+            { id: 'r3', name: 'Lower Body Strength', desc: 'Build foundational leg power.', arts: ['Squat', 'Deadlift', 'Leg Press'] }
         ];
 
         let state = {
@@ -196,7 +216,7 @@
             else { 
                 document.getElementById('display-name').textContent = state.name;
                 document.getElementById('home-screen').classList.remove('hidden');
-                updateUI(); renderRoutines();
+                updateUI(); renderRoutines(); renderSavedWorkouts();
             }
         };
 
@@ -205,20 +225,22 @@
             document.getElementById('rank-title').textContent = `Level ${state.level}`;
             const curXp = state.xp % req;
             document.getElementById('xp-text').textContent = `${curXp} / ${req} XP`;
-            document.getElementById('xp-bar-fill').style.width = `${(curXp / req) * 100}%`;
+            // Add a small delay for the animation to look nice on load
+            setTimeout(() => {
+                document.getElementById('xp-bar-fill').style.width = `${(curXp / req) * 100}%`;
+            }, 100);
             localStorage.setItem('zen-level', state.level);
             localStorage.setItem('zen-xp', state.xp);
         }
 
         function renderRoutines() {
-            const container = document.getElementById('routine-list');
-            container.innerHTML = ROUTINES.map(r => `
+            document.getElementById('routine-list').innerHTML = ROUTINES.map(r => `
                 <div onclick="openRoutine('${r.id}')" class="zen-card cursor-pointer flex justify-between items-center">
                     <div>
-                        <h4 class="font-bold">${r.name}</h4>
-                        <p class="text-xs text-gray-500 mt-1">${r.arts.length} Exercises</p>
+                        <h4 class="font-bold text-lg text-gray-900">${r.name}</h4>
+                        <p class="text-xs text-gray-500 font-medium mt-1">${r.arts.length} Exercises</p>
                     </div>
-                    <div class="text-gray-300">→</div>
+                    <div class="text-gray-300 font-bold">→</div>
                 </div>
             `).join('');
         }
@@ -227,7 +249,7 @@
             pendingRoutine = ROUTINES.find(x => x.id === id);
             document.getElementById('rm-title').textContent = pendingRoutine.name;
             document.getElementById('rm-desc').textContent = pendingRoutine.desc;
-            document.getElementById('rm-arts').innerHTML = pendingRoutine.arts.map(a => `<li>• ${a}</li>`).join('');
+            document.getElementById('rm-arts').innerHTML = pendingRoutine.arts.map(a => `<li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-black rounded-full"></div>${a}</li>`).join('');
             document.getElementById('ui-shield').style.display = 'block';
             document.getElementById('routine-modal').classList.add('show');
         }
@@ -235,7 +257,7 @@
         function closeRoutineModal() { document.getElementById('ui-shield').style.display = 'none'; document.getElementById('routine-modal').classList.remove('show'); }
 
         function startRoutine() {
-            const arts = pendingRoutine.arts.map(n => LIB.find(l => l.en === n));
+            const arts = pendingRoutine.arts.map(n => LIB.find(l => l.en === n) || {en: n, group: "Other"});
             closeRoutineModal(); startWorkout(arts);
         }
 
@@ -249,22 +271,42 @@
                 const card = document.createElement('div');
                 card.className = "zen-card mb-3 flex justify-between items-center relative cursor-pointer";
                 if(selIdx > -1) {
-                    card.style.border = "2px solid var(--accent)";
-                    card.innerHTML += `<div class="absolute top-2 right-2 bg-black text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">${selIdx + 1}</div>`;
+                    card.style.border = "2px solid #000";
+                    card.innerHTML += `<div class="absolute -top-2 -right-2 bg-black text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow-md">${selIdx + 1}</div>`;
                 }
                 card.onclick = () => { if(selIdx > -1) { selectedArts.splice(selIdx, 1); } else { selectedArts.push(art); } renderBuilderList(); };
-                card.innerHTML += `<div><p class="font-bold">${art.en}</p><p class="text-[10px] text-gray-400 uppercase mt-1">${art.group}</p></div>`;
+                card.innerHTML += `<div><p class="font-bold text-gray-900">${art.en}</p><p class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">${art.group}</p></div>`;
                 list.appendChild(card);
             });
         }
 
         function saveAndStartWorkout() {
             if(selectedArts.length === 0) return alert("Select at least one exercise.");
+            const name = document.getElementById('arc-name-input').value || "Custom Workout";
+            const saved = JSON.parse(localStorage.getItem('zen-saved') || "[]");
+            saved.push({ name, arts: selectedArts });
+            localStorage.setItem('zen-saved', JSON.stringify(saved));
             startWorkout(selectedArts);
         }
 
+        function renderSavedWorkouts() {
+            const saved = JSON.parse(localStorage.getItem('zen-saved') || "[]");
+            if(saved.length > 0) {
+                document.getElementById('saved-workouts-container').classList.remove('hidden');
+                document.getElementById('saved-list').innerHTML = saved.map((s, i) => `
+                    <div onclick="startWorkout(JSON.parse(localStorage.getItem('zen-saved'))[${i}].arts)" class="zen-card cursor-pointer flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-900">${s.name}</h4>
+                            <p class="text-xs text-gray-500 font-medium mt-1">${s.arts.length} Exercises</p>
+                        </div>
+                        <div class="bg-black text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Start</div>
+                    </div>
+                `).join('');
+            }
+        }
+
         function startWorkout(arts) {
-            activeEx = arts; currentIdx = 0; sessionLog = []; globalSec = 0;
+            activeEx = arts; currentIdx = 0; sessionLog = []; globalSec = 0; isWarmup = false;
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('selection-ui').classList.add('hidden');
             document.getElementById('workout-ui').classList.remove('hidden');
@@ -281,19 +323,27 @@
             document.getElementById('trial-history').innerHTML = '';
             document.getElementById('weight-input').value = ""; document.getElementById('reps-input').value = "";
             const pb = localStorage.getItem(`zen-pb-${art.en}`) || 0;
-            document.getElementById('echo-text').textContent = pb > 0 ? `Previous Best: ${pb}kg` : "No previous data";
+            document.getElementById('echo-text').textContent = pb > 0 ? `Best: ${pb}kg` : "No data";
+            
+            // Reset warmup styling visually
+            isWarmup = false;
+            document.getElementById('btn-warmup').className = "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400";
         }
 
         function logSet() {
             const w = document.getElementById('weight-input').value || 0, r = document.getElementById('reps-input').value || 0;
+            if(w == 0 && r == 0) return; // Prevent empty logs
+            
             sessionLog.push({ art: activeEx[currentIdx].en, w, r, warmup: isWarmup });
             if (!isWarmup) {
                 const pb = parseFloat(localStorage.getItem(`zen-pb-${activeEx[currentIdx].en}`)) || 0;
                 if (w > pb) localStorage.setItem(`zen-pb-${activeEx[currentIdx].en}`, w);
                 state.xp += 10; updateUI();
             }
-            const row = document.createElement('div'); row.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100 text-sm font-bold";
-            row.innerHTML = `<span class="${isWarmup ? 'text-gray-400' : 'text-black'}">${isWarmup ? 'Warm-up' : 'Working Set'}</span><span>${w}kg × ${r}</span>`;
+            
+            const row = document.createElement('div'); 
+            row.className = "flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 text-sm shadow-sm";
+            row.innerHTML = `<span class="${isWarmup ? 'text-gray-400 font-semibold' : 'text-black font-bold'}">${isWarmup ? 'Warm-up' : 'Working Set'}</span><span class="font-extrabold text-lg">${w}kg <span class="text-gray-400 text-sm mx-1 font-medium">×</span> ${r}</span>`;
             document.getElementById('trial-history').prepend(row);
             startTimer(60);
         }
@@ -302,35 +352,49 @@
             clearInterval(timerInt); let t = s;
             document.getElementById('timer-bar').classList.add('show');
             document.getElementById('ui-shield').style.display = 'block';
+            document.getElementById('theme-meta').setAttribute('content', '#000000');
             document.getElementById('timer-display').textContent = t;
             timerInt = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if (t <= 0) skipTimer(); }, 1000);
         }
 
-        function skipTimer() { clearInterval(timerInt); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').style.display = 'none'; }
+        function skipTimer() { 
+            clearInterval(timerInt); 
+            document.getElementById('timer-bar').classList.remove('show'); 
+            document.getElementById('ui-shield').style.display = 'none'; 
+            document.getElementById('theme-meta').setAttribute('content', '#f3f4f6');
+        }
 
         function nextArt() { if (currentIdx < activeEx.length - 1) { currentIdx++; resetExercise(); } else { endWorkout(); } }
 
         function endWorkout() {
             clearInterval(globalInt);
-            const ch = JSON.parse(localStorage.getItem('zen-history') || "[]");
-            ch.unshift({ date: new Date().toLocaleDateString(), arts: sessionLog, time: document.getElementById('global-clock').textContent });
-            localStorage.setItem('zen-history', JSON.stringify(ch));
+            if(sessionLog.length > 0) {
+                const ch = JSON.parse(localStorage.getItem('zen-history') || "[]");
+                ch.unshift({ date: new Date().toLocaleDateString(), arts: sessionLog, time: document.getElementById('global-clock').textContent });
+                localStorage.setItem('zen-history', JSON.stringify(ch));
+            }
             location.reload();
         }
 
-        function confirmEndWorkout() { if(confirm("End workout early?")) location.reload(); }
+        function confirmEndWorkout() { if(confirm("End workout early?")) endWorkout(); }
 
         function toggleWarmup() { 
             isWarmup = !isWarmup; 
             const b = document.getElementById('btn-warmup'); 
-            b.textContent = isWarmup ? "Warmup: ON" : "Warmup: OFF"; 
-            b.className = isWarmup ? "text-xs font-bold px-3 py-1 bg-gray-200 rounded-full shadow-sm border border-gray-300 text-black" : "text-xs font-bold px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100 text-gray-500"; 
+            b.className = isWarmup 
+                ? "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-gray-900 text-white shadow-md" 
+                : "text-xs font-bold px-4 py-2 rounded-full cursor-pointer transition-colors bg-white border border-gray-200 text-gray-400"; 
         }
 
         function openSwapModal() {
             const curr = activeEx[currentIdx];
             const alts = LIB.filter(a => a.group === curr.group && a.en !== curr.en);
-            document.getElementById('swap-list').innerHTML = alts.map(a => `<div onclick="executeSwap('${a.en}')" class="zen-card p-4 text-sm font-bold mb-2 cursor-pointer border border-gray-100">${a.en}</div>`).join('');
+            document.getElementById('swap-list').innerHTML = alts.map(a => `
+                <div onclick="executeSwap('${a.en}')" class="zen-card p-4 flex justify-between items-center cursor-pointer border border-gray-100">
+                    <span class="font-bold text-gray-900">${a.en}</span>
+                    <span class="text-xs text-gray-400 font-bold uppercase">Select</span>
+                </div>
+            `).join('') || '<p class="text-sm text-gray-400 text-center py-4">No alternatives in this group.</p>';
             document.getElementById('ui-shield').style.display = 'block';
             document.getElementById('swap-modal').classList.add('show');
         }
@@ -342,19 +406,26 @@
             const list = document.getElementById('chronicles-list');
             const ch = JSON.parse(localStorage.getItem('zen-history') || "[]");
             list.innerHTML = ch.map(c => `
-                <div class="zen-card mb-3">
-                    <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                        <span class="font-bold text-sm">${c.date}</span>
-                        <span class="text-xs text-gray-400 font-mono">${c.time}</span>
+                <div class="zen-card mb-4 bg-white">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
+                        <span class="font-extrabold text-sm">${c.date}</span>
+                        <span class="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-md">${c.time}</span>
                     </div>
-                    ${c.arts.map(a => `<div class="flex justify-between text-xs py-1"><span class="${a.warmup?'text-gray-400':''}">${a.art}${a.warmup?' (W)':''}</span><span class="font-bold">${a.w}kg × ${a.r}</span></div>`).join('')}
+                    <div class="space-y-2">
+                        ${c.arts.map(a => `
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="${a.warmup ? 'text-gray-400 font-medium' : 'text-gray-700 font-bold'}">${a.art}${a.warmup ? ' <span class="text-[10px] uppercase tracking-widest ml-1 bg-gray-100 px-1 rounded">(W)</span>' : ''}</span>
+                                <span class="font-extrabold text-gray-900">${a.w}kg <span class="text-gray-400 mx-0.5 text-xs">×</span> ${a.r}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-            `).join('') || '<p class="text-center text-gray-400 text-sm py-10">No workouts recorded yet.</p>';
+            `).join('') || '<p class="text-center text-gray-400 font-medium text-sm py-12">No workouts recorded yet.</p>';
             document.getElementById('profile-window').classList.remove('hidden'); 
         }
         function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
-        function saveName() { const n = document.getElementById('name-input').value; if(n) { localStorage.setItem('zen-name', n); location.reload(); } }
-        function resetApp() { if(confirm("Delete all data? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
+        function saveName() { const n = document.getElementById('name-input').value.trim(); if(n) { localStorage.setItem('zen-name', n); location.reload(); } }
+        function resetApp() { if(confirm("Erase all data? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
