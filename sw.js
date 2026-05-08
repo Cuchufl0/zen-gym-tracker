@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grimoire-v1';
+const CACHE_NAME = 'grimoire-v2'; // <-- Change this to v2
 const ASSETS = [
   './',
   './index.html',
