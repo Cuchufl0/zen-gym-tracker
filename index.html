@@ -19,7 +19,9 @@
     
     <style>
         :root { --parchment: #F2EBDC; --ink: #2B2B2B; --oxblood: #7B1818; --moss: #4A5D4E; --iron: #333333; }
-        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
+        
+        /* Removed 300ms delay on mobile taps */
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none !important; width: 0 !important; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -42,10 +44,12 @@
         .xp-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
         .xp-bar { height: 100%; background: var(--iron); width: 0%; transition: width 1s ease; }
 
-        .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 120px; }
+        .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
         
-        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--iron); color: var(--parchment); padding: 40px 20px; transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
+        /* Safe area fixes for bottom notches */
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--iron); color: var(--parchment); padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
         #timer-bar.show { transform: translateY(0); }
+        .safe-bottom { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
 
         .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s;}
         .pill.active { background: var(--iron); color: var(--parchment); }
@@ -53,18 +57,18 @@
         .press-effect { transition: transform 0.1s; }
         .is-pressed { transform: scale(0.97); }
 
-        #system-overlay { position: fixed; inset: 0; z-index: 20000; background: var(--iron); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--parchment); opacity: 0; transition: 0.5s; }
+        #system-overlay { position: fixed; inset: 0; z-index: 20000; background: var(--iron); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--parchment); opacity: 0; transition: 0.5s; padding-bottom: env(safe-area-inset-bottom); }
         #system-overlay.active { display: flex; opacity: 1; }
         
-        #limit-break-overlay { position: fixed; inset: 0; z-index: 21000; background: var(--parchment); color: var(--ink); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 0.1s; }
+        #limit-break-overlay { position: fixed; inset: 0; z-index: 21000; background: var(--parchment); color: var(--ink); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 0.1s; padding-bottom: env(safe-area-inset-bottom); }
         #limit-break-overlay.active { display: flex; opacity: 1; animation: limitFlash 2.5s ease-out forwards; }
         @keyframes limitFlash { 0% { background: var(--ink); color: var(--parchment); transform: scale(1.05); } 10% { background: var(--parchment); color: var(--ink); transform: scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
 
         #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
         #ui-shield.active { display: block; }
 
-        #retreat-modal, #swap-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: var(--parchment); border: 2px solid var(--iron); border-radius: 24px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; flex-direction: column; }
-        #retreat-modal.show, #swap-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        #retreat-modal, #swap-modal, #quest-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: var(--parchment); border: 2px solid var(--iron); border-radius: 24px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; flex-direction: column; }
+        #retreat-modal.show, #swap-modal.show, #quest-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
         
         .order-badge { position: absolute; top: 12px; right: 12px; background: var(--oxblood); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
         .quest-card { min-width: 240px; background: var(--ink); color: var(--parchment); border-radius: 20px; padding: 16px; scroll-snap-align: start; }
@@ -76,10 +80,29 @@
     <div id="system-overlay"><p class="text-[10px] uppercase tracking-[0.4em] opacity-60 mb-4">The Grimoire Updates</p><h1 id="sys-title" class="text-4xl font-bold italic mb-2 font-serif">---</h1><p id="sys-subtitle" class="text-sm italic opacity-80">---</p></div>
     <div id="ui-shield"></div>
 
-    <div id="retreat-modal"><h2 class="text-2xl font-bold tracking-tighter mb-2 uppercase text-center font-serif">Abandon Expedition?</h2><div onclick="cancelRetreat()" class="btn-primary mb-4 press-effect mt-8">Endure</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-800 py-4 cursor-pointer text-center">Flee</div></div>
+    <div id="retreat-modal"><h2 class="text-2xl font-bold tracking-tighter mb-2 uppercase text-center font-serif">Abandon Expedition?</h2><div onclick="cancelRetreat()" class="btn-primary mb-4 press-effect mt-8">Endure</div><div onclick="confirmRetreat()" class="text-[11px] font-black uppercase tracking-[0.3em] text-red-800 p-4 cursor-pointer text-center">Flee</div></div>
     <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-bold tracking-tighter uppercase font-serif">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3 max-h-64"></div></div>
+    
+    <div id="quest-modal">
+        <div class="flex justify-between items-start mb-6 border-b border-black/10 pb-4">
+            <div>
+                <h2 id="qm-title" class="text-2xl font-bold tracking-tighter uppercase font-serif leading-tight">---</h2>
+                <span id="qm-rank" class="text-[8px] uppercase tracking-widest font-black py-1 px-2 rounded-full bg-black text-white mt-2 inline-block">---</span>
+            </div>
+            <div onclick="closeQuestModal()" class="pill cursor-pointer shrink-0 ml-2">Close</div>
+        </div>
+        <div class="mb-6">
+            <h3 class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">Guild Notes</h3>
+            <p id="qm-desc" class="text-xs opacity-80 leading-relaxed">---</p>
+        </div>
+        <div class="mb-8">
+            <h3 class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mb-2">Required Arts</h3>
+            <ul id="qm-arts" class="text-sm font-bold opacity-80 space-y-1 ml-2 border-l-2 border-black/10 pl-3"></ul>
+        </div>
+        <div onclick="acceptQuest()" class="btn-primary press-effect mt-auto">Accept Quest</div>
+    </div>
 
-    <div id="summary-ui" class="fixed inset-0 bg-[#2B2B2B] z-[150] p-6 hidden flex flex-col items-center justify-center text-[#F2EBDC]">
+    <div id="summary-ui" class="fixed inset-0 bg-[#2B2B2B] z-[150] p-6 hidden flex flex-col items-center justify-center text-[#F2EBDC] safe-bottom">
         <h1 class="text-5xl font-bold tracking-tighter uppercase italic mb-2 text-center font-serif">Expedition Cleared</h1>
         <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-50 mb-12 text-center" id="summary-arc-name">---</p>
         <div class="w-full max-w-sm flex flex-col gap-4 mb-12">
@@ -100,30 +123,51 @@
     </div>
 
     <div id="home-screen" class="flex flex-col h-full hidden">
-        <header class="mb-10 pt-8 flex justify-between items-start px-2">
+        <header class="mb-8 pt-8 flex justify-between items-start px-2">
             <div>
                 <h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase opacity-40 mb-2 font-black">Timeline: Dawn</h1>
                 <h2 class="text-4xl font-bold tracking-tighter italic font-serif">Warrior, <span id="display-name" class="opacity-30">---</span></h2>
             </div>
         </header>
-        <div class="px-2 mb-8"><div class="grimoire-card p-6 relative overflow-hidden press-effect cursor-pointer" onclick="openProfile()"><div class="flex justify-between items-end mb-2"><div class="flex items-center gap-3"><div id="home-rank-letter" class="rank-seal">E</div><div><h2 id="user-rank-title" class="text-xl font-bold tracking-tighter font-serif">The Seeker</h2><p id="user-level" class="text-[10px] font-black uppercase opacity-40 mt-1">Level 1 <span class="ml-1">▶</span></p></div></div><span id="xp-text" class="text-[9px] font-black opacity-40 uppercase tracking-widest">0 / 120 XP</span></div><div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div></div></div>
+        
+        <div class="px-2 mb-8">
+            <div class="grimoire-card p-6 relative overflow-hidden press-effect cursor-pointer" onclick="openProfile()">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="flex items-center gap-3">
+                        <div id="home-rank-letter" class="rank-seal">E</div>
+                        <div>
+                            <h2 id="user-rank-title" class="text-xl font-bold tracking-tighter font-serif">The Seeker</h2>
+                            <p id="user-level" class="text-[10px] font-black uppercase opacity-40 mt-1">Level 1</p>
+                        </div>
+                    </div>
+                    <span id="xp-text" class="text-[9px] font-black opacity-40 uppercase tracking-widest">0 / 120 XP</span>
+                </div>
+                <div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div>
+            </div>
+        </div>
         
         <div class="scroll-container">
-            <div class="mb-10 px-2">
+            <div class="mb-8">
+                <h3 class="text-[9px] font-black mb-3 opacity-60 uppercase tracking-[0.4em] px-2">The Guild Board</h3>
+                <div class="horizontal-scroll px-2 pb-2" id="quest-board-container">
+                    </div>
+            </div>
+
+            <div class="px-2 mb-10">
+                <div onclick="openBuilder()" class="grimoire-card p-6 flex justify-between items-center press-effect cursor-pointer border border-black/10 bg-white/60">
+                    <div>
+                        <p class="font-bold uppercase tracking-tighter font-serif text-lg">Custom Expedition</p>
+                        <p class="text-[8px] opacity-40 uppercase mt-1">Draft your own arts</p>
+                    </div>
+                    <div class="pill bg-[#333333] text-[#F2EBDC]">Draft</div>
+                </div>
+            </div>
+
+            <div class="mb-10 px-2" id="active-expeditions-container">
                 <h3 class="text-[9px] font-black mb-4 opacity-60 uppercase tracking-[0.4em]">Active Expeditions</h3>
                 <div id="expedition-list" class="grid grid-cols-1 gap-4"></div>
             </div>
-            <h3 class="text-[9px] font-black mb-6 opacity-60 uppercase tracking-[0.4em] px-2 text-center">Draft New Art</h3>
-            <div class="grid grid-cols-2 gap-4 px-2">
-                <div onclick="toggleArsenal('Chest')" id="btn-Chest" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Chest</div>
-                <div onclick="toggleArsenal('Back')" id="btn-Back" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Back</div>
-                <div onclick="toggleArsenal('Shoulders')" id="btn-Shoulders" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Shoulders</div>
-                <div onclick="toggleArsenal('Arms')" id="btn-Arms" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Arms</div>
-                <div onclick="toggleArsenal('Legs')" id="btn-Legs" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Legs</div>
-                <div onclick="toggleArsenal('Core')" id="btn-Core" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Core</div>
-            </div>
         </div>
-        <div id="synthesis-bar" class="fixed bottom-10 left-6 right-6 translate-y-[200%] transition-transform duration-500"><div onclick="openBuilder()" class="btn-primary shadow-2xl">Prepare Expedition</div></div>
     </div>
 
     <div id="selection-ui" class="fixed inset-0 bg-[#F2EBDC] z-[60] p-6 hidden flex flex-col">
@@ -131,12 +175,6 @@
             <h2 class="text-3xl font-bold tracking-tighter uppercase italic font-serif">The Builder</h2>
             <div onclick="closeBuilder()" class="pill">Close</div>
         </header>
-
-        <div class="mb-6">
-            <h3 class="text-[9px] font-black mb-3 opacity-60 uppercase tracking-[0.4em] px-2">The Quest Board</h3>
-            <div class="horizontal-scroll px-2 pb-2" id="quest-board-container">
-                </div>
-        </div>
         
         <div class="horizontal-scroll mb-4 px-2 shrink-0 pb-2 border-b border-black/5" id="equipment-filters">
             <div onclick="setFilter('All')" id="flt-All" class="pill bg-[#333333] text-[#F2EBDC] shrink-0">All</div>
@@ -149,7 +187,7 @@
 
         <div id="exercise-list" class="flex-1 overflow-y-auto px-2 mb-2 pb-10"></div>
         
-        <div class="pt-4 shrink-0 bg-[#F2EBDC] border-t border-black/5 pb-6">
+        <div class="pt-4 shrink-0 bg-[#F2EBDC] border-t border-black/5 pb-6 safe-bottom">
             <div id="reorder-list" class="max-h-32 overflow-y-auto mb-4 px-2 space-y-2"></div>
             <input type="text" id="arc-name-input" placeholder="Expedition Name" class="w-full text-center py-4 mb-2 text-xl font-bold uppercase tracking-widest focus:outline-none bg-transparent">
             <div onclick="saveAndStartArc()" class="btn-primary italic">Commence the Trial</div>
@@ -181,7 +219,7 @@
             <button onclick="logSet()" class="w-full btn-endure mb-10">Endure</button>
             <div id="trial-history" class="space-y-3 pb-4"></div>
         </div>
-        <footer class="pt-4 flex gap-4 w-full bg-[#F2EBDC] border-t border-black/5 pb-2 shrink-0">
+        <footer class="pt-4 flex gap-4 w-full bg-[#F2EBDC] border-t border-black/5 shrink-0 safe-bottom px-4">
             <div id="back-btn" onclick="prevArt()" class="w-20 py-6 rounded-2xl bg-black/5 text-center text-[10px] font-bold uppercase opacity-60 hidden cursor-pointer flex items-center justify-center">Back</div>
             <div id="progress-text" class="flex-1 py-6 text-center text-[10px] font-black opacity-30 uppercase tracking-[0.2em] flex items-center justify-center">1 / 4</div>
             <div id="next-btn" onclick="nextArt()" class="flex-[2] py-6 rounded-2xl bg-[#333333] text-[#F2EBDC] text-center text-xs font-black uppercase tracking-widest cursor-pointer shadow-md flex items-center justify-center">Advance</div>
@@ -195,9 +233,18 @@
             <h1 id="profile-name" class="text-4xl font-bold italic mb-1 uppercase tracking-tighter font-serif">---</h1>
             <div class="flex items-center gap-2 mb-2"><img id="profile-rank-icon" src="icon-rank-e.png" class="w-6 h-6 object-contain mix-blend-multiply opacity-80" onerror="this.style.display='none'"><p id="profile-rank" class="text-lg font-bold italic opacity-60 font-serif">Rank E • Seeker</p></div>
             <p id="profile-sub" class="text-[9px] font-black uppercase opacity-30 text-center px-10 mb-10 leading-loose">---</p>
+            
             <div class="w-full px-6 mb-10"><div class="flex justify-between items-end mb-2"><span id="profile-level-txt" class="text-xs font-bold uppercase">Level 1</span><span id="profile-xp-txt" class="text-[9px] font-black opacity-30 uppercase tracking-widest">0 / 120 XP</span></div><div class="xp-container"><div id="profile-xp-bar" class="xp-bar"></div></div></div>
-            <div class="flex gap-4 w-full px-6 mb-10"><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-quests">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Expeditions</p></div><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-volume">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Tonnage</p></div></div>
+            
+            <div class="flex gap-4 w-full px-6 mb-8"><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-quests">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Expeditions</p></div><div class="grimoire-card p-6 flex-1 text-center"><p class="text-3xl font-bold italic font-serif" id="stat-volume">0</p><p class="text-[8px] font-black uppercase opacity-40 mt-1">Tonnage</p></div></div>
+            
+            <div onclick="openChronicles()" class="w-full max-w-xs btn-primary italic text-sm mb-10">Read the Chronicles</div>
         </div>
+    </div>
+
+    <div id="chronicles-window" class="fixed inset-0 bg-[#F2EBDC] z-[90] p-6 hidden flex flex-col">
+        <header class="mb-8 flex justify-between items-center pt-8 px-2"><h2 class="text-3xl font-bold italic uppercase font-serif">Chronicles</h2><div onclick="closeChronicles()" class="pill">Back</div></header>
+        <div class="flex-1 overflow-y-auto px-2 space-y-4 pb-10" id="chronicles-list"></div>
     </div>
 
     <div id="timer-bar"><div class="flex gap-2 justify-center mb-8"><div onclick="adjustTimer(30)" class="pill bg-white/10 text-white">30s</div><div onclick="adjustTimer(60)" class="pill bg-white/20 text-white shadow-lg">60s</div><div onclick="adjustTimer(120)" class="pill bg-white/10 text-white">120s</div></div><div class="text-center mb-8"><span id="timer-display" class="text-8xl font-serif">60</span><p class="text-[9px] font-black uppercase tracking-[0.4em] opacity-40 mt-4">Stamina Recovery</p></div><div onclick="skipTimer()" class="text-center py-4 text-[10px] font-black uppercase tracking-widest opacity-40 cursor-pointer">Awaken</div></div>
@@ -228,6 +275,7 @@
         let timerInterval, globalSeconds = 0, globalInterval, exStopwatchSeconds = 0, exStopwatchInterval = null, isStopwatchRunning = false;
         let barWeightIdx = 0; const BAR_WEIGHTS = [20, 15, 10, 0];
         let currentFilter = 'All'; let isWarmup = false; let currentSessionTonnage = 0; let currentSessionPRs = 0;
+        let pendingQuest = null;
 
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
 
@@ -248,9 +296,22 @@
 
         function updateLevelUI() {
             const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
-            document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('home-rank-letter').textContent = r; document.getElementById('user-level').textContent = `Level ${level} ▶`;
+            document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('home-rank-letter').textContent = r; document.getElementById('user-level').textContent = `Level ${level}`;
             let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpReq(i); const currentXp = totalXp - xpInLevels; const threshold = getXpReq(level);
-            document.getElementById('xp-text').textContent = `${currentXp} / ${threshold} XP`; document.getElementById('xp-bar-fill').style.width = `${(currentXp/threshold)*100}%`;
+            document.getElementById('xp-text').textContent = `${currentXp} / ${threshold} XP`; 
+            const pct = `${(currentXp/threshold)*100}%`;
+            document.getElementById('xp-bar-fill').style.width = pct;
+            
+            // Sync Profile XP Bar if elements exist
+            const pLevelTxt = document.getElementById('profile-level-txt');
+            const pXpTxt = document.getElementById('profile-xp-txt');
+            const pXpBar = document.getElementById('profile-xp-bar');
+            if(pLevelTxt && pXpTxt && pXpBar) {
+                pLevelTxt.textContent = `Level ${level}`;
+                pXpTxt.textContent = `${currentXp} / ${threshold} XP`;
+                pXpBar.style.width = pct;
+            }
+
             localStorage.setItem('grimoire-level', level); localStorage.setItem('grimoire-total-xp', totalXp);
         }
 
@@ -258,7 +319,7 @@
             const qContainer = document.getElementById('quest-board-container'); qContainer.innerHTML = '';
             QUESTS.forEach(q => {
                 const badgeColor = q.rank === 'Novice' ? 'bg-[#4A5D4E]' : q.rank === 'Adept' ? 'bg-[#7B1818]' : 'bg-black text-white';
-                qContainer.innerHTML += `<div class="quest-card press-effect cursor-pointer" onclick="loadQuest('${q.id}')">
+                qContainer.innerHTML += `<div class="quest-card press-effect cursor-pointer" onclick="openQuestModal('${q.id}')">
                     <div class="flex justify-between items-start mb-2"><h4 class="font-bold italic font-serif text-lg leading-tight w-3/4">${q.name}</h4><span class="text-[8px] uppercase tracking-widest font-black py-1 px-2 rounded-full ${badgeColor}">${q.rank}</span></div>
                     <p class="text-[9px] opacity-60 mb-2">${q.desc}</p>
                     <p class="text-[8px] uppercase opacity-40 truncate">${q.arts.join(' • ')}</p>
@@ -266,23 +327,42 @@
             });
         }
 
-        function loadQuest(id) {
-            const quest = QUESTS.find(q => q.id === id);
-            if(quest) {
-                selectedArts = [];
-                quest.arts.forEach(artName => { const found = fullLibrary.find(a => a.en === artName); if(found) selectedArts.push(found); });
-                document.getElementById('arc-name-input').value = quest.name;
-                selectedGroups = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core']; // Expand view
-                renderBuilderList();
-            }
+        function openQuestModal(id) {
+            pendingQuest = QUESTS.find(q => q.id === id);
+            if(!pendingQuest) return;
+            document.getElementById('qm-title').textContent = pendingQuest.name;
+            document.getElementById('qm-rank').textContent = pendingQuest.rank;
+            const badgeColor = pendingQuest.rank === 'Novice' ? 'bg-[#4A5D4E]' : pendingQuest.rank === 'Adept' ? 'bg-[#7B1818]' : 'bg-black text-white';
+            document.getElementById('qm-rank').className = `text-[8px] uppercase tracking-widest font-black py-1 px-2 rounded-full mt-2 inline-block ${badgeColor}`;
+            document.getElementById('qm-desc').textContent = pendingQuest.desc;
+            document.getElementById('qm-arts').innerHTML = pendingQuest.arts.map(a => `<li>${a}</li>`).join('');
+            
+            document.getElementById('ui-shield').classList.add('active');
+            document.getElementById('quest-modal').classList.add('show');
         }
 
-        function toggleArsenal(group) {
-            const btn = document.getElementById(`btn-${group}`);
-            if(selectedGroups.includes(group)) { selectedGroups = selectedGroups.filter(g => g !== group); btn.style.borderColor = 'transparent'; btn.style.opacity = '0.6'; } 
-            else { selectedGroups.push(group); btn.style.borderColor = 'var(--iron)'; btn.style.opacity = '1'; }
-            document.getElementById('synthesis-bar').style.transform = selectedGroups.length > 0 ? 'translateY(0)' : 'translateY(200%)';
+        function closeQuestModal() {
+            pendingQuest = null;
+            document.getElementById('ui-shield').classList.remove('active');
+            document.getElementById('quest-modal').classList.remove('show');
         }
+
+        function acceptQuest() {
+            if(!pendingQuest) return;
+            selectedArts = [];
+            pendingQuest.arts.forEach(artName => { const found = fullLibrary.find(a => a.en === artName); if(found) selectedArts.push(found); });
+            document.getElementById('summary-arc-name').textContent = pendingQuest.name;
+            closeQuestModal();
+            startExpedition(selectedArts);
+        }
+
+        function openBuilder() { 
+            selectedArts = []; selectedGroups = []; document.getElementById('arc-name-input').value = "";
+            document.getElementById('selection-ui').classList.remove('hidden'); 
+            setFilter('All'); 
+            renderBuilderList(); 
+        }
+        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
 
         function setFilter(equip) {
             currentFilter = equip;
@@ -293,12 +373,9 @@
             renderBuilderList();
         }
 
-        function openBuilder() { document.getElementById('selection-ui').classList.remove('hidden'); setFilter('All'); renderBuilderList(); }
-        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
-
         function renderBuilderList() {
             const list = document.getElementById('exercise-list'); list.innerHTML = '';
-            let baseList = fullLibrary.filter(a => selectedGroups.includes(a.group));
+            let baseList = selectedGroups.length > 0 ? fullLibrary.filter(a => selectedGroups.includes(a.group)) : fullLibrary;
             const filtered = currentFilter === 'All' ? baseList : baseList.filter(a => a.equip === currentFilter);
             
             filtered.forEach(art => {
@@ -345,7 +422,7 @@
 
         function saveAndStartArc() {
             if(selectedArts.length === 0) return;
-            const name = document.getElementById('arc-name-input').value || "New Expedition";
+            const name = document.getElementById('arc-name-input').value || "Custom Expedition";
             const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]");
             arcs.push({ name, exercises: selectedArts }); localStorage.setItem('grimoire-arcs', JSON.stringify(arcs));
             document.getElementById('arc-name-input').value = ""; document.getElementById('summary-arc-name').textContent = name;
@@ -425,7 +502,8 @@
         function concludeExpedition() {
             clearInterval(globalInterval); skipTimer(); const timeStr = document.getElementById('global-clock').textContent;
             const chronicles = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
-            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short'}), arts: sessionLog, time: timeStr });
+            let arcName = document.getElementById('summary-arc-name').textContent;
+            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short'}), arcName: arcName, arts: sessionLog, time: timeStr, vol: currentSessionTonnage });
             localStorage.setItem('grimoire-chronicles', JSON.stringify(chronicles));
             document.getElementById('workout-ui').classList.add('hidden');
             document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG"; document.getElementById('summary-prs').textContent = currentSessionPRs; document.getElementById('summary-time').textContent = timeStr;
@@ -463,13 +541,46 @@
         }
         function cycleBar() { barWeightIdx = (barWeightIdx + 1) % BAR_WEIGHTS.length; document.getElementById('bar-weight').textContent = `Bar: ${BAR_WEIGHTS[barWeightIdx]}kg`; calculatePlates(); }
 
-        function openProfile() { const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E'; document.getElementById('profile-name').textContent = userName; document.getElementById('profile-rank').textContent = `Rank ${r} • ${RANKS[r].title}`; document.getElementById('profile-sub').textContent = RANKS[r].sub; document.getElementById('profile-level-txt').textContent = `Level ${level}`; document.getElementById('profile-window').classList.remove('hidden'); const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]"); document.getElementById('stat-quests').textContent = ch.length; let vol = 0; ch.forEach(c => c.arts.forEach(a => vol += (a.w * a.r || 0))); document.getElementById('stat-volume').textContent = vol > 1000 ? (vol/1000).toFixed(1) + 'k' : vol; updateLevelUI(); }
+        function openProfile() { 
+            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E'; 
+            document.getElementById('profile-name').textContent = userName; 
+            document.getElementById('profile-rank').textContent = `Rank ${r} • ${RANKS[r].title}`; 
+            document.getElementById('profile-sub').textContent = RANKS[r].sub; 
+            
+            const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]"); 
+            document.getElementById('stat-quests').textContent = ch.length; 
+            let vol = 0; ch.forEach(c => c.arts.forEach(a => vol += (a.w * a.r || 0))); 
+            document.getElementById('stat-volume').textContent = vol > 1000 ? (vol/1000).toFixed(1) + 'k' : vol; 
+            
+            updateLevelUI();
+            document.getElementById('profile-window').classList.remove('hidden'); 
+        }
         function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
-        function renderExpeditions() { const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); const list = document.getElementById('expedition-list'); list.innerHTML = arcs.length ? '' : '<p class="text-center text-[10px] opacity-30 uppercase py-10">No expeditions drafted.</p>'; arcs.forEach((a, i) => { const card = document.createElement('div'); card.className = "grimoire-card p-6 flex justify-between items-center"; card.innerHTML = `<div><p class="font-bold uppercase tracking-tighter">${a.name}</p><p class="text-[8px] opacity-40 uppercase">${a.exercises.length} Arts</p></div><div onclick="startExpeditionFromHome(${i})" class="pill bg-black text-white">Commence</div>`; list.appendChild(card); }); }
+        
+        function renderExpeditions() { 
+            const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); 
+            const list = document.getElementById('expedition-list'); 
+            const cont = document.getElementById('active-expeditions-container');
+            if(arcs.length === 0) { cont.classList.add('hidden'); return; }
+            cont.classList.remove('hidden');
+            list.innerHTML = ''; 
+            arcs.forEach((a, i) => { const card = document.createElement('div'); card.className = "grimoire-card p-6 flex justify-between items-center"; card.innerHTML = `<div><p class="font-bold uppercase tracking-tighter">${a.name}</p><p class="text-[8px] opacity-40 uppercase">${a.exercises.length} Arts</p></div><div onclick="startExpeditionFromHome(${i})" class="pill bg-black text-white">Commence</div>`; list.appendChild(card); }); 
+        }
         function startExpeditionFromHome(i) { const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); document.getElementById('summary-arc-name').textContent = arcs[i].name; startExpedition(arcs[i].exercises); }
-        function resetApp() { if(confirm("Burn the Grimoire? All records will be lost.")) { localStorage.clear(); location.reload(); } }
+        
+        function openChronicles() {
+            const list = document.getElementById('chronicles-list');
+            const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
+            list.innerHTML = ch.length === 0 ? '<p class="text-center text-[10px] opacity-40 py-10 uppercase tracking-widest">The ledger is empty.</p>' : '';
+            ch.forEach(c => {
+                let volText = c.vol ? `${c.vol}KG` : '---';
+                let artsHTML = c.arts.map(a => `<div class="flex justify-between text-[10px] opacity-60"><span class="truncate pr-2">${a.art}</span><span>${a.t ? a.t+'s' : a.w+'kg x '+a.r}</span></div>`).join('');
+                list.innerHTML += `<div class="grimoire-card p-5 mb-3"><div class="flex justify-between items-end border-b border-black/10 pb-2 mb-2"><h3 class="font-bold font-serif italic">${c.arcName || 'Expedition'}</h3><span class="text-[9px] uppercase tracking-widest opacity-40 font-black">${c.date}</span></div><div class="mb-3 space-y-1">${artsHTML}</div><div class="flex justify-between text-[8px] font-black uppercase tracking-widest opacity-40"><p>Time: ${c.time}</p><p>Vol: ${volText}</p></div></div>`;
+            });
+            document.getElementById('chronicles-window').classList.remove('hidden');
+        }
+        function closeChronicles() { document.getElementById('chronicles-window').classList.add('hidden'); }
 
-        document.addEventListener('touchstart', e => e.target.closest('.press-effect')?.classList.add('is-pressed'), {passive: true}); document.addEventListener('touchend', e => e.target.closest('.press-effect')?.classList.remove('is-pressed'), {passive: true});
     </script>
 </body>
 </html>
