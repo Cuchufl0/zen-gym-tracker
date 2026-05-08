@@ -13,54 +13,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Lora:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
         :root { --parchment: #F2EBDC; --ink: #2B2B2B; --oxblood: #7B1818; --iron: #333333; }
-        * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
-        *::-webkit-scrollbar { display: none !important; width: 0 !important; }
+        * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-user-select: none; user-select: none; outline: none; }
+        *::-webkit-scrollbar { display: none !important; }
         html, body { overscroll-behavior: none; background-color: var(--parchment); color: var(--ink); font-family: 'Inter', sans-serif; height: 100%; margin: 0; overflow: hidden; }
         h1, h2, h3, .font-serif { font-family: 'Lora', serif; }
-        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: var(--ink) !important; background: transparent !important; text-align: center; font-family: 'Lora', serif; border: none; outline: none; }
-        .grimoire-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0,0,0,0.1); border-radius: 24px; transition: 0.3s; }
+        input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: var(--ink) !important; background: transparent !important; text-align: center; font-family: 'Lora', serif; border: none; }
+        .grimoire-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0,0,0,0.1); border-radius: 24px; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); }
         .btn-primary { background: var(--iron); color: var(--parchment); border-radius: 18px; padding: 20px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         .btn-endure { background: var(--oxblood); color: white; border-radius: 18px; padding: 22px; font-weight: 900; text-transform: uppercase; text-align: center; box-shadow: 0 4px 0px #4d0f0f; cursor: pointer; }
         .rank-seal { width: 32px; height: 32px; background: var(--iron); color: var(--parchment); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; }
+        .xp-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
         .xp-bar { height: 100%; background: var(--iron); width: 0%; transition: width 1s ease; }
         .scroll-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
         #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); color: var(--parchment); padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
         #timer-bar.show { transform: translateY(0); }
         .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         .quest-card { min-width: 240px; background: var(--ink); color: var(--parchment); border-radius: 20px; padding: 16px; scroll-snap-align: start; }
-        #summary-ui { position: fixed; inset: 0; background: var(--ink); z-index: 150; padding: 60px 24px calc(60px + env(safe-area-inset-bottom)); display: none; flex-direction: column; align-items: center; justify-content: center; color: var(--parchment); }
+        .order-badge { position: absolute; top: 12px; right: 12px; background: var(--oxblood); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
     </style>
 </head>
-<body>
+<body class="p-6">
 
     <div id="ui-shield" class="fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm"></div>
 
-    <div id="onboarding" class="fixed inset-0 bg-[#F2EBDC] z-[1000] p-10 flex flex-col justify-center hidden">
+    <div id="onboarding" class="fixed inset-0 bg-[#F2EBDC] z-[2000] p-10 flex flex-col justify-center hidden">
         <h1 class="text-5xl font-bold italic font-serif mb-4">Iron Grimoire.</h1>
-        <p class="text-xs uppercase opacity-40 mb-12 tracking-widest">Inscribe your name into the ledger.</p>
+        <p class="text-xs uppercase opacity-40 mb-12 tracking-widest">Inscribe your name.</p>
         <input type="text" id="name-input" placeholder="Warrior Name" class="text-4xl border-b-2 border-black/10 py-4 w-full focus:outline-none bg-transparent font-serif">
         <div onclick="saveName()" class="btn-primary mt-12">Initialize</div>
     </div>
 
     <div id="home-screen" class="flex flex-col h-full hidden">
-        <header class="mb-6 pt-8 flex justify-between items-start px-4 shrink-0">
+        <header class="mb-6 pt-8 flex justify-between items-start px-2 shrink-0">
             <div><p class="text-[10px] uppercase opacity-40 font-black tracking-widest">Timeline: Dawn</p><h2 class="text-4xl font-serif italic">Warrior, <span id="display-name" class="opacity-30">---</span></h2></div>
-            <div onclick="resetApp()" class="pill opacity-30 mt-2">Burn Grimoire</div>
+            <div onclick="resetApp()" class="pill opacity-30 mt-2">Reset</div>
         </header>
         
         <div class="scroll-container">
-            <div class="mb-8"><h3 class="text-[9px] font-black mb-3 opacity-60 uppercase tracking-[0.4em] px-4">The Guild Board</h3><div class="flex overflow-x-auto gap-4 px-4 pb-2" id="quest-board-container"></div></div>
-            
-            <div class="px-4 mb-8"><div class="grimoire-card p-6 cursor-pointer" onclick="openProfile()"><div class="flex justify-between items-end mb-2"><div class="flex items-center gap-3"><div id="home-rank-letter" class="rank-seal">E</div><div><h2 id="rank-title" class="font-bold font-serif text-xl">The Seeker</h2><p id="user-level" class="text-[10px] opacity-40 uppercase font-black">Level 1</p></div></div><span id="xp-text" class="text-[9px] opacity-40 font-black">0/120 XP</span></div><div class="w-full bg-black/5 h-[6px] rounded-full overflow-hidden mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div></div></div>
+            <div class="mb-8"><h3 class="text-[9px] font-black mb-3 opacity-60 uppercase tracking-[0.4em] px-2">Guild Board</h3><div class="flex overflow-x-auto gap-4 px-2 pb-2" id="quest-board-container"></div></div>
+            <div class="px-2 mb-8" onclick="openProfile()"><div class="grimoire-card p-6"><div class="flex justify-between items-end mb-2"><div class="flex items-center gap-3"><div id="home-rank-letter" class="rank-seal">E</div><div><h2 id="rank-title" class="font-bold font-serif text-xl">The Seeker</h2><p id="user-level" class="text-[10px] opacity-40 uppercase font-black">Level 1</p></div></div><span id="xp-text" class="text-[9px] opacity-40 font-black">0/120 XP</span></div><div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div></div></div>
+            <div class="px-2 mb-10"><div onclick="openBuilder()" class="grimoire-card p-6 flex justify-between items-center bg-white/60 cursor-pointer"><div><p class="font-bold font-serif text-lg">Custom Expedition</p><p class="text-[8px] opacity-40 uppercase">Draft your own arts</p></div><div class="pill bg-black text-white">Draft</div></div></div>
+            <div id="active-expeditions-container" class="mt-8 px-2 hidden"><h3 class="text-[9px] font-black opacity-60 uppercase mb-4">Saved Expeditions</h3><div id="expedition-list" class="space-y-4"></div></div>
+        </div>
+    </div>
 
-            <div class="px-4 mb-10"><div onclick="openBuilder()" class="grimoire-card p-6 flex justify-between items-center bg-white/60 cursor-pointer"><div><p class="font-bold font-serif text-lg">Custom Expedition</p><p class="text-[8px] opacity-40 uppercase">Draft your own arts</p></div><div class="pill bg-black text-white">Draft</div></div></div>
-            <div id="active-expeditions-container" class="mt-8 px-4 hidden"><h3 class="text-[9px] font-black opacity-60 uppercase mb-4">Saved Expeditions</h3><div id="expedition-list" class="space-y-4"></div></div>
+    <div id="selection-ui" class="fixed inset-0 bg-[#F2EBDC] z-[60] p-6 hidden flex flex-col">
+        <header class="mb-4 flex justify-between items-center pt-6 px-2 shrink-0"><h2 class="text-3xl font-bold italic font-serif uppercase">The Builder</h2><div onclick="closeBuilder()" class="pill">Close</div></header>
+        <div id="exercise-list" class="flex-1 overflow-y-auto px-2 mb-4 pb-10"></div>
+        <div class="pt-4 shrink-0 bg-[#F2EBDC] border-t border-black/5 pb-[env(safe-area-inset-bottom)]">
+            <input type="text" id="arc-name-input" placeholder="Expedition Name" class="w-full text-center py-4 mb-2 text-xl font-bold uppercase tracking-widest focus:outline-none bg-transparent">
+            <div onclick="saveAndStartArc()" class="btn-primary italic">Commence</div>
         </div>
     </div>
 
     <div id="workout-ui" class="fixed inset-0 bg-[#F2EBDC] z-[70] p-6 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-8 mb-6"><div onclick="retreatClick()" class="pill text-red-800">Retreat</div><span id="global-clock" class="text-xs font-black">00:00</span><div onclick="openSwapModal()" class="pill">Swap</div></header>
-        <div class="flex-1 overflow-y-auto">
+        <header class="flex justify-between items-center pt-8 mb-6 shrink-0"><div onclick="retreatClick()" class="pill text-red-800">Retreat</div><span id="global-clock" class="text-xs font-black">00:00</span><div onclick="openSwapModal()" class="pill">Swap</div></header>
+        <div class="flex-1 overflow-y-auto px-2">
             <div class="w-full h-52 grimoire-card mb-6 overflow-hidden flex items-center justify-center border-2 border-black/5"><img id="active-character" class="w-full h-full object-cover mix-blend-multiply opacity-80" onerror="this.style.opacity=0"></div>
             <h2 id="ex-name" class="text-2xl font-bold font-serif italic">---</h2>
             <p id="ex-sub" class="text-xs opacity-40 border-b border-black/5 pb-4 mb-6">---</p>
@@ -73,24 +81,18 @@
             <button onclick="logSet()" class="w-full btn-endure mb-10">Endure</button>
             <div id="trial-history" class="space-y-2 pb-10"></div>
         </div>
-        <footer class="pt-4 flex gap-4 border-t border-black/5 pb-[calc(12px + env(safe-area-inset-bottom))]">
+        <footer class="pt-4 flex gap-4 border-t border-black/5 shrink-0 pb-[calc(12px + env(safe-area-inset-bottom))]">
             <div id="progress-text" class="flex-1 text-center text-[10px] opacity-30 font-black uppercase">1 / 4</div>
             <div onclick="nextArt()" class="flex-[2] btn-primary py-4 text-xs">Advance</div>
         </footer>
     </div>
 
-    <div id="chronicles-window" class="fixed inset-0 bg-[#F2EBDC] z-[90] p-6 hidden flex flex-col">
-        <header class="flex justify-between items-center pt-8 mb-8"><h2 class="text-3xl font-serif italic">Chronicles</h2><div onclick="closeChronicles()" class="pill">Back</div></header>
-        <div id="chronicles-list" class="space-y-4 overflow-y-auto pb-10"></div>
+    <div id="profile-window" class="fixed inset-0 bg-[#F2EBDC] z-[80] p-6 hidden flex flex-col">
+        <header class="flex justify-between items-center pt-8 mb-8 shrink-0"><h2 class="text-3xl font-serif italic">The Status</h2><div onclick="closeProfile()" class="pill">Back</div></header>
+        <div id="chronicles-list" class="flex-1 overflow-y-auto space-y-4 pb-10"></div>
     </div>
 
     <div id="timer-bar"><div class="text-center mb-8"><span id="timer-display" class="text-8xl font-serif">60</span><p class="text-[10px] opacity-40 uppercase mt-4 tracking-widest">Stamina Recovery</p></div><div onclick="skipTimer()" class="text-center py-4 text-[10px] opacity-40 font-black uppercase tracking-widest">Awaken</div></div>
-
-    <div id="retreat-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-[340px] bg-[#F2EBDC] border-2 border-black p-8 rounded-[24px] z-[10000] hidden flex-col">
-        <h2 class="text-2xl font-bold font-serif text-center uppercase">Abandon Expedition?</h2>
-        <div onclick="cancelRetreat()" class="btn-primary mt-8 mb-4">Endure</div>
-        <div onclick="confirmRetreat()" class="text-center text-[12px] font-black text-red-800 p-4 uppercase tracking-widest">Flee</div>
-    </div>
 
     <script>
         const CONFIG = { baseXp: 100, xpScaling: 20 };
@@ -104,12 +106,14 @@
             { en: "Lateral Raises", group: "Shoulders", equip: "dumbbell" }, { en: "Barbell Squat", group: "Legs", equip: "barbell" },
             { en: "Leg Press", group: "Legs", equip: "machine" }, { en: "Romanian Deadlift", group: "Legs", equip: "barbell" },
             { en: "Tricep Pushdown", group: "Arms", equip: "cable" }, { en: "Bicep Curls", group: "Arms", equip: "dumbbell" },
-            { en: "Plank", group: "Core", equip: "bodyweight" }, { en: "Leg Raises", group: "Core", equip: "bodyweight" }
+            { en: "Plank", group: "Core", equip: "bodyweight" }, { en: "Leg Raises", group: "Core", equip: "bodyweight" },
+            { en: "Deadlift", group: "Back", equip: "barbell" }, { en: "Arnold Press", group: "Shoulders", equip: "dumbbell" }
         ];
 
         const QUESTS = [
-            { id: 'q1', name: 'Clear the Cellar', rank: 'Novice', arts: ['Pushups', 'Barbell Squat', 'Bicep Curls', 'Plank'] },
-            { id: 'q2', name: 'Forge Iron Golem', rank: 'Adept', arts: ['Barbell Bench Press', 'Overhead Press', 'Tricep Pushdown', 'Lateral Raises'] }
+            { id: 'q1', name: 'Clear Cellar', rank: 'Novice', arts: ['Pushups', 'Barbell Squat', 'Bicep Curls', 'Plank'] },
+            { id: 'q2', name: 'Iron Golem', rank: 'Adept', arts: ['Barbell Bench Press', 'Overhead Press', 'Tricep Pushdown', 'Lateral Raises'] },
+            { id: 'q3', name: 'Behemoth', rank: 'Veteran', arts: ['Deadlift', 'Barbell Squat', 'Barbell Bench Press', 'Barbell Row'] }
         ];
 
         let state = {
@@ -118,14 +122,14 @@
             xp: parseInt(localStorage.getItem('grimoire-total-xp')) || 0
         };
 
-        let activeEx = [], currentIdx = 0, sessionLog = [], globalSec = 0, globalInt, timerInt;
+        let selectedArts = [], activeEx = [], currentIdx = 0, sessionLog = [], globalSec = 0, globalInt, timerInt;
 
         window.onload = () => {
             if (!state.name) { document.getElementById('onboarding').classList.remove('hidden'); }
             else { 
                 document.getElementById('display-name').textContent = state.name;
                 document.getElementById('home-screen').classList.remove('hidden');
-                updateUI(); buildBoard();
+                updateUI(); buildBoard(); renderExpeditions();
             }
         };
 
@@ -134,9 +138,8 @@
             const rKey = state.level >= 40 ? 'A' : state.level >= 30 ? 'B' : state.level >= 20 ? 'C' : state.level >= 10 ? 'D' : 'E';
             document.getElementById('rank-title').textContent = RANKS[rKey];
             document.getElementById('user-level').textContent = `Level ${state.level}`;
-            const curXp = state.xp % req;
-            document.getElementById('xp-text').textContent = `${curXp} / ${req} XP`;
-            document.getElementById('xp-bar-fill').style.width = `${(curXp / req) * 100}%`;
+            document.getElementById('xp-text').textContent = `${state.xp % req} / ${req} XP`;
+            document.getElementById('xp-bar-fill').style.width = `${((state.xp % req) / req) * 100}%`;
             localStorage.setItem('grimoire-level', state.level);
             localStorage.setItem('grimoire-total-xp', state.xp);
         }
@@ -153,20 +156,42 @@
 
         function startExById(id) {
             const q = QUESTS.find(x => x.id === id);
-            const arts = q.arts.map(n => fullLibrary.find(l => l.en === n));
-            startWorkout(arts);
+            startWorkout(q.arts.map(n => fullLibrary.find(l => l.en === n)));
+        }
+
+        function openBuilder() { 
+            selectedArts = []; renderBuilderList();
+            document.getElementById('selection-ui').classList.remove('hidden'); 
+        }
+        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
+
+        function renderBuilderList() {
+            const list = document.getElementById('exercise-list'); list.innerHTML = '';
+            fullLibrary.forEach(art => {
+                const selIdx = selectedArts.findIndex(s => s.en === art.en);
+                const card = document.createElement('div');
+                card.className = "grimoire-card p-6 mb-4 flex justify-between items-center relative";
+                if(selIdx > -1) card.innerHTML += `<div class="order-badge">${selIdx + 1}</div>`;
+                card.onclick = () => { if(selIdx > -1) { selectedArts.splice(selIdx, 1); } else { selectedArts.push(art); } renderBuilderList(); };
+                card.innerHTML += `<div><p class="font-bold">${art.en}</p><p class="text-[8px] opacity-40 uppercase">${art.equip}</p></div>`;
+                list.appendChild(card);
+            });
+        }
+
+        function saveAndStartArc() {
+            const name = document.getElementById('arc-name-input').value || "Custom Expedition";
+            const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]");
+            arcs.push({ name, arts: selectedArts }); localStorage.setItem('grimoire-arcs', JSON.stringify(arcs));
+            startWorkout(selectedArts);
         }
 
         function startWorkout(arts) {
             activeEx = arts; currentIdx = 0; sessionLog = []; globalSec = 0;
             document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('selection-ui').classList.add('hidden');
             document.getElementById('workout-ui').classList.remove('hidden');
             resetTrial();
-            globalInt = setInterval(() => {
-                globalSec++;
-                const m = Math.floor(globalSec/60).toString().padStart(2,'0'), s = (globalSec%60).toString().padStart(2,'0');
-                document.getElementById('global-clock').textContent = `${m}:${s}`;
-            }, 1000);
+            globalInt = setInterval(() => { globalSec++; const m = Math.floor(globalSec/60).toString().padStart(2,'0'), s = (globalSec%60).toString().padStart(2,'0'); document.getElementById('global-clock').textContent = `${m}:${s}`; }, 1000);
         }
 
         function resetTrial() {
@@ -175,52 +200,32 @@
             document.getElementById('ex-sub').textContent = art.group.toUpperCase();
             document.getElementById('progress-text').textContent = `${currentIdx+1} / ${activeEx.length}`;
             document.getElementById('trial-history').innerHTML = '';
-            document.getElementById('weight-input').value = "";
-            document.getElementById('reps-input').value = "";
+            document.getElementById('active-character').src = `${art.group.toLowerCase()}.png`;
             calculatePlates();
         }
 
         function logSet() {
-            const w = document.getElementById('weight-input').value || 0;
-            const r = document.getElementById('reps-input').value || 0;
+            const w = document.getElementById('weight-input').value || 0, r = document.getElementById('reps-input').value || 0;
             sessionLog.push({ art: activeEx[currentIdx].en, w, r });
-            const row = document.createElement('div');
-            row.className = "flex justify-between text-[11px] font-black uppercase opacity-40 border-b border-black/5 pb-2";
+            const row = document.createElement('div'); row.className = "flex justify-between text-xs opacity-50 border-b pb-2 mb-2";
             row.innerHTML = `<span>Trial Log</span><span>${w}kg x ${r}</span>`;
             document.getElementById('trial-history').prepend(row);
-            state.xp += 10;
-            if (state.xp % (CONFIG.baseXp + (state.level * CONFIG.xpScaling)) === 0) state.level++;
-            updateUI();
-            startTimer(60);
+            state.xp += 10; updateUI(); startTimer(60);
         }
 
         function startTimer(s) {
-            clearInterval(timerInt);
-            let t = s;
+            clearInterval(timerInt); let t = s;
             document.getElementById('timer-bar').classList.add('show');
-            document.getElementById('ui-shield').classList.remove('hidden');
             document.getElementById('theme-meta').setAttribute('content', '#2B2B2B');
             document.getElementById('timer-display').textContent = t;
-            timerInt = setInterval(() => {
-                t--;
-                document.getElementById('timer-display').textContent = t;
-                if (t <= 0) skipTimer();
-            }, 1000);
+            timerInt = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if (t <= 0) skipTimer(); }, 1000);
         }
 
-        function skipTimer() {
-            clearInterval(timerInt);
-            document.getElementById('timer-bar').classList.remove('show');
-            document.getElementById('ui-shield').classList.add('hidden');
-            document.getElementById('theme-meta').setAttribute('content', '#F2EBDC');
-        }
+        function skipTimer() { clearInterval(timerInt); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('theme-meta').setAttribute('content', '#F2EBDC'); }
 
-        function nextArt() {
-            if (currentIdx < activeEx.length - 1) { currentIdx++; resetTrial(); }
-            else { concludeExpedition(); }
-        }
+        function nextArt() { if (currentIdx < activeEx.length - 1) { currentIdx++; resetTrial(); } else { concludeEx(); } }
 
-        function concludeExpedition() {
+        function concludeEx() {
             clearInterval(globalInt);
             const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
             ch.unshift({ date: new Date().toLocaleDateString(), arts: sessionLog, time: document.getElementById('global-clock').textContent });
@@ -228,47 +233,30 @@
             location.reload();
         }
 
-        function retreatClick() {
-            document.getElementById('ui-shield').classList.remove('hidden');
-            document.getElementById('retreat-modal').classList.remove('hidden');
+        function retreatClick() { if(confirm("Abandon Expedition?")) location.reload(); }
+        function openProfile() { 
+            const list = document.getElementById('chronicles-list');
+            const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
+            list.innerHTML = ch.map(c => `<div class="grimoire-card p-5"><div class="flex justify-between border-b pb-2 mb-2 font-serif italic"><span>Expedition</span><span>${c.date}</span></div><div class="space-y-1">${c.arts.map(a => `<div class="flex justify-between text-[10px] opacity-60"><span>${a.art}</span><span>${a.w}kg x ${a.r}</span></div>`).join('')}</div><p class="text-[8px] opacity-40 uppercase mt-2">Duration: ${c.time}</p></div>`).join('') || '<p class="text-center opacity-40 py-10 uppercase text-[10px]">The Ledger is Empty</p>';
+            document.getElementById('profile-window').classList.remove('hidden'); 
         }
-        function cancelRetreat() {
-            document.getElementById('ui-shield').classList.add('hidden');
-            document.getElementById('retreat-modal').classList.add('hidden');
+        function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
+        function renderExpeditions() {
+            const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]");
+            if(arcs.length) {
+                document.getElementById('active-expeditions-container').classList.remove('hidden');
+                document.getElementById('expedition-list').innerHTML = arcs.map((a,i) => `<div onclick="startWorkout(JSON.parse(localStorage.getItem('grimoire-arcs'))[${i}].arts)" class="grimoire-card p-6 flex justify-between items-center"><div><p class="font-bold">${a.name}</p><p class="text-[8px] opacity-40 uppercase">${a.arts.length} Arts</p></div><div class="pill bg-black text-white">Commence</div></div>`).join('');
+            }
         }
-        function confirmRetreat() { location.reload(); }
-
         function calculatePlates() {
             const ui = document.getElementById('plate-math-ui'), display = document.getElementById('plate-display'), art = activeEx[currentIdx];
             if (art.equip !== 'barbell') { ui.classList.add('hidden'); return; }
             ui.classList.remove('hidden'); ui.classList.add('flex');
-            const weight = parseFloat(document.getElementById('weight-input').value) || 0;
-            let perSide = (weight - 20) / 2;
-            const plates = [20, 10, 5, 2.5, 1.25];
-            let load = [];
-            for (let p of plates) { while (perSide >= p) { load.push(p); perSide -= p; } }
-            display.innerHTML = load.map(p => `<span class="px-2 py-1 bg-black text-white rounded text-[8px] font-bold">${p}</span>`).join('') || '<span class="text-[9px] opacity-40">Bar Only</span>';
+            let perSide = (parseFloat(document.getElementById('weight-input').value || 0) - 20) / 2;
+            display.innerHTML = [20,10,5,2.5,1.25].reduce((a,p)=>{while(perSide>=p){a.push(p); perSide-=p;} return a;}, []).map(p=>`<span class="px-2 py-1 bg-black text-white rounded text-[8px] font-bold">${p}</span>`).join('') || 'Bar Only';
         }
-
-        function openChronicles() {
-            const list = document.getElementById('chronicles-list');
-            const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
-            list.innerHTML = ch.map(c => `
-                <div class="grimoire-card p-5">
-                    <div class="flex justify-between border-b pb-2 mb-2 font-serif italic"><span>Expedition</span><span>${c.date}</span></div>
-                    <div class="space-y-1">${c.arts.map(a => `<div class="flex justify-between text-[10px] opacity-60"><span>${a.art}</span><span>${a.w}kg x ${a.r}</span></div>`).join('')}</div>
-                    <p class="text-[8px] opacity-40 uppercase mt-2">Duration: ${c.time}</p>
-                </div>
-            `).join('') || '<p class="text-center opacity-40 py-10 uppercase text-[10px]">The Ledger is Empty</p>';
-            document.getElementById('chronicles-window').classList.remove('hidden');
-        }
-
-        function closeChronicles() { document.getElementById('chronicles-window').classList.add('hidden'); }
-        function openProfile() { openChronicles(); }
         function saveName() { const n = document.getElementById('name-input').value; if(n) { localStorage.setItem('grimoire-name', n); location.reload(); } }
         function resetApp() { if(confirm("Burn Grimoire?")) { localStorage.clear(); location.reload(); } }
-        
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
     </script>
 </body>
 </html>
