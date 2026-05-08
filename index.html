@@ -18,49 +18,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Lora:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --parchment: #F2EBDC;
-            --ink: #2B2B2B;
-            --oxblood: #7B1818;
-            --moss: #4A5D4E;
-            --iron: #333333;
-        }
-
+        :root { --parchment: #F2EBDC; --ink: #2B2B2B; --oxblood: #7B1818; --moss: #4A5D4E; --iron: #333333; }
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
         *::-webkit-scrollbar { display: none !important; width: 0 !important; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         
-        html, body { 
-            overscroll-behavior: none !important; touch-action: pan-y;
-            background-color: var(--parchment); 
-            color: var(--ink); 
-            font-family: 'Inter', sans-serif;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.04; pointer-events: none;
-            background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
-            z-index: 9999;
-        }
-
+        html, body { overscroll-behavior: none !important; touch-action: pan-y; background-color: var(--parchment); color: var(--ink); font-family: 'Inter', sans-serif; height: 100%; overflow: hidden; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.04; pointer-events: none; background-image: url("https://www.transparenttextures.com/patterns/stardust.png"); z-index: 9999; }
+        
         h1, h2, h3, .font-serif { font-family: 'Lora', serif; }
         input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: var(--ink) !important; background: transparent !important; text-align: center; font-family: 'Lora', serif; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
         .horizontal-scroll { display: flex; overflow-x: auto; gap: 0.5rem; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
-        .horizontal-scroll::-webkit-scrollbar { display: none; }
-
-        .grimoire-card { 
-            background: rgba(255, 255, 255, 0.4); 
-            border: 1px solid rgba(0,0,0,0.1); 
-            border-radius: 24px; 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
-            transition: 0.3s;
-        }
-
+        
+        .grimoire-card { background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(0,0,0,0.1); border-radius: 24px; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); transition: 0.3s; }
         .btn-primary { background: var(--iron); color: var(--parchment); border-radius: 18px; padding: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; transition: 0.2s; cursor: pointer; }
         .btn-endure { background: var(--oxblood); color: white; border-radius: 18px; padding: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; text-align: center; box-shadow: 0 4px 0px #4d0f0f; cursor: pointer; }
         .btn-endure:active { transform: translateY(2px); box-shadow: 0 2px 0px #4d0f0f; }
@@ -74,4 +47,452 @@
         #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--iron); color: var(--parchment); padding: 40px 20px; transform: translateY(100%); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; border-radius: 40px 40px 0 0; }
         #timer-bar.show { transform: translateY(0); }
 
-        .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter
+        .pill { background: rgba(0,0,0,0.05); color: var(--ink); padding: 8px 16px; border-radius: 100px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s;}
+        .pill.active { background: var(--iron); color: var(--parchment); }
+        
+        .press-effect { transition: transform 0.1s; }
+        .is-pressed { transform: scale(0.97); }
+
+        #system-overlay { position: fixed; inset: 0; z-index: 20000; background: var(--iron); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--parchment); opacity: 0; transition: 0.5s; }
+        #system-overlay.active { display: flex; opacity: 1; }
+        
+        #limit-break-overlay { position: fixed; inset: 0; z-index: 21000; background: var(--parchment); color: var(--ink); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 0.1s; }
+        #limit-break-overlay.active { display: flex; opacity: 1; animation: limitFlash 2.5s ease-out forwards; }
+        @keyframes limitFlash { 0% { background: var(--ink); color: var(--parchment); transform: scale(1.05); } 10% { background: var(--parchment); color: var(--ink); transform: scale(1); } 90% { opacity: 1; } 100% { opacity: 0; } }
+
+        #ui-shield { position: fixed; inset: 0; z-index: 9998; display: none; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
+        #ui-shield.active { display: block; }
+
+        #retreat-modal, #purge-modal, #swap-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); width: 85%; max-width: 340px; background: var(--parchment); border: 2px solid var(--iron); border-radius: 24px; padding: 32px; z-index: 10000; display: none; opacity: 0; transition: 0.3s; flex-direction: column; }
+        #retreat-modal.show, #purge-modal.show, #swap-modal.show { display: flex; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    </style>
+</head>
+<body class="p-6">
+
+    <div id="limit-break-overlay"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2 font-serif">Mortal Limit Broken</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-50">New Peak Reached</p><p id="lb-record" class="text-3xl font-bold mt-6 font-serif">---</p></div>
+    
+    <div id="system-overlay"><p class="text-[10px] uppercase tracking-[0.4em] opacity-60 mb-4">The Grimoire Updates</p><h1 id="sys-title" class="text-4xl font-bold italic mb-2 font-serif">---</h1><p id="sys-subtitle" class="text-sm italic opacity-80">---</p></div>
+    
+    <div id="ui-shield"></div>
+
+    <div id="retreat-modal"><h2 class="text-2xl font-bold tracking-tighter mb-2 uppercase text-center font-serif">Abandon Expedition?</h2><div onclick="cancelRetreat()" class="btn-primary mb-4 press-effect mt-8">Endure</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-800 py-4 cursor-pointer text-center">Flee</div></div>
+    
+    <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-bold tracking-tighter uppercase font-serif">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3 max-h-64"></div></div>
+
+    <div id="summary-ui" class="fixed inset-0 bg-var(--iron) bg-[#2B2B2B] z-[150] p-6 hidden flex flex-col items-center justify-center text-[#F2EBDC]">
+        <h1 class="text-5xl font-bold tracking-tighter uppercase italic mb-2 text-center font-serif">Expedition Cleared</h1>
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-50 mb-12 text-center" id="summary-arc-name">---</p>
+        <div class="w-full max-w-sm flex flex-col gap-4 mb-12">
+            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Total Tonnage</span><span class="text-2xl font-bold font-serif" id="summary-volume">0 kg</span></div>
+            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Records Broken</span><span class="text-2xl font-bold text-[#7B1818]" id="summary-prs">0</span></div>
+            <div class="bg-white/5 rounded-[24px] border border-white/10 p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Time Elapsed</span><span class="text-2xl font-bold opacity-80 font-serif" id="summary-time">00:00</span></div>
+        </div>
+        <div onclick="closeSummary()" class="bg-[#F2EBDC] text-[#2B2B2B] rounded-[18px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer">Return to Grimoire</div>
+    </div>
+
+    <div id="onboarding" class="fixed inset-0 bg-[#F2EBDC] z-[1000] p-10 flex flex-col hidden">
+        <div class="flex-1 flex flex-col justify-center">
+            <h1 class="text-5xl font-bold tracking-tighter mb-4 italic font-serif">Iron Grimoire.</h1>
+            <p class="text-xs uppercase tracking-widest opacity-60 mb-12">Inscribe your name into the ledger.</p>
+            <input type="text" id="user-name-input" placeholder="Warrior Name" class="text-4xl border-b-2 border-black/10 py-4 w-full focus:outline-none">
+            <div onclick="saveName()" class="btn-primary mt-16 press-effect">Initialize</div>
+        </div>
+    </div>
+
+    <div id="home-screen" class="flex flex-col h-full hidden">
+        <header class="mb-10 pt-8 flex justify-between items-start px-2">
+            <div>
+                <h1 id="time-greeting" class="text-[10px] tracking-[0.4em] uppercase opacity-40 mb-2 font-black">Timeline: Dawn</h1>
+                <h2 class="text-4xl font-bold tracking-tighter italic font-serif">Warrior, <span id="display-name" class="opacity-30">---</span></h2>
+            </div>
+        </header>
+
+        <div class="px-2 mb-8">
+            <div class="grimoire-card p-6 relative overflow-hidden" onclick="openProfile()">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="flex items-center gap-3">
+                        <div id="home-rank-letter" class="rank-seal">E</div>
+                        <div>
+                            <h2 id="user-rank-title" class="text-xl font-bold tracking-tighter font-serif">The Seeker</h2>
+                            <p id="user-level" class="text-[10px] font-black uppercase opacity-40 mt-1">Level 1 <span class="ml-1">▶</span></p>
+                        </div>
+                    </div>
+                    <span id="xp-text" class="text-[9px] font-black opacity-40 uppercase tracking-widest">0 / 120 XP</span>
+                </div>
+                <div class="xp-container mt-4"><div id="xp-bar-fill" class="xp-bar"></div></div>
+            </div>
+        </div>
+
+        <div class="scroll-container">
+            <div class="mb-10 px-2">
+                <h3 class="text-[9px] font-black mb-4 opacity-60 uppercase tracking-[0.4em]">Active Expeditions</h3>
+                <div id="expedition-list" class="grid grid-cols-1 gap-4"></div>
+            </div>
+
+            <h3 class="text-[9px] font-black mb-6 opacity-60 uppercase tracking-[0.4em] px-2 text-center">Draft New Art</h3>
+            <div class="grid grid-cols-2 gap-4 px-2">
+                <div onclick="toggleArsenal('Chest')" id="btn-Chest" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Chest</div>
+                <div onclick="toggleArsenal('Back')" id="btn-Back" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Back</div>
+                <div onclick="toggleArsenal('Shoulders')" id="btn-Shoulders" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Shoulders</div>
+                <div onclick="toggleArsenal('Arms')" id="btn-Arms" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Arms</div>
+                <div onclick="toggleArsenal('Legs')" id="btn-Legs" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Legs</div>
+                <div onclick="toggleArsenal('Core')" id="btn-Core" class="grimoire-card p-8 text-center text-[10px] uppercase font-black opacity-60 border-2 border-transparent">Core</div>
+            </div>
+        </div>
+
+        <div id="synthesis-bar" class="fixed bottom-10 left-6 right-6 translate-y-[200%] transition-transform duration-500">
+            <div onclick="openBuilder()" class="btn-primary shadow-2xl">Prepare Expedition</div>
+        </div>
+    </div>
+
+    <div id="selection-ui" class="fixed inset-0 bg-[#F2EBDC] z-[60] p-6 hidden flex flex-col">
+        <header class="mb-4 flex justify-between items-center pt-6 px-2">
+            <h2 class="text-3xl font-bold tracking-tighter uppercase italic font-serif">The Builder</h2>
+            <div onclick="closeBuilder()" class="pill">Close</div>
+        </header>
+        
+        <div class="horizontal-scroll mb-4 px-2 shrink-0 pb-2 border-b border-black/5" id="equipment-filters">
+            <div onclick="setFilter('All')" id="flt-All" class="pill bg-[#333333] text-[#F2EBDC] shrink-0">All</div>
+            <div onclick="setFilter('bodyweight')" id="flt-bodyweight" class="pill shrink-0">Bodyweight</div>
+            <div onclick="setFilter('barbell')" id="flt-barbell" class="pill shrink-0">Barbell</div>
+            <div onclick="setFilter('dumbbell')" id="flt-dumbbell" class="pill shrink-0">Dumbbell</div>
+            <div onclick="setFilter('machine')" id="flt-machine" class="pill shrink-0">Machine</div>
+            <div onclick="setFilter('cable')" id="flt-cable" class="pill shrink-0">Cable</div>
+        </div>
+
+        <div id="exercise-list" class="scroll-container px-2 border-b border-black/5 mb-2"></div>
+        
+        <div class="pt-4 shrink-0">
+            <input type="text" id="arc-name-input" placeholder="Expedition Name" class="w-full text-center py-4 mb-4 text-xl font-bold uppercase tracking-widest focus:outline-none">
+            <div onclick="saveAndStartArc()" class="btn-primary italic mb-4">Commence the Trial</div>
+        </div>
+    </div>
+
+    <div id="workout-ui" class="fixed inset-0 bg-[#F2EBDC] z-[70] p-6 hidden flex flex-col">
+        <header class="flex justify-between items-center pt-8 px-2 mb-6">
+            <div onclick="retreatClick()" class="pill text-red-800 bg-red-100/50">Retreat</div>
+            <div class="flex flex-col items-center">
+                <span id="global-clock" class="text-xs font-black tracking-widest">00:00</span>
+                <span class="text-[7px] uppercase opacity-40 font-black">Time Elapsed</span>
+            </div>
+            <div onclick="openSwapModal()" class="pill">Swap Art</div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto px-2 pb-6">
+            <div class="w-full h-56 grimoire-card mb-6 overflow-hidden relative flex items-center justify-center border-2 border-black/5 shadow-inner">
+                <img id="active-character" src="default.png" class="w-full h-full object-cover object-top mix-blend-multiply opacity-80 scale-110" onerror="this.style.opacity=0">
+                <div class="absolute bottom-4 px-4 py-1 bg-white/60 backdrop-blur-sm border border-black/10 rounded-full text-[9px] font-black uppercase tracking-widest" id="target-muscle">---</div>
+            </div>
+
+            <div class="flex justify-between items-start mb-1">
+                <h2 id="ex-name" class="text-2xl font-bold tracking-tighter italic font-serif">---</h2>
+                <span id="trial-counter" class="text-[9px] font-black opacity-40 uppercase tracking-[0.2em] mt-2">Trial 1</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-black/5 pb-4 mb-6">
+                <p id="ex-sub" class="text-xs italic opacity-40">---</p>
+                <span id="history-label" class="text-[9px] font-black text-white bg-black px-3 py-1 rounded-full uppercase">NEW ART</span>
+            </div>
+
+            <div id="echo-box" class="flex justify-center mb-6">
+                <span id="echo-text" class="text-[9px] font-black opacity-40 uppercase tracking-[0.3em] bg-black/5 px-4 py-2 rounded-full border border-black/5">Echo of the Past: ---</span>
+            </div>
+
+            <div class="flex justify-end mb-4">
+                <div id="btn-warmup" onclick="toggleWarmup()" class="pill border border-black/10">Warm-Up: OFF</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-10 mb-8" id="reps-ui">
+                <div class="text-center">
+                    <label class="text-[9px] uppercase opacity-40 font-black block mb-2 tracking-widest">Load (KG)</label>
+                    <input type="number" inputmode="decimal" pattern="[0-9]*" id="weight-input" oninput="calculatePlates()" placeholder="0" class="text-5xl w-full focus:outline-none font-bold">
+                </div>
+                <div class="text-center">
+                    <label class="text-[9px] uppercase opacity-40 font-black block mb-2 tracking-widest">Repetitions</label>
+                    <input type="number" inputmode="decimal" pattern="[0-9]*" id="reps-input" placeholder="0" class="text-5xl w-full focus:outline-none font-bold">
+                </div>
+            </div>
+
+            <div id="time-ui" class="hidden flex-col items-center mb-10 w-full">
+                <div class="text-5xl font-bold mb-6 font-serif" id="stopwatch-display">00:00</div>
+                <div class="flex gap-4 w-full px-4">
+                    <div onclick="toggleStopwatch()" id="btn-stopwatch" class="flex-1 pill py-4 font-bold text-xs text-center border border-black/10">Start Timer</div>
+                    <div onclick="resetStopwatch()" class="pill py-4 font-bold text-xs text-center px-6">Reset</div>
+                </div>
+                <input type="hidden" id="time-input" value="0">
+            </div>
+
+            <div id="plate-math-ui" class="hidden flex-col items-center mb-8 w-full">
+                <div onclick="cycleBar()" id="bar-weight" class="pill mb-3">Bar: 20kg</div>
+                <div id="plate-display" class="flex gap-1 flex-wrap justify-center"></div>
+            </div>
+
+            <button onclick="logSet()" class="w-full btn-endure mb-10">Endure</button>
+
+            <div id="trial-history" class="space-y-3 pb-4"></div>
+        </div>
+
+        <footer class="pt-4 flex gap-4 w-full bg-[#F2EBDC] border-t border-black/5 pb-2 shrink-0">
+            <div id="back-btn" onclick="prevArt()" class="w-20 py-6 rounded-2xl bg-black/5 text-center text-[10px] font-bold uppercase opacity-60 hidden cursor-pointer flex items-center justify-center">Back</div>
+            <div id="progress-text" class="flex-1 py-6 text-center text-[10px] font-black opacity-30 uppercase tracking-[0.2em] flex items-center justify-center">1 / 4</div>
+            <div id="next-btn" onclick="nextArt()" class="flex-[2] py-6 rounded-2xl bg-[#333333] text-[#F2EBDC] text-center text-xs font-black uppercase tracking-widest cursor-pointer shadow-md flex items-center justify-center">Advance</div>
+        </footer>
+    </div>
+
+    <div id="profile-window" class="fixed inset-0 bg-[#F2EBDC] z-[80] p-6 hidden flex flex-col">
+        <header class="mb-8 flex justify-between items-center pt-8 px-2">
+            <h2 class="text-3xl font-bold italic uppercase font-serif">The Status</h2>
+            <div onclick="closeProfile()" class="pill">Close</div>
+        </header>
+        <div class="scroll-container flex flex-col items-center">
+            <div class="w-full max-w-[280px] h-[360px] grimoire-card mb-8 overflow-hidden relative border-2 border-black/5">
+                <img id="profile-avatar" src="rank-e.png" class="w-full h-full object-cover object-top mix-blend-multiply scale-110" onerror="this.style.opacity=0">
+            </div>
+            <h1 id="profile-name" class="text-4xl font-bold italic mb-1 uppercase tracking-tighter font-serif">---</h1>
+            <div class="flex items-center gap-2 mb-2">
+                <img id="profile-rank-icon" src="icon-rank-e.png" class="w-6 h-6 object-contain mix-blend-multiply opacity-80" onerror="this.style.display='none'">
+                <p id="profile-rank" class="text-lg font-bold italic opacity-60 font-serif">Rank E • Seeker</p>
+            </div>
+            <p id="profile-sub" class="text-[9px] font-black uppercase opacity-30 text-center px-10 mb-10 leading-loose">---</p>
+            
+            <div class="w-full px-6 mb-10">
+                <div class="flex justify-between items-end mb-2">
+                    <span id="profile-level-txt" class="text-xs font-bold uppercase">Level 1</span>
+                    <span id="profile-xp-txt" class="text-[9px] font-black opacity-30 uppercase tracking-widest">0 / 120 XP</span>
+                </div>
+                <div class="xp-container"><div id="profile-xp-bar" class="xp-bar"></div></div>
+            </div>
+
+            <div class="flex gap-4 w-full px-6 mb-10">
+                <div class="grimoire-card p-6 flex-1 text-center">
+                    <p class="text-3xl font-bold italic font-serif" id="stat-quests">0</p>
+                    <p class="text-[8px] font-black uppercase opacity-40 mt-1">Expeditions</p>
+                </div>
+                <div class="grimoire-card p-6 flex-1 text-center">
+                    <p class="text-3xl font-bold italic font-serif" id="stat-volume">0</p>
+                    <p class="text-[8px] font-black uppercase opacity-40 mt-1">Tonnage</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="timer-bar">
+        <div class="flex gap-2 justify-center mb-8">
+            <div onclick="adjustTimer(30)" class="pill bg-white/10 text-white">30s</div>
+            <div onclick="adjustTimer(60)" class="pill bg-white/20 text-white shadow-lg">60s</div>
+            <div onclick="adjustTimer(120)" class="pill bg-white/10 text-white">120s</div>
+        </div>
+        <div class="text-center mb-8">
+            <span id="timer-display" class="text-8xl font-serif">60</span>
+            <p class="text-[9px] font-black uppercase tracking-[0.4em] opacity-40 mt-4">Stamina Recovery</p>
+        </div>
+        <div onclick="skipTimer()" class="text-center py-4 text-[10px] font-black uppercase tracking-widest opacity-40 cursor-pointer">Awaken</div>
+    </div>
+
+    <script>
+        const SYSTEM_CONFIG = { xpPerSet: 10, baseXp: 100, xpScaling: 20 };
+        const RANKS = { E: { title: "The Seeker", sub: "A mere mortal entering the struggle." }, D: { title: "The Disciple", sub: "The body begins to harden." }, C: { title: "The Practitioner", sub: "Power is taking root." }, B: { title: "The Adept", sub: "The iron is now part of your soul." }, A: { title: "The Ascendant", sub: "Mortal limits are a distant memory." }, S: { title: "The Transcendent", sub: "You have overridden reality itself." } };
+
+        const fullLibrary = [
+            { en: "Pushups", es: "Flexiones", group: "Chest", target: "Chest", equip: "bodyweight" }, { en: "Decline Pushups", es: "Flexiones Declinadas", group: "Chest", target: "Upper Chest", equip: "bodyweight" }, { en: "Incline Pushups", es: "Flexiones Inclinadas", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Chest Dips", es: "Fondos de Pecho", group: "Chest", target: "Lower Chest", equip: "bodyweight" }, { en: "Barbell Bench Press", es: "Press de Banca (Barra)", group: "Chest", target: "Chest", equip: "barbell" }, { en: "Incline Barbell Press", es: "Press Inclinado (Barra)", group: "Chest", target: "Upper Chest", equip: "barbell" }, { en: "Decline Barbell Press", es: "Press Declinado (Barra)", group: "Chest", target: "Lower Chest", equip: "barbell" }, { en: "Dumbbell Bench Press", es: "Press de Banca (Manc)", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Press", es: "Press Inclinado (Manc)", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Decline DB Press", es: "Press Declinado (Manc)", group: "Chest", target: "Lower Chest", equip: "dumbbell" }, { en: "Dumbbell Flys", es: "Aperturas con Mancuernas", group: "Chest", target: "Chest", equip: "dumbbell" }, { en: "Incline DB Flys", es: "Aperturas Inclinadas", group: "Chest", target: "Upper Chest", equip: "dumbbell" }, { en: "Pec Deck Fly", es: "Pec Deck / Contrator", group: "Chest", target: "Chest", equip: "machine" }, { en: "Machine Chest Press", es: "Press de Pecho Máquina", group: "Chest", target: "Chest", equip: "machine" }, { en: "Incline Machine Press", es: "Press Inclinado Máquina", group: "Chest", target: "Upper Chest", equip: "machine" }, { en: "Cable Crossovers", es: "Cruces en Polea", group: "Chest", target: "Chest", equip: "cable" }, { en: "Low-to-High Cable Fly", es: "Cruces Ascendentes", group: "Chest", target: "Upper Chest", equip: "cable" }, { en: "High-to-Low Cable Fly", es: "Cruces Descendentes", group: "Chest", target: "Lower Chest", equip: "cable" }, { en: "Dumbbell Pullover", es: "Pullover con Mancuerna", group: "Chest", target: "Chest", equip: "dumbbell" }, 
+            { en: "Pull-ups", es: "Dominadas Prinas", group: "Back", target: "Lats", equip: "bodyweight" }, { en: "Chin-ups", es: "Dominadas Supinas", group: "Back", target: "Lats / Biceps", equip: "bodyweight" }, { en: "Barbell Row", es: "Remo con Barra", group: "Back", target: "Back Thickness", equip: "barbell" }, { en: "Pendlay Row", es: "Remo Pendlay", group: "Back", target: "Mid Back", equip: "barbell" }, { en: "Dumbbell Row", es: "Remo a una mano", group: "Back", target: "Lats", equip: "dumbbell" }, { en: "Incline DB Row", es: "Remo Inclinado (Manc)", group: "Back", target: "Mid Back", equip: "dumbbell" }, { en: "Lat Pulldown", es: "Jalón al Pecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Reverse Grip Pulldown", es: "Jalón Supino", group: "Back", target: "Lats / Lower", equip: "cable" }, { en: "V-Bar Pulldown", es: "Jalón Agarre Estrecho", group: "Back", target: "Lats", equip: "cable" }, { en: "Seated Cable Row", es: "Remo Sentado Polea", group: "Back", target: "Mid Back", equip: "cable" }, { en: "Straight Arm Pulldown", es: "Jalón Brazos Rectos", group: "Back", target: "Lats", equip: "cable" }, { en: "T-Bar Row", es: "Remo en T", group: "Back", target: "Back Thickness", equip: "machine" }, { en: "Machine Row", es: "Remo en Máquina", group: "Back", target: "Mid Back", equip: "machine" }, { en: "Hyperextensions", es: "Hipers", group: "Back", target: "Lower Back", equip: "bodyweight" }, { en: "Deadlift", es: "Peso Muerto Tradicional", group: "Back", target: "Lower Back", equip: "barbell" }, 
+            { en: "Pike Pushups", es: "Flexiones Lucio", group: "Shoulders", target: "Front Delts", equip: "bodyweight" }, { en: "Overhead Press", es: "Press Militar (Barra)", group: "Shoulders", target: "Front Delts", equip: "barbell" }, { en: "Dumbbell Military Press", es: "Press Militar (Manc)", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Arnold Press", es: "Press Arnold", group: "Shoulders", target: "Shoulders", equip: "dumbbell" }, { en: "Machine Shoulder Press", es: "Press Hombros Máquina", group: "Shoulders", target: "Front Delts", equip: "machine" }, { en: "Lateral Raises", es: "Elevaciones Laterales", group: "Shoulders", target: "Side Delts", equip: "dumbbell" }, { en: "Cable Lateral Raises", es: "Laterales en Polea", group: "Shoulders", target: "Side Delts", equip: "cable" }, { en: "Machine Lateral Raises", es: "Laterales en Máquina", group: "Shoulders", target: "Side Delts", equip: "machine" }, { en: "Front Raises (DB)", es: "Elevaciones Frontales", group: "Shoulders", target: "Front Delts", equip: "dumbbell" }, { en: "Front Raises (Cable)", es: "Frontales en Polea", group: "Shoulders", target: "Front Delts", equip: "cable" }, { en: "Face Pulls", es: "Face Pulls", group: "Shoulders", target: "Rear Delts", equip: "cable" }, { en: "Reverse Pec Deck", es: "Pájaros en Máquina", group: "Shoulders", target: "Rear Delts", equip: "machine" }, { en: "DB Rear Delt Flys", es: "Pájaros con Mancuerna", group: "Shoulders", target: "Rear Delts", equip: "dumbbell" }, { en: "Dumbbell Shrugs", es: "Encogimientos (Manc)", group: "Shoulders", target: "Traps", equip: "dumbbell" }, { en: "Barbell Shrugs", es: "Encogimientos (Barra)", group: "Shoulders", target: "Traps", equip: "barbell" }, { en: "Upright Row (BB)", es: "Remo al Mentón (Barra)", group: "Shoulders", target: "Side Delts", equip: "barbell" }, { en: "Upright Row (Cable)", es: "Remo Mentón (Polea)", group: "Shoulders", target: "Side Delts", equip: "cable" }, 
+            { en: "Barbell Curl", es: "Curl con Barra", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "EZ Bar Curl", es: "Curl Barra EZ", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Alternating DB Curl", es: "Curl Alterno (Manc)", group: "Arms", target: "Biceps", equip: "dumbbell" }, { en: "Hammer Curls", es: "Curl Martillo", group: "Arms", target: "Brachialis", equip: "dumbbell" }, { en: "Concentration Curl", es: "Curl Concentrado", group: "Arms", target: "Biceps Peak", equip: "dumbbell" }, { en: "Incline DB Curl", es: "Curl Inclinado", group: "Arms", target: "Biceps Long Head", equip: "dumbbell" }, { en: "Preacher Curl (Machine)", es: "Curl Predicador", group: "Arms", target: "Biceps", equip: "machine" }, { en: "Preacher Curl (EZ)", es: "Curl Banco Scott", group: "Arms", target: "Biceps", equip: "barbell" }, { en: "Cable Bicep Curl", es: "Curl en Polea", group: "Arms", target: "Biceps", equip: "cable" }, { en: "Reverse Curl (EZ)", es: "Curl Inverso", group: "Arms", target: "Forearms", equip: "barbell" }, { en: "Tricep Dips", es: "Fondos de Tríceps", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Bench Dips", es: "Fondos en Banco", group: "Arms", target: "Triceps", equip: "bodyweight" }, { en: "Close Grip Bench", es: "Press Banca Cerrado", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Skullcrushers", es: "Rompecráneos", group: "Arms", target: "Triceps", equip: "barbell" }, { en: "Overhead DB Extension", es: "Extensión Copa (Manc)", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Kickbacks", es: "Patada de Tríceps", group: "Arms", target: "Triceps", equip: "dumbbell" }, { en: "Tricep Pushdown (Straight)", es: "Extensión Polea Alta", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Rope Pushdown", es: "Extensión con Cuerda", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Overhead Tricep Ext (Cable)", es: "Extensión Tras Nuca Polea", group: "Arms", target: "Triceps", equip: "cable" }, { en: "Machine Tricep Ext", es: "Extensión Tríceps Máquina", group: "Arms", target: "Triceps", equip: "machine" }, 
+            { en: "Bodyweight Squats", es: "Sentadillas Libres", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Walking Lunges", es: "Zancadas", group: "Legs", target: "Legs", equip: "bodyweight" }, { en: "Pistol Squats", es: "Sentadilla a 1 Pierna", group: "Legs", target: "Quads", equip: "bodyweight" }, { en: "Barbell Squats", es: "Sentadilla (Barra)", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Front Squat", es: "Sentadilla Frontal", group: "Legs", target: "Quads", equip: "barbell" }, { en: "Goblet Squat", es: "Sentadilla Goblet", group: "Legs", target: "Quads", equip: "dumbbell" }, { en: "Bulgarian Split Squat", es: "Sentadilla Búlgara", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Romanian Deadlift (Bar)", es: "Peso Muerto Rumano", group: "Legs", target: "Hamstrings", equip: "barbell" }, { en: "Romanian Deadlift (DB)", es: "PMR (Mancuernas)", group: "Legs", target: "Hamstrings", equip: "dumbbell" }, { en: "DB Lunges", es: "Zancadas con Mancuernas", group: "Legs", target: "Legs", equip: "dumbbell" }, { en: "Leg Press", es: "Prensa", group: "Legs", target: "Legs", equip: "machine" }, { en: "Hack Squat", es: "Sentadilla Hack", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Extension", es: "Extensión Cuádriceps", group: "Legs", target: "Quads", equip: "machine" }, { en: "Leg Curl (Seated)", es: "Curl Isquios Sentado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Leg Curl (Lying)", es: "Curl Isquios Tumbado", group: "Legs", target: "Hamstrings", equip: "machine" }, { en: "Hip Thrust", es: "Empuje de Cadera", group: "Legs", target: "Glutes", equip: "barbell" }, { en: "Standing Calf Raises", es: "Elevación Gemelos Pie", group: "Legs", target: "Calves", equip: "machine" }, { en: "Seated Calf Raises", es: "Elevación Gemelos Sentado", group: "Legs", target: "Calves", equip: "machine" }, 
+            { en: "Plank", es: "Plancha", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Upper Abs Crunch", es: "Crunch Abdominal", group: "Core", target: "Upper Abs", equip: "bodyweight" }, { en: "Leg Raises", es: "Elevación de Piernas", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Hanging Leg Raises", es: "Elevación Colgado", group: "Core", target: "Lower Abs", equip: "bodyweight" }, { en: "Russian Twists", es: "Giro Ruso", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "Bicycle Crunches", es: "Bicicleta", group: "Core", target: "Obliques", equip: "bodyweight" }, { en: "V-Ups", es: "Abdominales en V", group: "Core", target: "Abs", equip: "bodyweight" }, { en: "Mountain Climbers", es: "Escaladores", group: "Core", target: "Core", equip: "bodyweight", type: "time" }, { en: "Wall Sit", es: "Sentadilla Isométrica", group: "Legs", target: "Quads", equip: "bodyweight", type: "time" }, { en: "Cable Crunch", es: "Crunch en Polea", group: "Core", target: "Abs", equip: "cable" }, { en: "Woodchoppers", es: "Hachazos Polea", group: "Core", target: "Obliques", equip: "cable" }, { en: "Ab Machine", es: "Máquina de Abs", group: "Core", target: "Abs", equip: "machine" }
+        ];
+
+        let level = 1, totalXp = 0, userName = "", selectedGroups = [], selectedArts = [], activeExpedition = [], currentIdx = 0, currentTrial = 1, sessionLog = [];
+        let timerInterval, globalSeconds = 0, globalInterval, exStopwatchSeconds = 0, exStopwatchInterval = null, isStopwatchRunning = false;
+        let barWeightIdx = 0; const BAR_WEIGHTS = [20, 15, 10, 0];
+        let currentFilter = 'All'; let isWarmup = false; let currentSessionTonnage = 0; let currentSessionPRs = 0;
+
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+
+        window.onload = () => {
+            legacyMigration(); loadState();
+            if(!userName) { document.getElementById('onboarding').classList.remove('hidden'); } 
+            else { document.getElementById('display-name').textContent = userName; document.getElementById('home-screen').classList.remove('hidden'); updateLevelUI(); renderExpeditions(); }
+        };
+
+        function legacyMigration() {
+            ['zen-name', 'zen-total-xp', 'zen-level', 'zen-chronicles', 'zen-arcs'].forEach(k => { const v = localStorage.getItem(k); if(v) { localStorage.setItem(k.replace('zen-', 'grimoire-'), v); localStorage.removeItem(k); } });
+            for(let i=0; i<localStorage.length; i++) { let k = localStorage.key(i); if(k && k.startsWith('zen-pb-')) { localStorage.setItem('grimoire-pb-' + k.replace('zen-pb-',''), localStorage.getItem(k)); localStorage.removeItem(k); } }
+        }
+
+        function loadState() { userName = localStorage.getItem('grimoire-name') || ""; level = parseInt(localStorage.getItem('grimoire-level')) || 1; totalXp = parseInt(localStorage.getItem('grimoire-total-xp')) || 0; }
+        function saveName() { const n = document.getElementById('user-name-input').value.trim(); if(n) { localStorage.setItem('grimoire-name', n); location.reload(); } }
+        function getXpReq(l) { return SYSTEM_CONFIG.baseXp + (l * SYSTEM_CONFIG.xpScaling); }
+
+        function updateLevelUI() {
+            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
+            document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('home-rank-letter').textContent = r; document.getElementById('user-level').textContent = `Level ${level} ▶`;
+            let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpReq(i); const currentXp = totalXp - xpInLevels; const threshold = getXpReq(level);
+            document.getElementById('xp-text').textContent = `${currentXp} / ${threshold} XP`; document.getElementById('xp-bar-fill').style.width = `${(currentXp/threshold)*100}%`;
+            localStorage.setItem('grimoire-level', level); localStorage.setItem('grimoire-total-xp', totalXp);
+        }
+
+        function toggleArsenal(group) {
+            const btn = document.getElementById(`btn-${group}`);
+            if(selectedGroups.includes(group)) { selectedGroups = selectedGroups.filter(g => g !== group); btn.style.borderColor = 'transparent'; btn.style.opacity = '0.6'; } 
+            else { selectedGroups.push(group); btn.style.borderColor = 'var(--iron)'; btn.style.opacity = '1'; }
+            document.getElementById('synthesis-bar').style.transform = selectedGroups.length > 0 ? 'translateY(0)' : 'translateY(200%)';
+        }
+
+        function setFilter(equip) {
+            currentFilter = equip;
+            ['All', 'bodyweight', 'barbell', 'dumbbell', 'machine', 'cable'].forEach(f => {
+                const el = document.getElementById(`flt-${f}`);
+                if(f === equip) { el.className = "pill bg-[#333333] text-[#F2EBDC] shrink-0"; } else { el.className = "pill shrink-0 border border-black/10"; }
+            });
+            renderBuilderList();
+        }
+
+        function openBuilder() { document.getElementById('selection-ui').classList.remove('hidden'); setFilter('All'); }
+        function closeBuilder() { document.getElementById('selection-ui').classList.add('hidden'); }
+
+        function renderBuilderList() {
+            const list = document.getElementById('exercise-list'); list.innerHTML = '';
+            let baseList = fullLibrary.filter(a => selectedGroups.includes(a.group));
+            const filtered = currentFilter === 'All' ? baseList : baseList.filter(a => a.equip === currentFilter);
+            filtered.forEach(art => {
+                const card = document.createElement('div'); card.className = "grimoire-card p-6 mb-4 flex justify-between items-center press-effect cursor-pointer";
+                if(selectedArts.some(s => s.en === art.en)) card.style.borderColor = 'var(--iron)';
+                card.onclick = () => {
+                    const idx = selectedArts.findIndex(s => s.en === art.en);
+                    if(idx > -1) { selectedArts.splice(idx, 1); card.style.borderColor = 'transparent'; } else { selectedArts.push(art); card.style.borderColor = 'var(--iron)'; }
+                };
+                card.innerHTML = `<div><p class="font-bold">${art.en}</p><p class="text-[8px] uppercase opacity-40">${art.equip}</p></div>`; list.appendChild(card);
+            });
+        }
+
+        function saveAndStartArc() {
+            if(selectedArts.length === 0) return;
+            const name = document.getElementById('arc-name-input').value || "New Expedition";
+            const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]");
+            arcs.push({ name, exercises: selectedArts }); localStorage.setItem('grimoire-arcs', JSON.stringify(arcs));
+            document.getElementById('arc-name-input').value = ""; document.getElementById('summary-arc-name').textContent = name;
+            startExpedition(selectedArts);
+        }
+
+        function startExpedition(arts) { activeExpedition = arts; currentIdx = 0; sessionLog = []; currentSessionTonnage = 0; currentSessionPRs = 0; document.getElementById('selection-ui').classList.add('hidden'); document.getElementById('home-screen').classList.add('hidden'); document.getElementById('workout-ui').classList.remove('hidden'); startGlobalClock(); resetTrial(); }
+
+        function resetTrial() {
+            currentTrial = 1; isWarmup = false; updateWarmupBtn(); const art = activeExpedition[currentIdx];
+            document.getElementById('ex-name').textContent = art.en; document.getElementById('ex-sub').textContent = `${art.group} • ${art.target}`;
+            document.getElementById('trial-counter').textContent = `Trial 1`; document.getElementById('trial-history').innerHTML = ''; document.getElementById('progress-text').textContent = `${currentIdx + 1} / ${activeExpedition.length}`;
+            const img = document.getElementById('active-character'); img.src = `${art.group.toLowerCase()}.png`; document.getElementById('target-muscle').textContent = art.target.toUpperCase();
+            
+            const pb = localStorage.getItem(`grimoire-pb-${art.en}`) || 0; document.getElementById('history-label').textContent = pb > 0 && art.type !== 'time' ? `BEST: ${pb}KG` : (art.type==='time' ? "TIME" : "NEW ART");
+            const echo = JSON.parse(localStorage.getItem(`grimoire-echo-${art.en}`) || "[]"); const setEcho = echo[0];
+            
+            if(art.type === 'time') {
+                document.getElementById('reps-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('flex'); resetStopwatch();
+                document.getElementById('echo-text').textContent = setEcho && setEcho.t ? `ECHO: ${setEcho.t}S` : "ECHO: NONE";
+            } else {
+                document.getElementById('reps-ui').classList.remove('hidden'); document.getElementById('time-ui').classList.add('hidden'); document.getElementById('time-ui').classList.remove('flex');
+                document.getElementById('echo-text').textContent = setEcho ? `ECHO: ${setEcho.w}KG x ${setEcho.r}` : "ECHO: NONE";
+                if(setEcho) { document.getElementById('weight-input').value = setEcho.w; document.getElementById('reps-input').value = setEcho.r; } else { document.getElementById('weight-input').value = ""; document.getElementById('reps-input').value = ""; }
+            }
+            document.getElementById('back-btn').style.display = currentIdx === 0 ? 'none' : 'flex';
+            document.getElementById('next-btn').textContent = currentIdx === activeExpedition.length - 1 ? 'Conclude' : 'Advance';
+            calculatePlates();
+        }
+
+        function toggleWarmup() { isWarmup = !isWarmup; updateWarmupBtn(); }
+        function updateWarmupBtn() { const b = document.getElementById('btn-warmup'); if(isWarmup) { b.textContent = "Warm-Up: ON"; b.className="pill bg-orange-100 text-orange-800 border border-orange-200"; } else { b.textContent = "Warm-Up: OFF"; b.className="pill border border-black/10"; } }
+
+        function toggleStopwatch() {
+            const btn = document.getElementById('btn-stopwatch');
+            if(isStopwatchRunning) { clearInterval(exStopwatchInterval); isStopwatchRunning = false; btn.textContent = "Start Timer"; btn.className = "flex-1 pill py-4 font-bold text-xs text-center border border-black/10"; document.getElementById('time-input').value = exStopwatchSeconds; } 
+            else { isStopwatchRunning = true; btn.textContent = "Stop"; btn.className = "flex-1 pill py-4 font-bold text-xs text-center bg-red-100 text-red-800"; exStopwatchInterval = setInterval(() => { exStopwatchSeconds++; document.getElementById('stopwatch-display').textContent = `${String(Math.floor(exStopwatchSeconds/60)).padStart(2,'0')}:${String(exStopwatchSeconds%60).padStart(2,'0')}`; document.getElementById('time-input').value = exStopwatchSeconds; }, 1000); }
+        }
+        function resetStopwatch() { clearInterval(exStopwatchInterval); isStopwatchRunning = false; exStopwatchSeconds = 0; document.getElementById('stopwatch-display').textContent = "00:00"; document.getElementById('time-input').value = 0; document.getElementById('btn-stopwatch').textContent = "Start Timer"; document.getElementById('btn-stopwatch').className = "flex-1 pill py-4 font-bold text-xs text-center border border-black/10"; }
+
+        function logSet() {
+            const art = activeExpedition[currentIdx]; let w = 0, r = 0, t = 0;
+            if(art.type === 'time') t = parseInt(document.getElementById('time-input').value) || 0; else { w = parseFloat(document.getElementById('weight-input').value) || 0; r = parseInt(document.getElementById('reps-input').value) || 0; }
+            
+            const row = document.createElement('div'); row.className = "flex justify-between items-center opacity-60 border-b border-black/5 pb-2";
+            if(isWarmup) {
+                row.innerHTML = `<span class="text-[9px] font-black uppercase text-orange-600">Warm-Up</span><span class="font-bold">${art.type==='time' ? t+'s' : w+'kg x '+r}</span>`;
+                sessionLog.push({ art: art.en, w, r, t, trial: "W" }); document.getElementById('trial-history').prepend(row); startTimer(60); return;
+            }
+            
+            if(art.type !== 'time') {
+                currentSessionTonnage += (w*r); const pb = parseFloat(localStorage.getItem(`grimoire-pb-${art.en}`)) || 0;
+                if(w > pb) { localStorage.setItem(`grimoire-pb-${art.en}`, w); document.getElementById('history-label').textContent = `BEST: ${w}KG`; currentSessionPRs++; triggerLimitBreak(w); }
+            }
+            
+            sessionLog.push({ art: art.en, w, r, t, trial: currentTrial });
+            row.innerHTML = `<span class="text-[9px] font-black uppercase">Trial ${currentTrial}</span><span class="font-bold">${art.type==='time' ? t+'s' : w+'kg x '+r}</span>`; document.getElementById('trial-history').prepend(row);
+            
+            awardXp(SYSTEM_CONFIG.xpPerSet); currentTrial++; document.getElementById('trial-counter').textContent = `Trial ${currentTrial}`; startTimer(60);
+            
+            // Update Echo display for next set
+            const echo = JSON.parse(localStorage.getItem(`grimoire-echo-${art.en}`) || "[]"); const nextEcho = echo[currentTrial - 1];
+            if(art.type === 'time') document.getElementById('echo-text').textContent = nextEcho && nextEcho.t ? `ECHO: ${nextEcho.t}S` : "ECHO: NONE";
+            else { document.getElementById('echo-text').textContent = nextEcho ? `ECHO: ${nextEcho.w}KG x ${nextEcho.r}` : "ECHO: NONE"; if(nextEcho) { document.getElementById('weight-input').value = nextEcho.w; document.getElementById('reps-input').value = nextEcho.r; calculatePlates();} }
+        }
+
+        function triggerLimitBreak(w) { const o = document.getElementById('limit-break-overlay'); document.getElementById('lb-record').textContent = w + " KG"; o.classList.add('active'); setTimeout(() => o.classList.remove('active'), 2500); }
+        async function awardXp(amt) { totalXp += amt; let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpReq(i); if((totalXp - xpInLevels) >= getXpReq(level)) { level++; await triggerCinematic("Level Up", `You are now Level ${level}`); } updateLevelUI(); }
+        function triggerCinematic(title, sub) { return new Promise(res => { const ov = document.getElementById('system-overlay'); document.getElementById('sys-title').textContent = title; document.getElementById('sys-subtitle').textContent = sub; ov.classList.add('active'); setTimeout(() => { ov.classList.remove('active'); res(); }, 3000); }); }
+
+        function nextArt() {
+            const currentExLogs = sessionLog.filter(l => l.art === activeExpedition[currentIdx].en && l.trial !== "W");
+            const echoData = currentExLogs.map(l => ({ w: l.w, r: l.r, t: l.t })); localStorage.setItem(`grimoire-echo-${activeExpedition[currentIdx].en}`, JSON.stringify(echoData));
+            if(currentIdx < activeExpedition.length - 1) { currentIdx++; resetTrial(); } else { concludeExpedition(); }
+        }
+        function prevArt() { if(currentIdx > 0) { currentIdx--; resetTrial(); } }
+
+        function concludeExpedition() {
+            clearInterval(globalInterval); skipTimer(); const timeStr = document.getElementById('global-clock').textContent;
+            const chronicles = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]");
+            chronicles.unshift({ date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short'}), arts: sessionLog, time: timeStr });
+            localStorage.setItem('grimoire-chronicles', JSON.stringify(chronicles));
+            document.getElementById('workout-ui').classList.add('hidden');
+            document.getElementById('summary-volume').textContent = currentSessionTonnage + " KG"; document.getElementById('summary-prs').textContent = currentSessionPRs; document.getElementById('summary-time').textContent = timeStr;
+            document.getElementById('summary-ui').classList.remove('hidden');
+        }
+        function closeSummary() { location.reload(); }
+
+        function retreatClick() { document.getElementById('ui-shield').classList.add('active'); document.getElementById('retreat-modal').classList.add('show'); }
+        function cancelRetreat() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('retreat-modal').classList.remove('show'); }
+        function confirmRetreat() { location.reload(); }
+
+        function openSwapModal() {
+            const currEx = activeExpedition[currentIdx]; const alts = fullLibrary.filter(a => a.group === currEx.group && a.en !== currEx.en);
+            const list = document.getElementById('swap-list');
+            list.innerHTML = alts.length ? alts.map(a => `<div onclick="executeSwap('${a.en}')" class="grimoire-card p-4 press-effect cursor-pointer flex justify-between items-center mb-2"><div><p class="font-bold">${a.en}</p><p class="text-[8px] opacity-40 uppercase">${a.equip}</p></div></div>`).join('') : '<p class="text-center text-[10px] opacity-40 py-4">No alternative arts.</p>';
+            document.getElementById('ui-shield').classList.add('active'); document.getElementById('swap-modal').classList.add('show');
+        }
+        function closeSwapModal() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('swap-modal').classList.remove('show'); }
+        function executeSwap(en) { const newArt = fullLibrary.find(a => a.en === en); if(newArt) { activeExpedition[currentIdx] = newArt; closeSwapModal(); resetTrial(); } }
+
+        function startGlobalClock() { globalSeconds = 0; globalInterval = setInterval(() => { globalSeconds++; document.getElementById('global-clock').textContent = `${String(Math.floor(globalSeconds/60)).padStart(2,'0')}:${String(globalSeconds%60).padStart(2,'0')}`; }, 1000); }
+        function startTimer(s) { clearInterval(timerInterval); let t = s; document.getElementById('timer-bar').classList.add('show'); document.getElementById('ui-shield').classList.add('active'); document.getElementById('timer-display').textContent = t; timerInterval = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if(t<=0) skipTimer(); }, 1000); }
+        function adjustTimer(s) { clearInterval(timerInterval); let t = s; document.getElementById('timer-display').textContent = t; timerInterval = setInterval(() => { t--; document.getElementById('timer-display').textContent = t; if(t<=0) skipTimer(); }, 1000); }
+        function skipTimer() { clearInterval(timerInterval); document.getElementById('timer-bar').classList.remove('show'); document.getElementById('ui-shield').classList.remove('active'); }
+
+        function calculatePlates() {
+            const ui = document.getElementById('plate-math-ui'); const display = document.getElementById('plate-display'); const art = activeExpedition[currentIdx];
+            if(art.equip !== 'barbell' || art.type === 'time') { ui.classList.add('hidden'); ui.classList.remove('flex'); return; }
+            ui.classList.remove('hidden'); ui.classList.add('flex');
+            const total = parseFloat(document.getElementById('weight-input').value) || 0; const bar = BAR_WEIGHTS[barWeightIdx];
+            if(total <= bar) { display.innerHTML = '<span class="text-[9px] font-black opacity-40 uppercase">Bar Only</span>'; return; }
+            let perSide = (total - bar) / 2; const plates = [20, 10, 5, 2.5, 1.25]; let load = [];
+            for(let p of plates) { while(perSide >= p) { load.push(p); perSide -= p; perSide = Math.round(perSide*100)/100; } }
+            display.innerHTML = load.map(p => `<span class="px-2 py-1 bg-black text-white rounded text-[8px] font-bold">${p}</span>`).join('');
+        }
+        function cycleBar() { barWeightIdx = (barWeightIdx + 1) % BAR_WEIGHTS.length; document.getElementById('bar-weight').textContent = `Bar: ${BAR_WEIGHTS[barWeightIdx]}kg`; calculatePlates(); }
+
+        function openProfile() { const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E'; document.getElementById('profile-name').textContent = userName; document.getElementById('profile-rank').textContent = `Rank ${r} • ${RANKS[r].title}`; document.getElementById('profile-sub').textContent = RANKS[r].sub; document.getElementById('profile-level-txt').textContent = `Level ${level}`; document.getElementById('profile-window').classList.remove('hidden'); const ch = JSON.parse(localStorage.getItem('grimoire-chronicles') || "[]"); document.getElementById('stat-quests').textContent = ch.length; let vol = 0; ch.forEach(c => c.arts.forEach(a => vol += (a.w * a.r || 0))); document.getElementById('stat-volume').textContent = vol > 1000 ? (vol/1000).toFixed(1) + 'k' : vol; updateLevelUI(); }
+        function closeProfile() { document.getElementById('profile-window').classList.add('hidden'); }
+        function renderExpeditions() { const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); const list = document.getElementById('expedition-list'); list.innerHTML = arcs.length ? '' : '<p class="text-center text-[10px] opacity-30 uppercase py-10">No expeditions drafted.</p>'; arcs.forEach((a, i) => { const card = document.createElement('div'); card.className = "grimoire-card p-6 flex justify-between items-center"; card.innerHTML = `<div><p class="font-bold uppercase tracking-tighter">${a.name}</p><p class="text-[8px] opacity-40 uppercase">${a.exercises.length} Arts</p></div><div onclick="startExpeditionFromHome(${i})" class="pill bg-black text-white">Commence</div>`; list.appendChild(card); }); }
+        function startExpeditionFromHome(i) { const arcs = JSON.parse(localStorage.getItem('grimoire-arcs') || "[]"); document.getElementById('summary-arc-name').textContent = arcs[i].name; startExpedition(arcs[i].exercises); }
+        function resetApp() { if(confirm("Burn the Grimoire? All records will be lost.")) { localStorage.clear(); location.reload(); } }
+
+        document.addEventListener('touchstart', e => e.target.closest('.press-effect')?.classList.add('is-pressed'), {passive: true}); document.addEventListener('touchend', e => e.target.closest('.press-effect')?.classList.remove('is-pressed'), {passive: true});
+    </script>
+</body>
+</html>
