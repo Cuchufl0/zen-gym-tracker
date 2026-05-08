@@ -438,7 +438,47 @@
         function openSwapModal() { const currEx = activeSession[currentIdx]; const alternatives = fullLibrary.filter(ex => ex.group === currEx.group && ex.en !== currEx.en); const list = document.getElementById('swap-list'); if(alternatives.length === 0) { list.innerHTML = `<p class="text-center text-[10px] font-bold text-gray-400 uppercase mt-4">No alternative arts.</p>`; } else { list.innerHTML = alternatives.map(ex => `<div onclick="executeSwap('${ex.en}')" class="bento-card p-4 press-effect cursor-pointer flex justify-between items-center"><div><p class="font-bold text-gray-800 text-sm tracking-tight">${ex.en}</p><p class="text-[8px] text-gray-400 font-black uppercase tracking-widest mt-1">${ex.target} • ${ex.equip}</p></div><span class="text-[10px] font-black uppercase tracking-widest text-gray-300">Select</span></div>`).join(''); } document.getElementById('ui-shield').classList.add('active'); document.getElementById('swap-modal').classList.add('show'); }
         function closeSwapModal() { document.getElementById('ui-shield').classList.remove('active'); document.getElementById('swap-modal').classList.remove('show'); }
         function executeSwap(newExEn) { const newEx = fullLibrary.find(ex => ex.en === newExEn); if(newEx) { saveShadowData(); activeSession[currentIdx] = newEx; closeSwapModal(); resetForNewExercise(); saveWorkoutState(); } }
+function openProfile() {
+            // Calculate Rank Tier
+            const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E';
+            
+            // Populate Identity
+            document.getElementById('profile-name').textContent = localStorage.getItem('zen-name') || "Warrior";
+            document.getElementById('profile-rank').textContent = RANKS[r].title;
+            document.getElementById('profile-subtitle').textContent = RANKS[r].sub;
+            document.getElementById('profile-avatar').src = `rank-${r.toLowerCase()}.png`; // Maps to rank-e.png, rank-d.png, etc.
+            
+            // Populate XP Math
+            let xpInLevels = 0; 
+            for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); 
+            const currentLevelXp = totalXp - xpInLevels; 
+            const threshold = getXpRequired(level);
+            
+            document.getElementById('profile-level').textContent = `Level ${level}`;
+            document.getElementById('profile-xp').textContent = `${currentLevelXp} / ${threshold} XP`;
+            document.getElementById('profile-xp-bar').style.width = `${Math.min((currentLevelXp / threshold) * 100, 100)}%`;
+            
+            // Populate Lifetime Data
+            const chronicles = JSON.parse(localStorage.getItem('zen-chronicles') || "[]");
+            document.getElementById('profile-stat-quests').textContent = chronicles.length;
+            
+            let lifetimeVolume = 0;
+            chronicles.forEach(c => {
+                if (c.details) {
+                    c.details.forEach(set => {
+                        if (set.weight && set.reps) lifetimeVolume += (set.weight * set.reps);
+                    });
+                }
+            });
+            // Format large numbers (e.g., 14,500kg -> 14.5k)
+            document.getElementById('profile-stat-volume').textContent = lifetimeVolume > 1000 ? (lifetimeVolume/1000).toFixed(1) + 'k' : lifetimeVolume;
 
+            document.getElementById('profile-window').classList.remove('hidden');
+        }
+
+        function closeProfile() {
+            document.getElementById('profile-window').classList.add('hidden');
+        }
         function getXpRequired(lvl) { return SYSTEM_CONFIG.baseXp + (lvl * SYSTEM_CONFIG.xpScaling); }
         function updateLevelUI() { const r = level >= 50 ? 'S' : level >= 40 ? 'A' : level >= 30 ? 'B' : level >= 20 ? 'C' : level >= 10 ? 'D' : 'E'; document.getElementById('user-rank-title').textContent = RANKS[r].title; document.getElementById('user-level').textContent = `Level ${level}`; let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); const currentLevelXp = totalXp - xpInLevels; const threshold = getXpRequired(level); document.getElementById('xp-text').textContent = `${currentLevelXp} / ${threshold} XP`; document.getElementById('xp-bar-fill').style.width = `${Math.min((currentLevelXp / threshold) * 100, 100)}%`; }
         async function awardXP(amt) { totalXp += amt; localStorage.setItem('zen-total-xp', totalXp); playSystemSound('xp'); let xpInLevels = 0; for(let i=1; i<level; i++) xpInLevels += getXpRequired(i); if ((totalXp - xpInLevels) >= getXpRequired(level)) { level++; localStorage.setItem('zen-level', level); await triggerCinematic('level', level); } updateLevelUI(); }
