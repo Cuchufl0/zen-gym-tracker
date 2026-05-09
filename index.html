@@ -20,7 +20,7 @@
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; caret-color: transparent !important; }
         *::-webkit-scrollbar { display: none !important; width: 0 !important; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
-        html, body { overscroll-behavior: none !important; touch-action: pan-y; height: 100%; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
+        html, body { overscroll-behavior: none !important; touch-action: pan-y; height: 100dvh; overflow: hidden; background-color: #fcfcfc; color: #1a1a1a; font-family: 'Inter', sans-serif; }
         input { -webkit-user-select: auto !important; user-select: auto !important; caret-color: #1a1a1a !important; text-align: center; }
         
         .scroll-container { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding: 0 4px; }
@@ -69,24 +69,7 @@
         .selection-circle.active { background: #1a1a1a; border-color: #1a1a1a; color: white !important; transform: scale(1.1); }
         .chronicle-card { padding: 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; cursor: pointer; }
         
-        /* FIX: Removed fixed height, added padding for Safe Area */
-        #timer-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            background: #1a1a1a; 
-            color: white; 
-            padding: 40px 20px calc(40px + env(safe-area-inset-bottom)); 
-            transform: translateY(100%); 
-            transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-            z-index: 9999; 
-            border-radius: 44px 44px 0 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-        }
+        #timer-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 320px; background: #1a1a1a; color: white; padding: 40px 20px; transform: translateY(100%); transition: 0.6s; z-index: 9999; border-radius: 44px 44px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #timer-bar.show { transform: translateY(0); }
         
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -95,13 +78,13 @@
         .timeline-node::before { content: ''; position: absolute; left: -19px; top: 24px; width: 10px; height: 10px; background: #1a1a1a; border-radius: 50%; border: 2px solid white; z-index: 10; }
     </style>
 </head>
-<body class="pt-8 px-6 pb-0">
+<body class="p-6">
 
     <div id="limit-break-overlay"><h1 class="text-4xl font-[900] tracking-tighter uppercase italic mb-2">Limit Break</h1><p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">New Peak Reached</p><p id="lb-record" class="text-2xl font-bold mt-6">---</p></div>
     <div id="system-overlay"><div id="sys-line-1" class="system-text text-gray-400 font-light tracking-[0.3em] uppercase text-[10px]"></div><div id="sys-line-2" class="system-text text-white font-bold tracking-tighter text-3xl"></div><div id="sys-line-3" class="system-text text-gray-400 italic text-sm mt-4"></div></div>
     <div id="ui-shield"></div>
 
-    <div id="summary-ui" class="fixed inset-0 bg-[#1a1a1a] z-[150] pt-10 px-6 pb-0 hidden flex flex-col items-center justify-center text-white">
+    <div id="summary-ui" class="fixed inset-0 bg-[#1a1a1a] z-[150] p-6 hidden flex flex-col items-center justify-center text-white">
         <h1 class="text-5xl font-[900] tracking-tighter uppercase italic mb-2 text-white text-center">Quest Cleared</h1>
         <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mb-12 text-center" id="summary-arc-name">---</p>
         <div class="w-full max-w-sm flex flex-col gap-4 mb-12">
@@ -110,16 +93,16 @@
             <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Records Broken</span><span class="text-2xl font-bold text-[#ffbe0b]" id="summary-prs">0</span></div>
             <div class="bg-white/10 rounded-[32px] p-6 flex justify-between items-center w-full"><span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Time Elapsed</span><span class="text-2xl font-bold text-gray-300" id="summary-time">00:00</span></div>
         </div>
-        <div onclick="closeSummary()" class="bg-white text-black rounded-[24px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer mb-[calc(20px+env(safe-area-inset-bottom))]">Return to Sanctuary</div>
+        <div onclick="closeSummary()" class="bg-white text-black rounded-[24px] w-full max-w-sm font-bold text-center py-5 uppercase tracking-widest text-[10px] press-effect cursor-pointer">Return to Sanctuary</div>
     </div>
 
     <div id="retreat-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Abandon Quest?</h2><div onclick="cancelRetreat()" class="zen-button mb-4 press-effect mt-8">Stay the Path</div><div onclick="confirmRetreat()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Abandon</div></div>
     <div id="purge-modal"><h2 class="text-2xl font-extrabold tracking-tighter mb-2 uppercase text-center text-gray-800">Purge Arc?</h2><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-10 text-center leading-relaxed">The System will permanently delete these coordinates.</p><div onclick="cancelPurge()" class="zen-button mb-4 press-effect">Cancel</div><div onclick="executePurge()" class="text-[9px] font-black uppercase tracking-[0.3em] text-red-400 py-4 cursor-pointer text-center">Purge</div></div>
     <div id="swap-modal"><div class="flex justify-between items-center mb-6 shrink-0"><h2 class="text-xl font-extrabold tracking-tighter text-gray-800 uppercase">Swap Art</h2><div onclick="closeSwapModal()" class="pill cursor-pointer">Close</div></div><div id="swap-list" class="overflow-y-auto flex-1 pr-2 space-y-3"></div></div>
 
-    <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] pt-10 px-6 pb-0 hidden flex flex-col">
+    <div id="analytics-window" class="fixed inset-0 bg-[#fcfcfc] z-[60] p-6 hidden flex flex-col">
         <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0"><h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Analytics</h2><div onclick="closeAnalytics()" class="pill cursor-pointer press-effect">Close</div></header>
-        <div class="scroll-container pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <div class="scroll-container pb-10">
             <div class="flex gap-4 mb-8 px-2"><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-workouts">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Workouts</p></div><div class="bento-card p-6 flex-1 text-center"><p class="text-4xl font-black text-gray-800 tracking-tighter" id="stat-sets">0</p><p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mt-2">Total Sets</p></div></div>
             <div class="px-2 mb-8"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Personal Records</h3><div id="pb-list" class="horizontal-scroll pb-2"></div></div>
             <div class="px-2"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Combat History</h3><div id="analytics-timeline" class="border-l-2 border-gray-200 ml-2 pl-4 space-y-6"></div></div>
@@ -135,13 +118,13 @@
         </div>
     </div>
 
-    <div id="profile-window" class="fixed inset-0 bg-[#fcfcfc] z-[70] pt-10 px-6 pb-0 hidden flex flex-col">
+    <div id="profile-window" class="fixed inset-0 bg-[#fcfcfc] z-[70] p-6 hidden flex flex-col">
         <header class="mb-8 flex justify-between items-center pt-8 px-2 shrink-0">
             <h2 class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Status</h2>
             <div onclick="closeProfile()" class="pill bg-gray-100 text-gray-500 cursor-pointer press-effect">Close</div>
         </header>
         
-        <div class="flex-1 flex flex-col items-center pt-2 overflow-y-auto pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <div class="flex-1 flex flex-col items-center pt-2 overflow-y-auto pb-10">
             <div class="w-full max-w-[280px] h-[360px] bg-gray-50 rounded-[40px] border border-gray-100 flex items-center justify-center mb-8 overflow-hidden relative">
                 <img id="profile-avatar" src="rank-e.png" class="w-full h-full object-cover object-top mix-blend-multiply scale-[1.15]" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjwvc3ZnPg==';">
             </div>
@@ -204,7 +187,7 @@
             <p id="flavor-quote" class="text-[10px] text-gray-400 mt-6 font-medium italic opacity-70 px-2">---</p>
         </div>
 
-        <div class="scroll-container pb-[calc(140px+env(safe-area-inset-bottom))]">
+        <div class="scroll-container pb-32">
             <div class="mb-10 px-2"><h3 class="text-[9px] font-black mb-4 text-gray-800 uppercase tracking-[0.4em]">Training Arcs</h3><div id="training-arcs-list" class="grid grid-cols-1 gap-4"></div></div>
             <h3 class="text-[9px] font-black mb-6 text-gray-800 uppercase tracking-[0.4em] px-2 text-center">Draft New Routine</h3>
             <div class="grid grid-cols-2 gap-4 px-2 mb-12">
@@ -218,7 +201,7 @@
         </div>
     </div>
 
-    <div id="selection-ui" class="fixed inset-0 bg-white z-40 pt-10 px-6 pb-0 hidden flex flex-col">
+    <div id="selection-ui" class="fixed inset-0 bg-white z-40 p-6 hidden flex flex-col">
         <header class="mb-4 flex justify-between items-center pt-6 px-2 shrink-0">
             <h2 id="selection-title" class="text-3xl font-extrabold text-gray-800 tracking-tighter uppercase">Arc Builder</h2>
             <div onclick="closeSelectionUI()" class="pill cursor-pointer">Close</div>
@@ -236,14 +219,14 @@
         <div id="exercise-list" class="scroll-container mb-2 border-b border-gray-100"></div>
         <div id="selected-order-list" class="shrink-0 max-h-32 overflow-y-auto mb-2 space-y-2 px-1"></div>
 
-        <div class="shrink-0 pt-2 pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <div class="shrink-0 pt-2">
             <input type="text" id="arc-name-input" placeholder="Routine Name" class="w-full text-center py-4 mb-4 border-b-2 border-gray-200 text-lg font-bold text-gray-800 uppercase tracking-widest focus:outline-none">
             <div onclick="saveAndStartArc()" id="btn-save-arc" class="zen-button press-effect italic mb-3">Save & Invoke</div>
             <div onclick="startSelectedOnly()" id="btn-quick-start" class="secondary-button press-effect text-[10px] text-gray-500">Quick Start (No Save)</div>
         </div>
     </div>
 
-    <div id="workout-ui" class="fixed inset-0 bg-white z-50 pt-10 px-6 pb-0 hidden flex flex-col">
+    <div id="workout-ui" class="fixed inset-0 bg-white z-50 p-6 hidden flex flex-col">
         <div class="flex justify-between items-center mb-6 pt-8 px-2 shrink-0">
             <div onclick="retreatClick()" class="pill bg-red-50 text-red-500 cursor-pointer press-effect">Retreat</div>
             <div class="flex flex-col items-center">
@@ -301,8 +284,7 @@
             <div onclick="logSet()" class="zen-button mb-10 press-effect shadow-lg" role="button">Unleash</div>
             <div id="set-history" class="mb-4 w-full"><h4 class="text-[9px] font-black uppercase text-gray-400 tracking-[0.3em] mb-4 text-center">Record of Forms</h4><div id="history-list" class="w-full"></div></div>
         </div>
-        
-        <div class="mt-auto pt-4 flex gap-4 w-full shrink-0 border-t border-gray-100 bg-white pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <div class="mt-auto pt-4 flex gap-4 w-full shrink-0 border-t border-gray-100 bg-white pb-2">
             <div id="back-btn" onclick="prevExercise()" style="visibility: hidden;" class="flex-1 py-5 rounded-[24px] bg-gray-50 font-bold text-gray-500 text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer">Back</div>
             <div id="progress-text" class="flex-1 py-5 font-black text-gray-300 text-[10px] uppercase tracking-[0.2em] text-center flex items-center justify-center">1/4</div>
             <div id="next-btn" onclick="nextExercise()" class="flex-1 py-5 rounded-[24px] bg-[#1a1a1a] text-white font-bold text-[10px] uppercase tracking-widest text-center press-effect flex items-center justify-center cursor-pointer shadow-md">Advance</div>
