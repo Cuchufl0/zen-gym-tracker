@@ -376,29 +376,7 @@
         function confirmRetreat() { stopGlobalClock(); skipTimer(); cancelRetreat(); localStorage.removeItem('zen-active-workout'); document.getElementById('workout-ui').classList.add('hidden'); document.getElementById('home-screen').classList.remove('hidden'); updateFlavor(); resetPreparation(); updateLevelUI(); }
         
         function updateFlavor() { const h = new Date().getHours(); document.getElementById('time-greeting').textContent = `Timeline: ${h < 12 ? "Dawn" : h < 18 ? "Solar" : "Twilight"}`; const quotes = ["Keep moving forward.", "Arise.", "The journey is what matters.", "I have no enemies..."]; if(document.getElementById('flavor-quote')) { document.getElementById('flavor-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)]; } }
-        function updateUI() { 
-            const ex = activeSession[currentIdx]; 
-            document.getElementById('ex-name-en').textContent = ex.en; 
-            document.getElementById('ex-name-es').textContent = ex.es; 
-            document.getElementById('progress-text').textContent = `${currentIdx + 1}/${activeSession.length}`; 
-            
-            const validGroups = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core']; 
-            const imgName = validGroups.includes(ex.group) ? ex.group.toLowerCase() + '.png' : 'default.png'; 
-            document.getElementById('active-character').src = imgName; 
-            
-            const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; 
-            document.getElementById('history-label').textContent = currentPB > 0 && ex.type !== 'time' ? `PB: ${currentPB}kg` : (ex.type === 'time' ? "Time" : "New Art"); 
-            
-            // The dynamic colored glow has been permanently deleted from here.
-            
-            // Idea B implemented: Displays MACRO • MICRO (e.g., "BACK • LATS")
-            const targetEl = document.getElementById('target-muscle'); 
-            if (targetEl) targetEl.textContent = `${ex.group} • ${ex.target || "TECHNIQUE"}`.toUpperCase(); 
-            
-            const backBtn = document.getElementById('back-btn'); 
-            if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; } 
-            document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance'; 
-        }
+        function updateUI() { const ex = activeSession[currentIdx]; document.getElementById('ex-name-en').textContent = ex.en; document.getElementById('ex-name-es').textContent = ex.es; document.getElementById('progress-text').textContent = `${currentIdx + 1}/${activeSession.length}`; const validGroups = ['Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core']; const imgName = validGroups.includes(ex.group) ? ex.group.toLowerCase() + '.png' : 'default.png'; document.getElementById('active-character').src = imgName; const currentPB = parseFloat(localStorage.getItem('zen-pb-' + ex.en)) || 0; document.getElementById('history-label').textContent = currentPB > 0 && ex.type !== 'time' ? `PB: ${currentPB}kg` : (ex.type === 'time' ? "Time" : "New Art"); document.getElementById('spirit-aura').style.backgroundColor = AURA_COLORS[ex.group] || '#1a1a1a'; const targetEl = document.getElementById('target-muscle'); if (targetEl) targetEl.textContent = (ex.target || "TECHNIQUE").toUpperCase(); const backBtn = document.getElementById('back-btn'); if(currentIdx === 0) { backBtn.style.visibility = 'hidden'; } else { backBtn.style.visibility = 'visible'; } document.getElementById('next-btn').textContent = currentIdx === activeSession.length - 1 ? 'Conclude' : 'Advance'; }
         function saveName() { const n = document.getElementById('user-name-input').value; if(n) { localStorage.setItem('zen-name', n); document.getElementById('onboarding').classList.add('hidden'); document.getElementById('display-name').textContent = n; document.getElementById('home-screen').classList.remove('hidden'); updateLevelUI(); renderArcs(); } }
         function resetApp() { if(confirm("Abandon legacy? This is permanent.")) { localStorage.clear(); window.location.replace(window.location.pathname + '?reset=' + new Date().getTime()); } }
         document.addEventListener('touchstart', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.add('is-pressed'); }, {passive: true}); document.addEventListener('touchend', (e) => { const el = e.target.closest('.press-effect'); if (el) el.classList.remove('is-pressed'); }, {passive: true});
